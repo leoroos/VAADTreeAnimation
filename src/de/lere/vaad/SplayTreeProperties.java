@@ -1,5 +1,7 @@
 package de.lere.vaad;
 
+import algoanim.primitives.Primitive;
+
 /**
  * Container class that contains the configuration for the SplayTree. <br>
  * The properties all have a default value set and should if at all only be
@@ -14,6 +16,7 @@ public class SplayTreeProperties {
 
 	int textFontSize = 12;
 	
+	public int verticalTextGap = 5;
 	
 	/**
 	 * The vertical height of the text including a vertical gap to the next line of text  
@@ -25,4 +28,6 @@ public class SplayTreeProperties {
 	 * (factor is merely guessed) and can not be used to adjust the gap in a {@code SourceCode} object.  
 	 */
 	int sourceVerticalHeight = (int) (1.5 * textFontSize);
+
+	
 }

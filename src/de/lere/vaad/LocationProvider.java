@@ -1,9 +1,9 @@
 package de.lere.vaad;
 
-import algoanim.util.Node;
+import algoanim.util.Offset;
 
 public interface LocationProvider {
 	
-	Node getLocation();
+	Offset getLocation();
 
 }

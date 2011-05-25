@@ -1,6 +1,5 @@
 package de.lere.vaad;
 
-import generators.helpers.OffsetCoords;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -23,7 +22,7 @@ import algoanim.properties.AnimationPropertiesKeys;
 import algoanim.properties.SourceCodeProperties;
 import algoanim.properties.TextProperties;
 import algoanim.util.Coordinates;
-import algoanim.util.Node;
+import algoanim.util.Offset;
 
 public class SplayTreeAnimation implements LocationDirectorProvider {
 
@@ -181,6 +180,7 @@ public class SplayTreeAnimation implements LocationDirectorProvider {
 		//
 		// Description of Behavior for Access Operations
 		//
+		nextStateOnLocation("", Location.Microstep);
 		nextStateOnLocation("", Location.DescriptionBeginning);
 		String accessBehaviourMacroDescription = "Verhalten bei zugreifenden Operationen	\n" + 
 				"Suche:\n" + 
@@ -311,21 +311,21 @@ public class SplayTreeAnimation implements LocationDirectorProvider {
 		return sc;
 	}
 
-	private Group createTextGroup(String text, Node location) {
+	private Group createTextGroup(String text, Offset location) {
 		List<String> stringToLinesAtDelimiter = StringHelper
 				.getStringToLinesAtDelimiter(text);
 		return createTextGroup(stringToLinesAtDelimiter, location);
 	}
 
-	private Group createTextGroup(List<String> readLines, Node anchor) {
-		Node nextTextPos = anchor;
+	private Group createTextGroup(List<String> readLines, Offset anchor) {
+		Offset nextTextPos = anchor;
 		int groupId = runninggroupidentifier++;
 		LinkedList<Primitive> texts = new LinkedList<Primitive>();
 		for (int i = 0; i < readLines.size(); i++) {
 			Text text = language.newText(nextTextPos, readLines.get(i), groupId
 					+ "id" + i, null);
-			nextTextPos = new OffsetCoords(nextTextPos, 0,
-					splayProps.textVerticalHeight);
+			nextTextPos = new Offset(0,
+					splayProps.verticalTextGap, text,"SW");
 			texts.add(text);
 		}
 		Group introGroup = language.newGroup(texts, "group" + groupId);
@@ -339,28 +339,43 @@ public class SplayTreeAnimation implements LocationDirectorProvider {
 	}
 
 	private void initializeLocationDirectors() {
-		Coordinates headerPos = new Coordinates(10, 10);
-		addDirector(DIRECTOR_HEADER, new AnimationLocationDirector(headerPos));
-
-		OffsetCoords beginDescriptionLoc = new OffsetCoords(headerPos, 30,
-				2 * splayProps.textVerticalHeight);
+		Coordinates headerPosCoord = new Coordinates(10, 10);
+		Text headerDummyPrimitive = language.newText(headerPosCoord, "12345678890", "headerDummyText", null);
+		headerDummyPrimitive.hide();
+		addDirector(DIRECTOR_HEADER, new AnimationLocationDirector(new Offset(0, 0, headerDummyPrimitive, AnimalScript.DIRECTION_NW)));
+		
+		
+		Offset beginDescriptionLoc = new Offset(30, 2 * splayProps.textVerticalHeight, headerDummyPrimitive, AnimalScript.DIRECTION_SE);
 		addDirector(DIRECTOR_DESCRIPTION_BEGINNING,
 				new AnimationLocationDirector(beginDescriptionLoc));
+		SourceCode code = this.getSourceCodeDummy(beginDescriptionLoc);
+		
 
-		OffsetCoords macroStepLocation = new OffsetCoords(beginDescriptionLoc,
-				0, 5 * splayProps.textVerticalHeight);
+		Offset macroStepLocation = new Offset(0, 10, code, AnimalScript.DIRECTION_SW);
+	
 		addDirector(DIRECTOR_MACROSTEP, new AnimationLocationDirector(
 				macroStepLocation));
 
-		OffsetCoords microStepLocation = new OffsetCoords(macroStepLocation, 0,
-				4 * splayProps.textVerticalHeight);
+		Group macroStepGroup = createTextGroup(" \n \n \n \n", macroStepLocation);		
+		
+		Offset microStepLocation = new Offset(0, 5, macroStepGroup, AnimalScript.DIRECTION_SW);
+
 		addDirector(DIRECTOR_MICROSTEP, new AnimationLocationDirector(
 				microStepLocation));
 
 		Coordinates graphroot = new Coordinates(250, 300);
 		addDirector(DIRECTOR_GRAPHROOT,
-				new AnimationLocationDirector(graphroot));
+				new AnimationLocationDirector(CorrectedOffset.getOffsetForCoordinate(graphroot)));
 
+	}
+
+	private SourceCode getSourceCodeDummy(Offset node) {
+		SourceCodeProperties scProps = new SourceCodeProperties();
+		SourceCode sc = language.newSourceCode(node,
+				"algorithmOperations", null, scProps);
+		String codeGroupText = " \n \n \n";
+		sc = getFilledSourceCode(codeGroupText, sc);
+		return sc;
 	}
 
 	private void loadTexts() throws IOException {

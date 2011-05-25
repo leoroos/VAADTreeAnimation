@@ -1,13 +1,13 @@
 package de.lere.vaad;
 
-import algoanim.util.Node;
+import algoanim.util.Offset;
 
 public class AnimationLocationDirector implements LocationDirector {
 
-	private final Node location;
+	private final Offset location;
 	Action currentstate;
 
-	public AnimationLocationDirector(Node myPos) {
+	public AnimationLocationDirector(Offset myPos) {
 		this.location = myPos;
 	}
 
@@ -19,7 +19,7 @@ public class AnimationLocationDirector implements LocationDirector {
 		this.currentstate = s;
 	}
 
-	public Node getLocation() {
+	public Offset getLocation() {
 		return location;
 	}
 
