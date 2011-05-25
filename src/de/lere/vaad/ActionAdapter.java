@@ -7,7 +7,7 @@ import algoanim.primitives.Primitive;
 
 /**
  * Provides a default implementation for {@link #deactivate()} and a method to
- * add multiple objects to a set which should be hided.
+ * add multiple objects to a set which should be hidden.
  * 
  * @author leo
  * 

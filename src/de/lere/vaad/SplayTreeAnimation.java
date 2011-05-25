@@ -43,7 +43,6 @@ public class SplayTreeAnimation implements LocationDirectorProvider {
 		private Location(String director) {
 			this.DIRECTOR_NAME = director;
 		}
-
 	}
 
 	private static final String AUTHORS = "Rene Hertling, Leo Roos";
@@ -108,6 +107,10 @@ public class SplayTreeAnimation implements LocationDirectorProvider {
 	private void buildAnimation() throws IOException {
 		init();
 
+		//
+		// Intro
+		//
+		
 		nextStateOnLocation(actionHeaderText(), Location.Header);
 
 		nextStateOnLocation(ResourceAccessor.INTRO.getText(),
@@ -124,6 +127,19 @@ public class SplayTreeAnimation implements LocationDirectorProvider {
 				Location.DescriptionBeginning);
 
 		language.nextStep();
+		
+		//
+		// Zig-Step
+		//
+		String actionZigMacroDescription = "Wenn p die Wurzel ist wird der Zig-Step ausgeführt. \n" + 
+				"Dieser Schritt wird nur ausgeführt wenn der Baum eine\n" + 
+				"ungerade Knotenanzahl hat und es sich um die letzte\n" + 
+				"Splay-Operation einer Transformation handelt.";
+		nextStateOnLocation(actionZigMacroDescription, Location.Macrostep);
+		
+		language.nextStep();
+		
+		nextStateOnLocation("Führe Rechtsrotation um p aus.", Location.Macrostep);
 
 		//
 		// ZigZig-Step
@@ -148,6 +164,53 @@ public class SplayTreeAnimation implements LocationDirectorProvider {
 		//
 		// ZigZag-Step
 		//
+		String actionZigzagMacroDescription = "Befindet sich p links von g und x rechts von p, bzw.\n" + 
+				"p rechts von g und x links von p, wird ein Zig-zag Schritt ausgeführt.\n"; 				
+		nextStateOnLocation(actionZigzagMacroDescription ,Location.Macrostep);
+		
+		language.nextStep();
+		
+		nextStateOnLocation("Führe Linksrotation um p aus.", Location.Microstep);
+		
+		language.nextStep();
+		
+		nextStateOnLocation("Führe Rechtsrotation um g aus.", Location.Microstep);
+		
+		language.nextStep();
+		
+		//
+		// Description of Behavior for Access Operations
+		//
+		nextStateOnLocation("", Location.DescriptionBeginning);
+		String accessBehaviourMacroDescription = "Verhalten bei zugreifenden Operationen	\n" + 
+				"Suche:\n" + 
+				"Wird ein Knoten gesucht, wird auf diesem eine Splay Operation ausgeführt.\n" + 
+				"Einfügen:\n" + 
+				"Beim Einfügen wird der Knoten wie in einen Binärbaum hinzugefügt und\n" + 
+				"anschließend der eingefügte Knoten zur Wurzel gesplayed\n" + 
+				"Löschen:\n" + 
+				"Beim Löschen wird der zu löschende Knoten wie in einem Binärbaum gelöscht\n" + 
+				"und sein Parent zur Wurzel gesplayed.";
+		nextStateOnLocation(accessBehaviourMacroDescription, Location.Macrostep);
+		
+		language.nextStep();
+		//
+		// Showcase the operations
+		//
+		String showcaseMacroDescription = "Beispielhafte Darstellung der beschriebenen Operationen.";
+		nextStateOnLocation(showcaseMacroDescription, Location.Macrostep);
+		
+		nextStateOnLocation("Suche nach einen Schlüssel $$", Location.Microstep);
+		
+		language.nextStep();
+		
+		nextStateOnLocation("Einfügen des Schlüssels $$", Location.Microstep);
+		
+		language.nextStep();
+		
+		nextStateOnLocation("Löschen eines Schlüssels $$", Location.Microstep);
+		
+		language.nextStep();
 	}
 
 	/**
