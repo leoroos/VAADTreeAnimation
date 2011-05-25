@@ -1,0 +1,15 @@
+Ein Splay-Baum ist ein selbstregulierender binärer Suchbaum,
+mit der zusätzlichen Eigenschaft,
+dass auf kürzlich zugegriffene Elemente
+schnell wieder zugegriffen werden kann.
+
+Basisoperationen wie Einfügen, Suchen und Entfernen
+geschehen in armortisierter  O(log n) Zeit.
+Splay-Bäume arbeiten für viele Operationsfolgen besser
+als andere Suchbäume, auch dann,
+wenn die spezielle Abfolge der Operationen nicht bekannt ist.
+
+Der Splay-Baum wurde von Daniel Dominic Sleator
+und Robert Endre Tarjan im Jahr 1985 entwickelt.
+
+Quellen: http://en.wikipedia.org/wiki/Splay_tree, http://de.wikipedia.org/wiki/Splay-Baum

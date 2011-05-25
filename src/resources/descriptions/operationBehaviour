@@ -1,0 +1,10 @@
+Verhalten bei zugreifenden Operationen
+
+Suche:
+Wird ein Knoten gesucht, wird auf diesem eine Splay Operation ausgeführt.
+Einfügen:
+Beim Einfügen wird der Knoten wie in einen Binärbaum hinzugefügt und
+anschließend der eingefügte Knoten zur Wurzel gesplayed.
+Löschen:
+Beim Löschen wird der zu löschende Knoten wie in einem Binärbaum gelöscht
+und sein Parent zur Wurzel gesplayed.
