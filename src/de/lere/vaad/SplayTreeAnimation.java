@@ -226,7 +226,7 @@ public class SplayTreeAnimation implements LocationDirectorProvider {
 	/**
 	 * creates a default action for the given List of strings, i.e. a group of
 	 * Texts that will be placed on the location parameter and hidden if someone
-	 * els will uses the location.
+	 * else uses the location.
 	 */
 	private void nextStateOnLocation(final List<String> text, Location location) {
 		ActionAdapter aAction = new ActionAdapter() {

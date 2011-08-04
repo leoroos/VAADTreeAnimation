@@ -10,7 +10,7 @@ public class MathHelper {
 	 *            the node for which to calculate the position, see Figure 1 how
 	 *            to interpret it. Begins with 1.
 	 * @param absVerticalDistance
-	 * @param firstLevelHorizontalDist
+	 * @param firstLevelHorizontalDist the horizontal distance from a parent to one of its children
 	 * @return
 	 * 
 	 *         Absolute Graph Coordinate Definitions
@@ -36,12 +36,6 @@ public class MathHelper {
 		
 		double totalVerticalDistance = rootLocation.getY() + (level * absVerticalDistance);
 		double levelHorizontalDist = firstLevelHorizontalDist / level;
-				
-//		int numberNodesOnLevel = (int) Math.pow(2, level);
-//		int numberNodesOnPrevAllLevels = numberNodesOnLevel - 1 ;
-//		double leftPos = rootLocation.getX() - (levelHorizontalDist * numberNodesOnLevel / 2);
-//		double rightPos = rootLocation.getX() + (levelHorizontalDist * numberNodesOnLevel / 2);
-//		double totalHorizontalDistance = leftPos + (((rightPos - leftPos) / numberNodesOnLevel) * (nodeIndex - (numberNodesOnPrevAllLevels -1)));
 		
 		double totalHorizontalDistance = rootLocation.getX() + levelHorizontalDist * getRelNodeFromHalfPos(nodeIndex);
 		
@@ -68,6 +62,12 @@ public class MathHelper {
 		return relNodeFromHalf;
 	}
 
+	/**
+	 * The logarithm to base 2
+	 * 
+	 * @param x
+	 * @return
+	 */
 	public static double lg(double x) {
 		return Math.log10(x) / Math.log10(2.0d);
 	}
