@@ -1,25 +1,25 @@
 package de.lere.vaad.treebuilder;
 
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasItem;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.ArrayUtils;
 import org.junit.Before;
 import org.junit.Test;
 
 import de.lere.vaad.treebuilder.BinaryTreeModel.Edge;
-import de.lere.vaad.treebuilder.BinaryTreeModelTest.PosEdge;
 
 public class BinaryTreeModelTest {
 
@@ -90,7 +90,7 @@ public class BinaryTreeModelTest {
 	@Test
 	public void shouldReturnEmptyEdgeListForEmptyTree() throws Exception {
 		List<Edge<Integer>> edgeList = model.getEdgeList();
-		assertThat((Collection) edgeList, empty());
+		assertTrue(edgeList.isEmpty());
 	}
 
 	@Test
@@ -101,54 +101,41 @@ public class BinaryTreeModelTest {
 	}
 
 	@Test
-	public void shouldReturnOneEdgeListOneChild() throws Exception {
+	public void shouldReturnOneEdgeListIfOneChild() throws Exception {
 		model.insert(2);
 		model.insert(3);
 		List<Edge<Integer>> edgeList = model.getEdgeList();
-		List<PosEdge> posEdgeList = convertEdgeNodeListToPositionEdgeList(edgeList);
+		List<PositionEdge> posEdgeList = convertEdgeNodeListToPositionEdgeList(edgeList);
 
-		PosEdge e1 = new PosEdge(1, 3);
+		PositionEdge e1 = new PositionEdge(1, 3);
 		assertEquals(posEdgeList.size(), 1);
 		assertTrue(posEdgeList.contains(e1));
 	}
-
-	private List<PosEdge> convertEdgeNodeListToPositionEdgeList(
-			List<Edge<Integer>> edgeList) {
-		List<PosEdge> posEdgeList = new ArrayList<BinaryTreeModelTest.PosEdge>();
-		for (Edge<Integer> edge : edgeList) {
-			posEdgeList.add(new PosEdge(edge));
+	
+	@Test
+	public void completeTreeShouldContainAllEdgesExceptForLeaves() throws Exception {
+		int varNum = 1 << 10;
+		BinaryTreeModel<Integer> createNElementTree = BuilderTestUtils.createNElementTree(varNum);
+		
+		List<Edge<Integer>> edgeList = createNElementTree.getEdgeList();
+		List<PositionEdge> actualList = convertEdgeNodeListToPositionEdgeList(edgeList);
+		
+		List<PositionEdge> expectedPosList = new ArrayList<PositionEdge>(varNum >> 1);
+		for(int i = 1 ; i < (varNum >> 1) ; i ++ ){
+			PositionEdge toleft = new PositionEdge(i, i << 1);
+			PositionEdge toright = new PositionEdge(i, (i << 1) + 1);
+			expectedPosList.add(toleft);
+			expectedPosList.add(toright);
 		}
-		return posEdgeList;
+		assertThat(actualList, containsInAnyOrder(expectedPosList.toArray(new PositionEdge[0])));
 	}
 
-	class PosEdge {
-		public PosEdge(Edge<?> n) {
-			this.parent = n.parentPos.getPosition();
-			this.child = n.childPos.getPosition();
+	private List<PositionEdge> convertEdgeNodeListToPositionEdgeList(
+			List<Edge<Integer>> edgeList) {
+		List<PositionEdge> posEdgeList = new ArrayList<PositionEdge>();
+		for (Edge<Integer> edge : edgeList) {
+			posEdgeList.add(new PositionEdge(edge));
 		}
-
-		public PosEdge(int parent, int child) {
-			this.parent = parent;
-			this.child = child;
-		}
-
-		int parent;
-		int child;
-
-		@Override
-		public boolean equals(Object obj) {
-			if (obj == null) {
-				return false;
-			}
-			if (obj == this) {
-				return true;
-			}
-			if (obj.getClass() != getClass()) {
-				return false;
-			}
-			PosEdge rhs = (PosEdge) obj;
-			return new EqualsBuilder().append(PosEdge.this.parent, rhs.parent)
-					.append(PosEdge.this.child, rhs.child).isEquals();
-		}
+		return posEdgeList;
 	}
 }

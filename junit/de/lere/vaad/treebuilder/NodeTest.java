@@ -147,13 +147,7 @@ public class NodeTest {
 	
 	@Test
 	public void getPositionStresstest() throws Exception {
-		int varNum = 10000;
-		ArrayList<Integer> nodes = new ArrayList<Integer>(50);
-		for(int i = 1; i < varNum ; i++){
-			nodes.add(i);
-		}
-		
-		BinaryTreeModel<Integer> buildTree = new WideBuilder().buildTree(nodes);
+		BinaryTreeModel<Integer> buildTree = BuilderTestUtils.createNElementTree(10000);
 		
 		List<Node<Integer>> nodes2 = buildTree.getNodes();
 		for (Node<Integer> node : nodes2) {

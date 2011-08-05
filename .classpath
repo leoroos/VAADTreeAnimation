@@ -5,12 +5,12 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang-2.6.jar" sourcepath="/home/leo/wss/_userlibraries/commons-lang-2.5/commons-lang-2.5-sources.jar"/>
+	<classpathentry kind="lib" path="lib/hamcrest-all-1.3.0RC2.jar" sourcepath="/home/leo/wss/_userlibraries/hamcrest-1.3.0RC2/hamcrest-all-1.3.0RC2.jar"/>
+	<classpathentry kind="lib" path="lib/mockito-all-1.8.5.jar"/>
 	<classpathentry kind="lib" path="lib/Animal-current.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/vaad_lab3_current/doc/AlgoAnimAPIDoc.zip!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/mockito-all-1.8.5.jar"/>
-	<classpathentry kind="lib" path="lib/hamcrest-all-1.3.0RC2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
