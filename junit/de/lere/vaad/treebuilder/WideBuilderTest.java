@@ -1,59 +1,68 @@
 package de.lere.vaad.treebuilder;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
+import org.junit.Before;
 import org.junit.Test;
 
 
-public class InOrderBuilderTest {
+public class WideBuilderTest {
+	
+	private WideBuilder testee;
+
+	@Before
+	public void setup(){
+		testee = new WideBuilder();
+	}
 
 	@Test
 	public void getEmptyForNothing() throws Exception {
-		Node inorderbuild = InOrderBuilder.inorderbuild();
+		Node<String> inorderbuild = testee.wideBuild();
 		assertNull(inorderbuild);
 	}
 	
 	@Test
 	public void getRootForOne() throws Exception {
 		String string = "IamOmega";
-		Node inorderbuild = InOrderBuilder.inorderbuild(string);
+		Node<String> inorderbuild = testee.wideBuild(string);
 		assertThat(1, equalTo(inorderbuild.size()));
 		assertThat((String)inorderbuild.getValue(),equalTo(string));
 	}
 	
 	@Test
 	public void checkOneLevel() throws Exception {
-		Node root = new Node("x");
-		Node lc = new Node("lc");
-		Node rc = new Node("rc");
+		Node<String> root = new Node<String>("x");
+		Node<String> lc = new Node<String>("lc");
+		Node<String> rc = new Node<String>("rc");
 		root.setLeft(lc);
 		root.setRight(rc);		
-		Node inorderbuild = InOrderBuilder.inorderbuild("x","lc","rc");
+		Node<String> inorderbuild = testee.wideBuild("x","lc","rc");
 		assertTrue(root.compareStructure(inorderbuild));
 	}
 	
 	@Test
 	public void check2Level(){
-		Node root = new Node("x");
-		Node lc = new Node("lc");
-		Node rc = new Node("rc");
-		Node lrc = new Node("lrc");
+		Node<String> root = new Node<String>("x");
+		Node<String> lc = new Node<String>("lc");
+		Node<String> rc = new Node<String>("rc");
+		Node<String> lrc = new Node<String>("lrc");
 		// exec
 		root.setLeft(lc);
 		root.setRight(rc);
 		lc.setRight(lrc);
-		Node inorderbuild= InOrderBuilder.inorderbuild("x", "lc", "rc", null, "lrc");
+		Node<String> inorderbuild= testee.wideBuild("x", "lc", "rc", null, "lrc");
 		assertTrue(root.compareStructure(inorderbuild));
 	}
 	
 	@Test
 	public void buildSimpleTree() throws Exception {
-		Node root = new Node("x");
-		Node lc = new Node("lc");
-		Node rc = new Node("rc");
-		Node lrc = new Node("lrc");
+		Node<String> root = new Node<String>("x");
+		Node<String> lc = new Node<String>("lc");
+		Node<String> rc = new Node<String>("rc");
+		Node<String> lrc = new Node<String>("lrc");
 		// exec
 		root.setLeft(lc);
 		root.setRight(rc);

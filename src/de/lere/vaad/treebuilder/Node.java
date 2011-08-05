@@ -2,22 +2,24 @@ package de.lere.vaad.treebuilder;
 
 import java.util.Scanner;
 
+import junit.framework.AssertionFailedError;
+
 /**
  * @author leo Represents a Node in a Binary-Tree; contains the parent node of
  *         this node (null if its the root node) and left and right children
  *         (null if there are none)
  */
-public class Node {
+public class Node<T extends Comparable<T>> {
 
 	private static final String nl = "\n";
 
-	private Node leftNode, rightNode, parent;
+	private Node<T> leftNode, rightNode, parent;
 
-	private final Object value;
+	private final T value;
 
 	private final NodeUID uid;
 
-	public Node(Object v) {
+	public Node(T v) {
 		this.uid = new NodeUID();
 		if (v == null)
 			throw new IllegalArgumentException("Value must not be null");
@@ -63,27 +65,41 @@ public class Node {
 		return this.uid;
 	}
 
-	public void setLeft(Node left) {
+	public void setLeft(Node<T> left) {
 		this.leftNode = left;
+		if(hasLeftChild()){
+			this.leftNode.setParent(this);
+		}
 	}
 
-	public void setRight(Node right) {
+	public void setRight(Node<T> right) {
 		this.rightNode = right;
+		if(hasRightChild()){
+			this.rightNode.setParent(this);
+		}
 	}
 
-	public Node getLeft() {
+	protected void setParent(Node<T> node) {
+		this.parent = node;
+	}
+
+	public Node<T> getParent() {
+		return parent;
+	}
+
+	public Node<T> getLeft() {
 		return this.leftNode;
 	}
 
-	public Node getRight() {
+	public Node<T> getRight() {
 		return this.rightNode;
 	}
 
-	public Object getValue() {
+	public T getValue() {
 		return value;
 	}
 
-	public boolean compareStructure(Node inorderbuild) {
+	public boolean compareStructure(Node<T> inorderbuild) {
 		if (inorderbuild == null)
 			return false;
 		boolean equals = this.value.equals(inorderbuild.value);
@@ -96,10 +112,74 @@ public class Node {
 		return false;
 	}
 
-	private boolean compareNodes(Node c1, Node c2) {
+	private boolean compareNodes(Node<T> c1, Node<T> c2) {
 		if (c1 == null)
 			return c2 == null;
 		else
 			return c1.value.equals(c2.value);
+	}
+
+	public int compareValue(Node<T> node) {
+		return this.value.compareTo(node.value);
+	}
+
+	public Node<T> insert(T value) {
+		if (NodeOrder.isLeftChild(this.value, value)) {
+			if (this.hasLeftChild()) {
+				return this.getLeft().insert(value);
+			} else {
+				Node<T> node = new Node<T>(value);
+				this.setLeft(node);
+				return node;
+			}
+		} else {
+			if (this.hasRightChild()) {
+				return this.getRight().insert(value);
+			} else {
+				Node<T> node = new Node<T>(value);
+				this.setRight(node);
+				return node;
+			}
+		}
+	}
+
+	public boolean hasRightChild() {
+		return this.rightNode != null;
+	}
+
+	public boolean hasLeftChild() {
+		return this.leftNode != null;
+	}
+
+	public int getPosition() {
+		if (this.hasParent()) {
+
+			if (isLeftChild()) {
+				return ( this.getParent().getPosition() * 2 ) ;
+			}
+			else if(isRightChild()){
+				return ( this.getParent().getPosition() * 2 ) + 1 ;
+			}
+			else {
+				throw new IllegalStateException("Node must either be left or right child of its parent if it has a parent.");
+			}
+		}
+		else {
+			return 1;
+		}
+	}
+
+	private boolean isRightChild() {
+		return this.getParent().hasRightChild()
+				&& this.getParent().getRight().equals(this);
+	}
+
+	private boolean isLeftChild() {
+		return this.getParent().hasLeftChild()
+				&& this.getParent().getLeft().equals(this);
+	}
+
+	public boolean hasParent() {
+		return this.getParent() != null;
 	}
 }

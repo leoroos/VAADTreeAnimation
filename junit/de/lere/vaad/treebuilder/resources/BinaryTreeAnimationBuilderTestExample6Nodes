@@ -1,0 +1,1 @@
+graph "$dummy$" size 5 highlightColor red nodes { "0" offset (0,0) from "loc1" , "1" offset (0,0) from "loc2" , "2" offset (0,0) from "loc3", "3" offset (0,0) from "loc4" , "4" offset (0,0) from "loc5", "5" offset (0,0) from "loc6"  , "6" offset (0,0) from "loc7"} edges { ( 0, 1) ( 0, 2) ( 1 , 3 ) ( 1, 4 ) (2,5) (2,6) }}
