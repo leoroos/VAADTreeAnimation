@@ -14,7 +14,7 @@ import org.apache.commons.io.FileUtils;
 import de.lere.vaad.treebuilder.BinaryTreeAnimationBuilder;
 import de.lere.vaad.treebuilder.BinaryTreeAnimationBuilder.BinaryTreeLayout;
 import de.lere.vaad.treebuilder.BinaryTreeModel;
-import de.lere.vaad.treebuilder.WideBuilder;
+import de.lere.vaad.treebuilder.BreadthFirstBuilder;
 
 import resources.descriptions.ResourceAccessor;
 import algoanim.animalscript.AnimalScript;
@@ -127,7 +127,7 @@ public class SplayTreeAnimation implements LocationDirectorProvider {
 		Coordinates graphRootCoords = new Coordinates(graphRootLocation.getX(), graphRootLocation.getY());
 		BinaryTreeLayout blay = new BinaryTreeLayout(graphRootCoords, 120, 20);
 		aniBui.setLayout(blay );
-		BinaryTreeModel<String> buildTree = new WideBuilder().buildTree("P","X","C","A","B");
+		BinaryTreeModel<String> buildTree = new BreadthFirstBuilder().buildTree("P","X","C","A","B");
 		aniBui.setModel(buildTree);
 		aniBui.buildCurrentGraph();
 		

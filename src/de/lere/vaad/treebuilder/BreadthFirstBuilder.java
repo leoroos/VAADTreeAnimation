@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-public class WideBuilder {
+public class BreadthFirstBuilder {
 	
 	 	<T extends Comparable<T>> Node<T> wideBuild(List<T> args){		
 		if(args == null){
@@ -66,6 +66,6 @@ public class WideBuilder {
 	}
 	
 	public static <T extends Comparable<T>> BinaryTreeModel<T> build(T... args){
-		return new WideBuilder().buildTree(args);
+		return new BreadthFirstBuilder().buildTree(args);
 	}
 }

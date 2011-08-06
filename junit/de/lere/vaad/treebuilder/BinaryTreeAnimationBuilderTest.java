@@ -113,7 +113,7 @@ public class BinaryTreeAnimationBuilderTest {
 	@Test
 	public void getPositionsforOnlyRoot() throws Exception {
 		BinaryTreeAnimationBuilder<String> btab = new BinaryTreeAnimationBuilder<String>(language);
-		BinaryTreeModel<String> model = new WideBuilder().buildTree("root");
+		BinaryTreeModel<String> model = new BreadthFirstBuilder().buildTree("root");
 		btab.setModel(model);
 		btab.setLayout(new BinaryTreeLayout(new Coordinates(123, 456), 0, 0));
 		Coordinates generatePositions2 = btab.generatePositions().get(0);
@@ -169,7 +169,7 @@ public class BinaryTreeAnimationBuilderTest {
 	
 	@Test
 	public void testGetLabelsTwoNodes() throws Exception {
-		testee.setModel(WideBuilder.build(1,2));
+		testee.setModel(BreadthFirstBuilder.build(1,2));
 		List<String> labelsFromModel = testee.getLabelsFromModel();
 		assertThat(labelsFromModel, hasItems("1","2"));
 	}

@@ -9,13 +9,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 
-public class WideBuilderTest {
+public class BreadthFirstBuilderTest {
 	
-	private WideBuilder testee;
+	private BreadthFirstBuilder testee;
 
 	@Before
 	public void setup(){
-		testee = new WideBuilder();
+		testee = new BreadthFirstBuilder();
 	}
 
 	@Test

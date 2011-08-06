@@ -90,7 +90,7 @@ public class NodeTest {
 
 	@Test
 	public void testNodetoString() throws Exception {
-		WideBuilder builder = new WideBuilder();
+		BreadthFirstBuilder builder = new BreadthFirstBuilder();
 		Node<String> inorderbuild = builder.wideBuild("x", "lc", "rc", null, "lrc");
 		System.out.println(inorderbuild.toString());
 	}

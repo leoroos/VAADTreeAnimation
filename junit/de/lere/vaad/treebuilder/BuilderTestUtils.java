@@ -10,7 +10,7 @@ public class BuilderTestUtils {
 		for(int i = 1; i <= varNum ; i++){
 			nodes.add(i);
 		}
-		BinaryTreeModel<Integer> buildTree = new WideBuilder().buildTree(nodes);
+		BinaryTreeModel<Integer> buildTree = new BreadthFirstBuilder().buildTree(nodes);
 		return buildTree;
 	}
 	
