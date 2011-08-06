@@ -3,7 +3,7 @@ package de.lere.vaad.treebuilder;
 /**
  * The sacred class of Node ordering.
  * 
- * @author leo
+ * @author Leo Roos, Rene Hertling
  *
  */
 public class NodeOrder {

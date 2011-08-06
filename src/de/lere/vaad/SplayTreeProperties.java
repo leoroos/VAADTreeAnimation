@@ -7,7 +7,7 @@ import algoanim.primitives.Primitive;
  * The properties all have a default value set and should if at all only be
  * changed during initialization.
  * 
- * @author leo
+ * @author Leo Roos, Rene Hertling
  * 
  */
 public class SplayTreeProperties {

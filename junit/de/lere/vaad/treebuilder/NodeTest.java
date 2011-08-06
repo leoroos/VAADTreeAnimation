@@ -91,7 +91,7 @@ public class NodeTest {
 	@Test
 	public void testNodetoString() throws Exception {
 		BreadthFirstBuilder builder = new BreadthFirstBuilder();
-		Node<String> inorderbuild = builder.wideBuild("x", "lc", "rc", null, "lrc");
+		Node<String> inorderbuild = builder.breathBuild("x", "lc", "rc", null, "lrc");
 		System.out.println(inorderbuild.toString());
 	}
 	

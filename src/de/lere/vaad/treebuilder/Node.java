@@ -5,7 +5,7 @@ import java.util.Scanner;
 import junit.framework.AssertionFailedError;
 
 /**
- * @author leo Represents a Node in a Binary-Tree; contains the parent node of
+ * @author Leo Roos, Rene Hertling Represents a Node in a Binary-Tree; contains the parent node of
  *         this node (null if its the root node) and left and right children
  *         (null if there are none)
  */

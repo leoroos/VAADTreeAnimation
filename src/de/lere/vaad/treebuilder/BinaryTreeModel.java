@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Queue;
 
 /**
- * @author leo Represents the logical structure of a binary tree. Contains the
+ * @author Leo Roos, Rene Hertling Represents the logical structure of a binary tree. Contains the
  *         root and convience-method for child-node access.
  */
 public class BinaryTreeModel<T extends Comparable<T>> {

@@ -20,14 +20,14 @@ public class BreadthFirstBuilderTest {
 
 	@Test
 	public void getEmptyForNothing() throws Exception {
-		Node<String> inorderbuild = testee.wideBuild();
+		Node<String> inorderbuild = testee.breathBuild();
 		assertNull(inorderbuild);
 	}
 	
 	@Test
 	public void getRootForOne() throws Exception {
 		String string = "IamOmega";
-		Node<String> inorderbuild = testee.wideBuild(string);
+		Node<String> inorderbuild = testee.breathBuild(string);
 		assertThat(1, equalTo(inorderbuild.size()));
 		assertThat((String)inorderbuild.getValue(),equalTo(string));
 	}
@@ -39,7 +39,7 @@ public class BreadthFirstBuilderTest {
 		Node<String> rc = new Node<String>("rc");
 		root.setLeft(lc);
 		root.setRight(rc);		
-		Node<String> inorderbuild = testee.wideBuild("x","lc","rc");
+		Node<String> inorderbuild = testee.breathBuild("x","lc","rc");
 		assertTrue(root.compareStructure(inorderbuild));
 	}
 	
@@ -53,7 +53,7 @@ public class BreadthFirstBuilderTest {
 		root.setLeft(lc);
 		root.setRight(rc);
 		lc.setRight(lrc);
-		Node<String> inorderbuild= testee.wideBuild("x", "lc", "rc", null, "lrc");
+		Node<String> inorderbuild= testee.breathBuild("x", "lc", "rc", null, "lrc");
 		assertTrue(root.compareStructure(inorderbuild));
 	}
 	

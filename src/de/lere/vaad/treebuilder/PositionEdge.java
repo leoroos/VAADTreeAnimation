@@ -10,7 +10,7 @@ import de.lere.vaad.treebuilder.BinaryTreeModel.Edge;
 /**
  * A Edge class that serves as transformation from {@link Node}s to integer position based edge descriptions
  * 
- * @author leo
+ * @author Leo Roos, Rene Hertling
  *
  */
 public class PositionEdge {
