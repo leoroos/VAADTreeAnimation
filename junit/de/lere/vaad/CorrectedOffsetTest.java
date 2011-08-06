@@ -1,7 +1,11 @@
 package de.lere.vaad;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.*;
 
+import generators.compression.Huffman.NodeH;
+
+import java.awt.Point;
 import java.lang.reflect.Field;
 
 import junit.framework.AssertionFailedError;
@@ -15,7 +19,7 @@ import algoanim.util.Coordinates;
 import algoanim.util.Node;
 import algoanim.util.Offset;
 
-public class PrimitivesVSCoords {
+public class CorrectedOffsetTest {
 	AnimalScript animalScript;
 
 	@Before
@@ -143,5 +147,45 @@ public class PrimitivesVSCoords {
 			}
 		}
 
+	}
+	
+	@Test
+	public void getOffsetForCoordShouldKeepCoordinates() throws Exception {
+		Coordinates coordinates = new Coordinates(250, 120);
+		Offset offs = CorrectedOffset.getOffsetForCoordinate(coordinates);
+		Point coorp = NodeHelper.convertCoordinatesToAWTPoint(coordinates);
+		Point offsp = NodeHelper.convertOffsetToAWTPoint(offs);
+
+		assertThat(offsp, equalTo(coorp));
+	}
+	
+	@Test
+	public void getOffsetForCoordShouldKeepCoordinates2() throws Exception {
+		Coordinates coordinates = new Coordinates(250, 120);
+		Offset offs = CorrectedOffset.getOffsetForCoordinate(coordinates,1,2);
+		Point coorp = new Point(coordinates.getX() + 1, coordinates.getY() +2 );
+		Point offsp = NodeHelper.convertOffsetToAWTPoint(offs);
+		assertThat(coorp, equalTo(offsp));
+	}
+	
+	@Test
+	public void getOffsetForCoordShouldNotChangeCoordinates() throws Exception {
+		Coordinates coordinates = new Coordinates(250, 120);
+		Point pointBefore = NodeHelper.convertCoordinatesToAWTPoint(coordinates);
+		CorrectedOffset.getOffsetForCoordinate(coordinates,1,2);
+		assertThat(NodeHelper.convertCoordinatesToAWTPoint(coordinates), equalTo(pointBefore));
+	}
+	
+	public static class NodeHelper{
+		public static Point convertOffsetToAWTPoint(Offset o){
+			Point point = new Point(o.getX(), o.getY());
+			return point;
+		}
+		
+		public static Point convertCoordinatesToAWTPoint(Coordinates o){
+			Point point = new Point(o.getX(), o.getY());
+			return point;
+		}
+		
 	}
 }

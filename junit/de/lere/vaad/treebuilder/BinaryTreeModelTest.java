@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -16,6 +17,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -111,23 +113,28 @@ public class BinaryTreeModelTest {
 		assertEquals(posEdgeList.size(), 1);
 		assertTrue(posEdgeList.contains(e1));
 	}
-	
+
 	@Test
-	public void completeTreeShouldContainAllEdgesExceptForLeaves() throws Exception {
-		int varNum = 1 << 10;
-		BinaryTreeModel<Integer> createNElementTree = BuilderTestUtils.createNElementTree(varNum);
-		
+	public void completeTreeShouldContainAllEdgesExceptForLeaves()
+			throws Exception {
+		int varNum = 1111;
+		BinaryTreeModel<Integer> createNElementTree = BuilderTestUtils
+				.createNElementTree(varNum);
 		List<Edge<Integer>> edgeList = createNElementTree.getEdgeList();
 		List<PositionEdge> actualList = convertEdgeNodeListToPositionEdgeList(edgeList);
-		
-		List<PositionEdge> expectedPosList = new ArrayList<PositionEdge>(varNum >> 1);
-		for(int i = 1 ; i < (varNum >> 1) ; i ++ ){
-			PositionEdge toleft = new PositionEdge(i, i << 1);
-			PositionEdge toright = new PositionEdge(i, (i << 1) + 1);
+
+		List<PositionEdge> expectedPosList = new ArrayList<PositionEdge>(varNum);
+		for (int i = 1; i <= (varNum / 2); i++) {
+			PositionEdge toleft = new PositionEdge(i, i * 2);
 			expectedPosList.add(toleft);
-			expectedPosList.add(toright);
+			if ((i * 2 + 1) <= varNum) {
+				PositionEdge toright = new PositionEdge(i, (i * 2) + 1);
+				expectedPosList.add(toright);
+			}
 		}
-		assertThat(actualList, containsInAnyOrder(expectedPosList.toArray(new PositionEdge[0])));
+		assertThat(
+				actualList,
+				containsInAnyOrder(expectedPosList.toArray(new PositionEdge[0])));		
 	}
 
 	private List<PositionEdge> convertEdgeNodeListToPositionEdgeList(
@@ -137,5 +144,37 @@ public class BinaryTreeModelTest {
 			posEdgeList.add(new PositionEdge(edge));
 		}
 		return posEdgeList;
+	}
+
+	@Test
+	public void testCreateAdjacencyMatrix() throws Exception {
+		BinaryTreeModel<Integer> nElementTree = BuilderTestUtils
+				.createNElementTree(7);
+		int[][] expectedMatrix = { { 0, 1, 1, 0, 0, 0, 0 },
+				{ 0, 0, 0, 1, 1, 0, 0 }, { 0, 0, 0, 0, 0, 1, 1 },
+				{ 0, 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0 },
+				{ 0, 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0 } };
+		int[][] adjMatrix = nElementTree.getAdjancencyMatrix();
+		assertThat(adjMatrix.length, equalTo(expectedMatrix.length));
+		for (int i = 0; i < adjMatrix.length; ++i) {
+			assertThat(adjMatrix[i].length, equalTo(expectedMatrix[i].length));
+			for (int j = 0; j < adjMatrix.length; ++j) {
+				assertThat(adjMatrix[i][j], equalTo(expectedMatrix[i][j]));
+			}
+		}
+	}
+	
+	@Test
+	public void testEmptyTreeGeneratesEmptyAdjacencyMatrix() throws Exception {
+		int[][] matrix = model.getAdjancencyMatrix();
+		assertThat(matrix.length, equalTo(0));
+	}
+
+	@Test
+	public void testCreateNElements() {
+		int size = 8;
+		BinaryTreeModel<Integer> nElementTree = BuilderTestUtils
+				.createNElementTree(size);
+		assertSize(nElementTree, size);
 	}
 }

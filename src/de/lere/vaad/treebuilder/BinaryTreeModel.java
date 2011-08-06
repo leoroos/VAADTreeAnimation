@@ -36,6 +36,9 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 		return this;
 	}
 
+	/**
+	 * @return a list of nodes. It is guaranteed that every call to the model containing the same Tree will return a list of nodes in the same order
+	 */
 	public List<Node<T>> getNodes() {
 		List<Node<T>> nodes = new ArrayList<Node<T>>();
 		listNodes(nodes, root);
@@ -104,14 +107,35 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 					toWork.add(left);
 					elist.add(new Edge<T>(nextNode, left));
 				}
-				
-				if (nextNode.hasRightChild()){
+
+				if (nextNode.hasRightChild()) {
 					Node<T> right = nextNode.getRight();
 					toWork.add(right);
 					elist.add(new Edge<T>(nextNode, right));
 				}
 			}
 			return elist;
+		}
+	}
+
+	public int[][] getAdjancencyMatrix() {
+		int size = size();
+		int[][] matrix = new int[size][size];
+		List<Edge<T>> edgeList = getEdgeList();
+		for (Edge<T> edge : edgeList) {
+			int parentLocation = edge.parentPos.getPosition() - 1;
+			int childLocation = edge.childPos.getPosition() - 1;
+			matrix[parentLocation][childLocation] = 1;
+		}
+		return matrix;
+	}
+
+	@Override
+	public String toString() {
+		if (root == null) {
+			return "EmptyTree";
+		} else {
+			return getRoot().toString();
 		}
 	}
 }

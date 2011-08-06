@@ -54,7 +54,7 @@ public class CorrectedOffset {
 	}
 	
 	public static Offset getOffsetForCoordinate(Coordinates coord){
-		return getOffsetForCoordinate(coord, 0, 0);			
+		return getOffsetForCoordinate(coord, coord.getX(), coord.getY());			
 	}
 
 }

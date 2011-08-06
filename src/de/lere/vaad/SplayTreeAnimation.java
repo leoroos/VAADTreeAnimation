@@ -124,7 +124,8 @@ public class SplayTreeAnimation implements LocationDirectorProvider {
 		
 		BinaryTreeAnimationBuilder<String> aniBui = new BinaryTreeAnimationBuilder<String>(language);
 		Offset graphRootLocation = getDirector(Location.Graphroot.DIRECTOR_NAME).getLocation();
-		BinaryTreeLayout blay = new BinaryTreeLayout(graphRootLocation, 240, 20);
+		Coordinates graphRootCoords = new Coordinates(graphRootLocation.getX(), graphRootLocation.getY());
+		BinaryTreeLayout blay = new BinaryTreeLayout(graphRootCoords, 120, 20);
 		aniBui.setLayout(blay );
 		BinaryTreeModel<String> buildTree = new WideBuilder().buildTree("P","X","C","A","B");
 		aniBui.setModel(buildTree);

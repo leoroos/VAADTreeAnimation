@@ -53,7 +53,7 @@ public class WideBuilder {
 		return wideBuild(Arrays.asList(args));
 	}
 	
-	 public <T extends Comparable<T>> BinaryTreeModel<T> buildTree(List<T> lst){
+	public <T extends Comparable<T>> BinaryTreeModel<T> buildTree(List<T> lst){
 		Node<T> node = wideBuild(lst);
 		BinaryTreeModel<T> model = new BinaryTreeModel<T>();
 		return model.init(node);		
@@ -63,5 +63,9 @@ public class WideBuilder {
 		Node<T> node = wideBuild(args);
 		BinaryTreeModel<T> model = new BinaryTreeModel<T>();
 		return model.init(node);
+	}
+	
+	public static <T extends Comparable<T>> BinaryTreeModel<T> build(T... args){
+		return new WideBuilder().buildTree(args);
 	}
 }
