@@ -173,7 +173,7 @@ public class CorrectedOffsetTest {
 		assertEquals("expected reference 2", 2, referenceMode);
 
 		Point offsp = NodeHelper.convertOffsetToAWTPoint(offs);
-		Point expectedRel = new Point(1, 2);
+		Point expectedRel = new Point(251, 122);
 		assertThat(offsp, equalTo(expectedRel));
 
 		Coordinates node = (Coordinates) offs.getNode();

@@ -1,29 +1,24 @@
 package de.lere.vaad.treebuilder;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.collections.ListUtils;
-import org.apache.commons.collections.Transformer;
-import org.apache.commons.collections.functors.MapTransformer;
-import org.apache.commons.lang.ArrayUtils;
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import de.lere.vaad.treebuilder.BinaryTreeModel.Edge;
 import de.lere.vaad.utils.LMTransformer;
@@ -32,10 +27,11 @@ import de.lere.vaad.utils.ListMap;
 public class BinaryTreeModelTest {
 
 	private BinaryTreeModel<Integer> model;
+	private BinaryTreeModelListener listener;
 
 	@Before
 	public void setUp() {
-		model = new BinaryTreeModel<Integer>();
+		model = new BinaryTreeModel<Integer>();		
 	}
 
 	@Test
@@ -74,6 +70,35 @@ public class BinaryTreeModelTest {
 		model.insert(20);
 		assertThat(model.getRoot().getRight().getValue(), equalTo(20));
 	}
+	
+	
+	@Test
+	public void shouldFireEventOnInsert() throws Exception {
+		BinaryTreeModelListener btmlMock = mock(BinaryTreeModelListener.class);
+		model.addListener(btmlMock);
+		model.insert(10);
+		verify(btmlMock).updateOnInsert(Mockito.any(TreeEvent.class));
+	}
+	
+	@Test
+	public void shouldFireTreeEventWithStateBeforeAndAfterChange() throws Exception {
+		BinaryTreeModelListener btmlMock = mock(BinaryTreeModelListener.class);
+		model.addListener(btmlMock);
+		fail("todo");
+		//		model.copy();
+		model.insert(10);
+		verify(btmlMock).updateOnInsert(Mockito.any(TreeEvent.class));
+	}
+	
+	
+	@Test
+	public void copyEmptyModel() throws Exception {
+		fail("Todo");
+		BinaryTreeModel<Integer> copy =null;//= model.copy();
+		assertNull(model.getRoot());
+		assertNull(copy.getRoot());				
+	}
+	
 
 	@Test
 	public void deleteOnEmptyTreeDoesNothing() {
@@ -196,5 +221,10 @@ public class BinaryTreeModelTest {
 			}
 		});
 		assertThat(asIntLs,hasItems(8,4,2,5,1,6,3,7));
+	}
+	
+	@Test
+	public void testRightRotation(){
+		fail("TODO");
 	}
 }

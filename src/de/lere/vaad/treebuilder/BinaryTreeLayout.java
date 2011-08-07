@@ -7,11 +7,12 @@ import algoanim.util.Coordinates;
 
 public class BinaryTreeLayout {
 
-	private static final Color DEFAULT_BG_COLOR = Color.WHITE;
-	final algoanim.util.Coordinates rootLocation;
-	final double firstLevelWidth;
-	final double verticalGaps;
-	final Color bgColor;
+	public static final Color DEFAULT_BG_COLOR = Color.WHITE;
+	public final algoanim.util.Coordinates rootLocation;
+	public final double firstLevelWidth;
+	public final double verticalGaps;
+	public final Color bgColor;
+	public final String graphName;
 
 	/**
 	 * Constructor to initialize a Layout for the
@@ -29,26 +30,21 @@ public class BinaryTreeLayout {
 	 * @param verticalGap
 	 *            the vertical distance from any level n to level n+1
 	 * @param bgColor background color of nodes
+	 * @param graphName TODO
 	 */
 	public BinaryTreeLayout(algoanim.util.Coordinates rootLocation,
-			int firstLevelWidth, int verticalGap, Color bgColor) {
+			int firstLevelWidth, int verticalGap, Color bgColor, String graphName) {
 		this.rootLocation = rootLocation;
 		this.firstLevelWidth = firstLevelWidth;
 		this.verticalGaps = verticalGap;
 		this.bgColor = bgColor;
-	}
-
-	public BinaryTreeLayout(BinaryTreeLayout layout) {
-		this.rootLocation = layout.rootLocation;
-		this.firstLevelWidth = layout.firstLevelWidth;
-		this.verticalGaps = layout.verticalGaps;
-		this.bgColor = layout.bgColor;
+		this.graphName = graphName;
 	}
 
 
 	public BinaryTreeLayout(Coordinates builderGraphrootCoords,
 			int firstLevelWidth2, int verticalSpacing) {
-		this(builderGraphrootCoords, firstLevelWidth2, verticalSpacing, DEFAULT_BG_COLOR);
+		this(builderGraphrootCoords, firstLevelWidth2, verticalSpacing, DEFAULT_BG_COLOR, "DefaultGraphName");
 	}
 
 	Point getRootPoint() {

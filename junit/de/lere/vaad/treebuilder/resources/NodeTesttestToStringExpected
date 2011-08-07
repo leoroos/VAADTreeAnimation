@@ -1,0 +1,10 @@
+x
+    lc
+        LNIL
+        lrc
+            LNIL
+            RNIL
+    
+    rc
+        LNIL
+        RNIL

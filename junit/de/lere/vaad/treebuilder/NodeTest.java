@@ -2,25 +2,30 @@ package de.lere.vaad.treebuilder;
 
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.util.ArrayList;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
-
-import de.lere.vaad.EndOfTheWorldException;
-import extras.lifecycle.checkpoint.annotation.Checkpointing;
 
 public class NodeTest {
 
 	private Node<String> root;
-	private Node<String> lc  ;
-	private Node<String> rc  ;
-	private Node<String> lrc ;
+	private Node<String> lc;
+	private Node<String> rc;
+	private Node<String> lrc;
 	private Node<Integer> iroot;
 
 	@Before
@@ -45,8 +50,8 @@ public class NodeTest {
 
 	@Test
 	public void uidIsUnique() throws Exception {
-		Node node1 = createDummyNode();
-		Node node2 = createDummyNode();
+		Node<String> node1 = createDummyNode();
+		Node<String> node2 = createDummyNode();
 		assertThat("UID must be different", node1, not(equalTo(node2)));
 	}
 
@@ -88,26 +93,29 @@ public class NodeTest {
 		assertFalse(root.compareStructure(null));
 	}
 
+	@Ignore("has no assert")
 	@Test
 	public void testNodetoString() throws Exception {
 		BreadthFirstBuilder builder = new BreadthFirstBuilder();
-		Node<String> inorderbuild = builder.breathBuild("x", "lc", "rc", null, "lrc");
+		Node<String> inorderbuild = builder.breathBuild("x", "lc", "rc", null,
+				"lrc");
 		System.out.println(inorderbuild.toString());
 	}
-	
-	private void assertTillLevelOne(Node<Integer> daRoot, Integer lc, Integer root, Integer rc) {
+
+	private void assertTillLevelOne(Node<Integer> daRoot, Integer lc,
+			Integer root, Integer rc) {
 		assertThat(daRoot.getValue(), equalTo(root));
 		Node<Integer> left = daRoot.getLeft();
 		if (lc == null) {
 			assertNull(left);
-		} else{
+		} else {
 			assertNotNull(left);
 			assertThat(left.getValue(), equalTo(lc));
 		}
 		Node<Integer> right = daRoot.getRight();
 		if (rc == null) {
 			assertNull(right);
-		}else {
+		} else {
 			assertNotNull(right);
 			assertThat(right.getValue(), equalTo(rc));
 		}
@@ -125,36 +133,112 @@ public class NodeTest {
 		iroot.insert(10);
 		assertTillLevelOne(iroot, 10, 10, null);
 	}
-	
+
 	@Test
 	public void rootPositionShouldBeOne() throws Exception {
 		assertThat(iroot.getPosition(), equalTo(1));
 	}
-	
+
 	@Test
 	public void positionOfLeftChildShouldBeTwo() throws Exception {
 		Node<Integer> left = new Node<Integer>(5);
 		iroot.setLeft(left);
 		assertThat(left.getPosition(), equalTo(2));
 	}
-	
+
 	@Test
 	public void positionOfRightChildShouldBeThree() throws Exception {
 		Node<Integer> node = new Node<Integer>(15);
 		iroot.setRight(node);
 		assertThat(node.getPosition(), equalTo(3));
 	}
-	
+
 	@Test
 	public void getPositionStresstest() throws Exception {
-		BinaryTreeModel<Integer> buildTree = BuilderTestUtils.createNIntegerTree(10000);
-		
+		BinaryTreeModel<Integer> buildTree = BuilderTestUtils
+				.createNIntegerTree(10000);
+
 		List<Node<Integer>> nodes2 = buildTree.getNodesInOrder();
 		for (Node<Integer> node : nodes2) {
 			assertThat(node.getValue(), equalTo(node.getPosition()));
 		}
 	}
-	
-	
 
+	@Test
+	public void testSubtreeToString() throws Exception {
+		root.setLeft(lc);
+		root.setRight(rc);
+		lc.setRight(lrc);
+		String subtreeToString = root.structureToString();
+		// System.out.println(subtreeToString);
+		assertThat(subtreeToString,
+				equalToIgnoringWhiteSpace(IOUtils
+						.toString(getResource("NodeTesttestToStringExpected"))));
+	}
+
+	private InputStreamReader getResource(String name) {
+		InputStream resourceAsStream = this.getClass().getResourceAsStream(
+				"resources/" + name);
+		try {
+			return new InputStreamReader(resourceAsStream, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			return new InputStreamReader(resourceAsStream);
+		}
+	}
+
+	@Test
+	public void copySingleNode() throws Exception {
+		Node<String> node = new Node<String>("hallo");
+		Node<String> c = node.copy();
+		assertNodesEqual(node, c);
+		assertNotSame(c, node);
+	}
+	
+	
+	@Test
+	public void copiedHasNoCopiedParent() throws Exception {
+		Node<String> root = BreadthFirstBuilder.build("x",null,"y").getRoot();
+		assertTrue("parent of child should have same structure as parent",root.getRight().getParent().compareStructure(root));
+		Node<String> parentOfCopy = root.getRight().copy().getParent();
+		assertFalse("copy of child should have no parent", root.getRight().getParent().compareStructure(parentOfCopy));
+		assertNull(parentOfCopy);
+	}
+
+	@Test
+	public void shouldCopyCompleteSubTreeStructure() throws Exception {
+		Node<String> rootOrig = BreadthFirstBuilder.build("x", "y", "z", "u",
+				"v").getRoot();		
+		Node<String> copy = rootOrig.copy();
+		//copied nodes are not the same but have the same structure
+		assertNotSame(rootOrig, copy);
+		assertNodesEqual(rootOrig, copy);
+		assertTrue("expected original and copy to have same structure",
+				rootOrig.compareStructure(copy));
+
+		//children have same structure but are not the same
+		Node<String> llcroot = getLL(rootOrig);
+		Node<String> llcopy = getLL(copy);
+		assertTrue(llcroot.compareStructure(llcopy));
+		assertNotSame(llcroot, llcopy);
+
+	}
+
+	private <T extends Comparable<T>> Node<T> getLL(Node<T> n) {
+		return n.getLeft().getLeft();
+	}
+
+	private void assertNodesEqual(Node<String> node, Node<String> c) {
+		assertEquals(node.getValue(), c.getValue());
+		assertEquals(node.getUid(), c.getUid());
+		if(node.getRight() == null)
+			assertNull(c.getRight());
+		else {
+			assertTrue(node.getRight().compareStructure(c.getRight()));
+		}
+		if(node.getLeft() == null) {
+			assertNull(c.getLeft());
+		} else {
+			assertTrue(node.getLeft().compareStructure(c.getLeft()));
+		}
+	}
 }

@@ -2,16 +2,16 @@ package de.lere.vaad.treebuilder;
 
 import java.util.Scanner;
 
+import de.lere.vaad.utils.NodeHelper;
+
 import junit.framework.AssertionFailedError;
 
 /**
- * @author Leo Roos, Rene Hertling Represents a Node in a Binary-Tree; contains the parent node of
- *         this node (null if its the root node) and left and right children
- *         (null if there are none)
+ * @author Leo Roos, Rene Hertling Represents a Node in a Binary-Tree; contains
+ *         the parent node of this node (null if its the root node) and left and
+ *         right children (null if there are none)
  */
 public class Node<T extends Comparable<T>> {
-
-	private static final String nl = "\n";
 
 	private Node<T> leftNode, rightNode, parent;
 
@@ -20,7 +20,11 @@ public class Node<T extends Comparable<T>> {
 	private final NodeUID uid;
 
 	public Node(T v) {
-		this.uid = new NodeUID();
+		this(new NodeUID(), v);
+	}
+
+	private Node(NodeUID uid, T v) {
+		this.uid = uid;
 		if (v == null)
 			throw new IllegalArgumentException("Value must not be null");
 		this.value = v;
@@ -28,26 +32,20 @@ public class Node<T extends Comparable<T>> {
 
 	@Override
 	public String toString() {
-		StringBuilder csb = new StringBuilder();
 
 		String left = "NIL";
-		if (this.leftNode != null) {
-			left = "LC";
+		if (hasLeftChild()) {
+			left = "LC[" + getLeft().getValue().toString() + "]";
 		}
 		String right = "NIL";
-		if (this.rightNode != null) {
-			right = "RC";
+		if (hasRightChild()) {
+			right = "RC[" + getRight().getValue().toString() + "]";
 		}
-//		String indention = "    ";
-//		csb.append(left).append(nl).append(right);
-//		Scanner children = new Scanner(csb.toString());
-//		StringBuffer sb = new StringBuffer();
-//		sb.append(value).append(nl);
-//		while (children.hasNextLine()) {
-//			sb.append(indention).append(children.nextLine()).append(nl);
-//		}
 
-		return new StringBuffer().append(value).append("[").append(left).append("]").append("[").append(right).append("]").toString();
+		StringBuffer append = new StringBuffer().append(getUid()).append("[")
+				.append(value).append("][").append(left).append("]")
+				.append("[").append(right).append("]");
+		return append.toString();
 	}
 
 	public int size() {
@@ -67,14 +65,14 @@ public class Node<T extends Comparable<T>> {
 
 	public void setLeft(Node<T> left) {
 		this.leftNode = left;
-		if(hasLeftChild()){
+		if (hasLeftChild()) {
 			this.leftNode.setParent(this);
 		}
 	}
 
 	public void setRight(Node<T> right) {
 		this.rightNode = right;
-		if(hasRightChild()){
+		if (hasRightChild()) {
 			this.rightNode.setParent(this);
 		}
 	}
@@ -155,16 +153,14 @@ public class Node<T extends Comparable<T>> {
 		if (this.hasParent()) {
 
 			if (isLeftChild()) {
-				return ( this.getParent().getPosition() * 2 ) ;
+				return (this.getParent().getPosition() * 2);
+			} else if (isRightChild()) {
+				return (this.getParent().getPosition() * 2) + 1;
+			} else {
+				throw new IllegalStateException(
+						"Node must either be left or right child of its parent if it has a parent.");
 			}
-			else if(isRightChild()){
-				return ( this.getParent().getPosition() * 2 ) + 1 ;
-			}
-			else {
-				throw new IllegalStateException("Node must either be left or right child of its parent if it has a parent.");
-			}
-		}
-		else {
+		} else {
 			return 1;
 		}
 	}
@@ -182,4 +178,49 @@ public class Node<T extends Comparable<T>> {
 	public boolean hasParent() {
 		return this.getParent() != null;
 	}
+
+	public static final String nl = "\n";
+
+	public String structureToString() {
+
+		StringBuilder csb = new StringBuilder();
+
+		String left = "LNIL";
+		if (hasLeftChild()) {
+			left = getLeft().structureToString();
+		}
+		String right = "RNIL";
+		if (hasRightChild()) {
+			right = getRight().structureToString();
+		}
+		String indention = "    ";
+		csb.append(left).append(nl).append(right);
+		Scanner children = new Scanner(csb.toString());
+		StringBuffer sb = new StringBuffer();
+		sb.append(this.getValue()).append(nl);
+		while (children.hasNextLine()) {
+			sb.append(indention).append(children.nextLine()).append(nl);
+		}
+		return sb.toString();
+	}
+
+	/**
+	 * @return a recursively copied node. I.e. it has the same Value and UID but
+	 *         is not the same object. The same is true for it's children and
+	 *         it's parent.
+	 */
+	public Node<T> copy() {
+		Node<T> node = new Node<T>(uid, value);
+		if(hasLeftChild()) {
+			node.setLeft(leftNode.copy());
+		}
+		if(hasRightChild()) {
+			node.setRight(rightNode.copy());
+		}
+		//don't copy parent
+		return node;
+	}
+	
+	
+
 }

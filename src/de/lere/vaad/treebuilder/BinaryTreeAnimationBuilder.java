@@ -13,60 +13,79 @@ import algoanim.primitives.generators.Language;
 import algoanim.properties.GraphProperties;
 import algoanim.util.Coordinates;
 import algoanim.util.Node;
+import algoanim.util.TicksTiming;
+import algoanim.util.Timing;
 import de.lere.vaad.MathHelper;
 
-public class BinaryTreeAnimationBuilder<T extends Comparable<T>> {
+public class BinaryTreeAnimationBuilder<T extends Comparable<T>> implements
+		BinaryTreeModelListener<T> {
 	public static final BinaryTreeLayout DEFAULT_LAYOUT = new BinaryTreeLayout(
-			new Coordinates(240, 0), 120, 30, Color.WHITE);
+			new Coordinates(240, 0), 120, 30, Color.WHITE, "DefaultGraphName");
 
 	private BinaryTreeModel<T> model;
 	private BinaryTreeLayout layout;
 	private Language language;
+	private Graph lastCreatedGraph;
+	
+	private Timing now = new TicksTiming(0);
 
 	public BinaryTreeAnimationBuilder(Language lang) {
 		this.language = lang;
 		this.model = new BinaryTreeModel<T>();
 		this.layout = DEFAULT_LAYOUT;
+		this.lastCreatedGraph = null;
 	}
 
 	public void setModel(BinaryTreeModel<T> model) {
+		if (this.model != null) {
+			this.model.removeListener(this);
+		}
 		this.model = model;
+		this.model.addListener(this);
+		buildCurrentGraph();
 	}
 
 	public void setLayout(BinaryTreeLayout layout) {
-		this.layout = new BinaryTreeLayout(layout);
+		this.layout = layout;
 	}
 
-	public void buildCurrentGraph() {
-//		int[][] matrix = model.getAdjancencyMatrix();
-		 List<de.lere.vaad.treebuilder.Node<T>> treeNodes = model.getNodesInOrder();
-		 int[][] matrix = getAdjancencyMatrix(treeNodes);
-		algoanim.util.Node [] nodes = generatePositions(treeNodes).toArray(new Coordinates[0]);
-		 String labels [] = getLabelsFromModel(treeNodes).toArray(new String[0]);
-		 GraphProperties gps = new GraphProperties();
-		 gps.set("fillColor", layout.bgColor);
-		 Set<String> allPropertyNames = gps.getAllPropertyNames();
-		 System.out.println(allPropertyNames);
-		 Graph graph = language.newGraph("TBD", matrix, nodes, labels,				 
-		 null);
+	public BinaryTreeLayout getLayout() {
+		return layout;
 	}
 
-	int[][] getAdjancencyMatrix(
-			List<de.lere.vaad.treebuilder.Node<T>> treeNodes) {
+	void buildCurrentGraph() {
+		List<de.lere.vaad.treebuilder.Node<T>> treeNodes = model
+				.getNodesInOrder();
+		int[][] matrix = getAdjancencyMatrix(treeNodes);
+		algoanim.util.Node[] nodes = generatePositions(treeNodes).toArray(
+				new Coordinates[0]);
+		String labels[] = getLabelsFromModel(treeNodes).toArray(new String[0]);
+		GraphProperties gps = new GraphProperties();
+		gps.set("fillColor", layout.bgColor);
+		if(lastCreatedGraph != null){
+			lastCreatedGraph.hide(now);
+		}		
+		
+		lastCreatedGraph = language.newGraph(layout.graphName, matrix, nodes,
+				labels, null, gps);				
+	}
+
+	int[][] getAdjancencyMatrix(List<de.lere.vaad.treebuilder.Node<T>> treeNodes) {
 		int nodes = treeNodes.size();
-		HashMap<de.lere.vaad.treebuilder.Node<T>, Integer> nodeToIndex = new HashMap<de.lere.vaad.treebuilder.Node<T>,Integer>();
+		HashMap<de.lere.vaad.treebuilder.Node<T>, Integer> nodeToIndex = new HashMap<de.lere.vaad.treebuilder.Node<T>, Integer>();
 		for (int i = 0; i < treeNodes.size(); i++) {
-			nodeToIndex.put(treeNodes.get(i),i);
+			nodeToIndex.put(treeNodes.get(i), i);
 		}
 		int[][] adjacencyMatrix = new int[nodes][nodes];
-		Set<Entry<de.lere.vaad.treebuilder.Node<T>,Integer>> entrySet = nodeToIndex.entrySet();
+		Set<Entry<de.lere.vaad.treebuilder.Node<T>, Integer>> entrySet = nodeToIndex
+				.entrySet();
 		for (Entry<de.lere.vaad.treebuilder.Node<T>, Integer> entry : entrySet) {
 			de.lere.vaad.treebuilder.Node<T> node = entry.getKey();
 			Integer index = entry.getValue();
-			if(node.hasLeftChild()){
+			if (node.hasLeftChild()) {
 				adjacencyMatrix[index][nodeToIndex.get(node.getLeft())] = 1;
 			}
-			if(node.hasRightChild()){
+			if (node.hasRightChild()) {
 				adjacencyMatrix[index][nodeToIndex.get(node.getRight())] = 1;
 			}
 		}
@@ -81,8 +100,8 @@ public class BinaryTreeAnimationBuilder<T extends Comparable<T>> {
 		}
 		return result;
 	}
-	
-	List<String> getLabelsFromModel(){
+
+	List<String> getLabelsFromModel() {
 		return getLabelsFromModel(model.getNodesInOrder());
 	}
 
@@ -96,7 +115,8 @@ public class BinaryTreeAnimationBuilder<T extends Comparable<T>> {
 		private final Node ChildPos;
 	}
 
-	private List<Coordinates> generatePositions(List<de.lere.vaad.treebuilder.Node<T>> list) {
+	private List<Coordinates> generatePositions(
+			List<de.lere.vaad.treebuilder.Node<T>> list) {
 		List<Coordinates> lst = new ArrayList<Coordinates>();
 		for (de.lere.vaad.treebuilder.Node<T> node : list) {
 			int position = node.getPosition();
@@ -106,8 +126,13 @@ public class BinaryTreeAnimationBuilder<T extends Comparable<T>> {
 		}
 		return lst;
 	}
-	
+
 	List<Coordinates> generatePositions() {
 		return generatePositions(model.getNodesInOrder());
+	}
+
+	@Override
+	public void updateOnInsert(TreeEvent<T> event) {
+
 	}
 }

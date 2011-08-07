@@ -6,14 +6,29 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+
 /**
  * @author Leo Roos, Rene Hertling Represents the logical structure of a binary tree. Contains the
  *         root and convience-method for child-node access.
  */
 public class BinaryTreeModel<T extends Comparable<T>> {
 
-	private Node<T> root;
-
+	private Node<T> root;	
+	
+	private List<BinaryTreeModelListener<T>> listeners;
+	
+	public BinaryTreeModel(){
+		this.listeners = new ArrayList<BinaryTreeModelListener<T>>();
+	}
+	
+	public void addListener(BinaryTreeModelListener<T> listener){
+		listeners.add(listener);
+	}
+	
+	public boolean removeListener(BinaryTreeModelListener<T> listener){
+		return listeners.remove(listener);
+	}
+	
 	public Node<T> getRoot() {
 		return root;
 	}
@@ -74,7 +89,7 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 		return -1;
 	}
 
-	public void insert(T value) {
+	public void insert(T value) {		
 		if (root == null) {
 			root = new Node<T>(value);
 		} else {
@@ -135,7 +150,7 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 		if (root == null) {
 			return "EmptyTree";
 		} else {
-			return getRoot().toString();
+			return root.structureToString();
 		}
 	}
 }

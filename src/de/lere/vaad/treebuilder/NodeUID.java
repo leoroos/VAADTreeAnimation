@@ -25,4 +25,9 @@ public final class NodeUID {
 		return 11 * (int)this.uid;
 	}
 	
+	@Override
+	public String toString() {
+		return Long.toString(getUid());
+	}
+	
 }
