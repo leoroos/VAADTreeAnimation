@@ -30,24 +30,24 @@ public class Node<T extends Comparable<T>> {
 	public String toString() {
 		StringBuilder csb = new StringBuilder();
 
-		String left = "LNULL";
+		String left = "NIL";
 		if (this.leftNode != null) {
-			left = this.leftNode.toString();
+			left = "LC";
 		}
-		String right = "RNULL";
+		String right = "NIL";
 		if (this.rightNode != null) {
-			right = this.rightNode.toString();
+			right = "RC";
 		}
-		String indention = "    ";
-		csb.append(left).append(nl).append(right);
-		Scanner children = new Scanner(csb.toString());
-		StringBuffer sb = new StringBuffer();
-		sb.append(value).append(nl);
-		while (children.hasNextLine()) {
-			sb.append(indention).append(children.nextLine()).append(nl);
-		}
+//		String indention = "    ";
+//		csb.append(left).append(nl).append(right);
+//		Scanner children = new Scanner(csb.toString());
+//		StringBuffer sb = new StringBuffer();
+//		sb.append(value).append(nl);
+//		while (children.hasNextLine()) {
+//			sb.append(indention).append(children.nextLine()).append(nl);
+//		}
 
-		return sb.toString();
+		return new StringBuffer().append(value).append("[").append(left).append("]").append("[").append(right).append("]").toString();
 	}
 
 	public int size() {

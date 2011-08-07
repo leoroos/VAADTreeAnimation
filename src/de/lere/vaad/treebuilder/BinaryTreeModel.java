@@ -39,17 +39,17 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 	/**
 	 * @return a list of nodes. It is guaranteed that every call to the model containing the same Tree will return a list of nodes in the same order
 	 */
-	public List<Node<T>> getNodes() {
+	public List<Node<T>> getNodesInOrder() {
 		List<Node<T>> nodes = new ArrayList<Node<T>>();
-		listNodes(nodes, root);
+		listNodesInOrder(nodes, root);
 		return nodes;
 	}
 
-	private void listNodes(List<Node<T>> nodes, Node<T> node) {
+	private void listNodesInOrder(List<Node<T>> nodes, Node<T> node) {
 		if (node != null) {
-			listNodes(nodes, node.getLeft());
+			listNodesInOrder(nodes, node.getLeft());
 			nodes.add(node);
-			listNodes(nodes, node.getRight());
+			listNodesInOrder(nodes, node.getRight());
 		}
 	}
 

@@ -147,9 +147,9 @@ public class NodeTest {
 	
 	@Test
 	public void getPositionStresstest() throws Exception {
-		BinaryTreeModel<Integer> buildTree = BuilderTestUtils.createNElementTree(10000);
+		BinaryTreeModel<Integer> buildTree = BuilderTestUtils.createNIntegerTree(10000);
 		
-		List<Node<Integer>> nodes2 = buildTree.getNodes();
+		List<Node<Integer>> nodes2 = buildTree.getNodesInOrder();
 		for (Node<Integer> node : nodes2) {
 			assertThat(node.getValue(), equalTo(node.getPosition()));
 		}

@@ -1,6 +1,10 @@
 package resources.descriptions;
 
+import static org.junit.Assert.*;
+
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -13,8 +17,17 @@ public class ResourceAccessorTest extends TestCase {
 	public void testGetResource() {
 		ResourceAccessor[] values = ResourceAccessor.values();
 		for (ResourceAccessor resourceAccessor : values) {
-			InputStream resource = resourceAccessor.getResource();
+			InputStreamReader resource = resourceAccessor.getResource();
 			Assert.assertNotNull("Enum must point to valid resource. Missing in:" + resourceAccessor, resource);		
+		}
+	}
+	
+	@Test
+	public void testReturnActualtext() throws Exception {
+		ResourceAccessor zigStep = ResourceAccessor.ZIG_STEP;
+		List<String> text = zigStep.getText();
+		for (String string : text) {
+			assertNotNull(string);
 		}
 	}
 }

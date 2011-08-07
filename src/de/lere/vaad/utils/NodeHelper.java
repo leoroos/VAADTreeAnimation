@@ -8,7 +8,7 @@ import algoanim.util.Offset;
 
 /**
  * Utility class that provides simple operations on {@link Node}. Mostly
- * convertions from and to {@link Point}.
+ * conversions from and to {@link Point}.
  * 
  * @author Leo Roos, Rene Hertling
  * 

@@ -1,61 +1,23 @@
 package de.lere.vaad.treebuilder;
 
+import java.awt.Color;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import algoanim.primitives.Graph;
 import algoanim.primitives.generators.Language;
+import algoanim.properties.GraphProperties;
 import algoanim.util.Coordinates;
-import algoanim.util.DisplayOptions;
 import algoanim.util.Node;
-import algoanim.util.Offset;
-import de.lere.vaad.CorrectedOffset;
 import de.lere.vaad.MathHelper;
 
 public class BinaryTreeAnimationBuilder<T extends Comparable<T>> {
-	public static class BinaryTreeLayout {
-
-		/**
-		 * Constructor to initialize a Layout for the
-		 * {@link BinaryTreeAnimationBuilder}.
-		 * <p>
-		 * The rootLocation must be a {@link Coordinates} object to assure that
-		 * it can be used without causing any exceptions that can occur when
-		 * using Offsets of the currently used Animal application (i.e. Version
-		 * 2.3.27, 4-10-2011).
-		 * 
-		 * @param rootLocation
-		 *            the location of the graph root
-		 * @param firstLevelWidth
-		 *            the horizontal distance of the root to one of its children
-		 * @param verticalGap
-		 *            the vertical distance from any level n to level n+1
-		 */
-		public BinaryTreeLayout(algoanim.util.Coordinates rootLocation,
-				int firstLevelWidth, int verticalGap) {
-			this.rootLocation = rootLocation;
-			this.firstLevelWidth = firstLevelWidth;
-			this.verticalGaps = verticalGap;
-		}
-
-		public BinaryTreeLayout(BinaryTreeLayout layout) {
-			this.rootLocation = layout.rootLocation;
-			this.firstLevelWidth = layout.firstLevelWidth;
-			this.verticalGaps = layout.verticalGaps;
-		}
-
-		algoanim.util.Coordinates rootLocation;
-		double firstLevelWidth;
-		double verticalGaps;
-
-		Point getRootPoint() {
-			return new Point(rootLocation.getX(), rootLocation.getY());
-		}
-	}
-
 	public static final BinaryTreeLayout DEFAULT_LAYOUT = new BinaryTreeLayout(
-			new Coordinates(240, 0), 120, 30);
+			new Coordinates(240, 0), 120, 30, Color.WHITE);
 
 	private BinaryTreeModel<T> model;
 	private BinaryTreeLayout layout;
@@ -76,12 +38,39 @@ public class BinaryTreeAnimationBuilder<T extends Comparable<T>> {
 	}
 
 	public void buildCurrentGraph() {
-		int[][] matrix = model.getAdjancencyMatrix();
-		 List<de.lere.vaad.treebuilder.Node<T>> treeNodes = model.getNodes();
+//		int[][] matrix = model.getAdjancencyMatrix();
+		 List<de.lere.vaad.treebuilder.Node<T>> treeNodes = model.getNodesInOrder();
+		 int[][] matrix = getAdjancencyMatrix(treeNodes);
 		algoanim.util.Node [] nodes = generatePositions(treeNodes).toArray(new Coordinates[0]);
 		 String labels [] = getLabelsFromModel(treeNodes).toArray(new String[0]);
-		 Graph graph = language.newGraph("TBD", matrix, nodes, labels,
+		 GraphProperties gps = new GraphProperties();
+		 gps.set("fillColor", layout.bgColor);
+		 Set<String> allPropertyNames = gps.getAllPropertyNames();
+		 System.out.println(allPropertyNames);
+		 Graph graph = language.newGraph("TBD", matrix, nodes, labels,				 
 		 null);
+	}
+
+	int[][] getAdjancencyMatrix(
+			List<de.lere.vaad.treebuilder.Node<T>> treeNodes) {
+		int nodes = treeNodes.size();
+		HashMap<de.lere.vaad.treebuilder.Node<T>, Integer> nodeToIndex = new HashMap<de.lere.vaad.treebuilder.Node<T>,Integer>();
+		for (int i = 0; i < treeNodes.size(); i++) {
+			nodeToIndex.put(treeNodes.get(i),i);
+		}
+		int[][] adjacencyMatrix = new int[nodes][nodes];
+		Set<Entry<de.lere.vaad.treebuilder.Node<T>,Integer>> entrySet = nodeToIndex.entrySet();
+		for (Entry<de.lere.vaad.treebuilder.Node<T>, Integer> entry : entrySet) {
+			de.lere.vaad.treebuilder.Node<T> node = entry.getKey();
+			Integer index = entry.getValue();
+			if(node.hasLeftChild()){
+				adjacencyMatrix[index][nodeToIndex.get(node.getLeft())] = 1;
+			}
+			if(node.hasRightChild()){
+				adjacencyMatrix[index][nodeToIndex.get(node.getRight())] = 1;
+			}
+		}
+		return adjacencyMatrix;
 	}
 
 	private List<String> getLabelsFromModel(
@@ -94,7 +83,7 @@ public class BinaryTreeAnimationBuilder<T extends Comparable<T>> {
 	}
 	
 	List<String> getLabelsFromModel(){
-		return getLabelsFromModel(model.getNodes());
+		return getLabelsFromModel(model.getNodesInOrder());
 	}
 
 	private class Edge {
@@ -119,6 +108,6 @@ public class BinaryTreeAnimationBuilder<T extends Comparable<T>> {
 	}
 	
 	List<Coordinates> generatePositions() {
-		return generatePositions(model.getNodes());
+		return generatePositions(model.getNodesInOrder());
 	}
 }

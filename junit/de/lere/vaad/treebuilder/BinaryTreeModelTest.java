@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -16,12 +17,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.collections.ListUtils;
+import org.apache.commons.collections.Transformer;
+import org.apache.commons.collections.functors.MapTransformer;
 import org.apache.commons.lang.ArrayUtils;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 
 import de.lere.vaad.treebuilder.BinaryTreeModel.Edge;
+import de.lere.vaad.utils.LMTransformer;
+import de.lere.vaad.utils.ListMap;
 
 public class BinaryTreeModelTest {
 
@@ -119,7 +125,7 @@ public class BinaryTreeModelTest {
 			throws Exception {
 		int varNum = 1111;
 		BinaryTreeModel<Integer> createNElementTree = BuilderTestUtils
-				.createNElementTree(varNum);
+				.createNIntegerTree(varNum);
 		List<Edge<Integer>> edgeList = createNElementTree.getEdgeList();
 		List<PositionEdge> actualList = convertEdgeNodeListToPositionEdgeList(edgeList);
 
@@ -149,7 +155,7 @@ public class BinaryTreeModelTest {
 	@Test
 	public void testCreateAdjacencyMatrix() throws Exception {
 		BinaryTreeModel<Integer> nElementTree = BuilderTestUtils
-				.createNElementTree(7);
+				.createNIntegerTree(7);
 		int[][] expectedMatrix = { { 0, 1, 1, 0, 0, 0, 0 },
 				{ 0, 0, 0, 1, 1, 0, 0 }, { 0, 0, 0, 0, 0, 1, 1 },
 				{ 0, 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0 },
@@ -174,7 +180,21 @@ public class BinaryTreeModelTest {
 	public void testCreateNElements() {
 		int size = 8;
 		BinaryTreeModel<Integer> nElementTree = BuilderTestUtils
-				.createNElementTree(size);
+				.createNIntegerTree(size);
 		assertSize(nElementTree, size);
+	}
+	
+	@Test
+	public void shouldReturnNodesInOrder() throws Exception {
+		BinaryTreeModel<Integer> mi = BuilderTestUtils.createNIntegerTree(8);
+		List<Node<Integer>> nodesInOrder = mi.getNodesInOrder();
+		List<Integer> asIntLs = ListMap.map(nodesInOrder, new LMTransformer<Node<Integer>, Integer>() {
+
+			@Override
+			public Integer transform(Node<Integer> input) {
+				return input.getValue();
+			}
+		});
+		assertThat(asIntLs,hasItems(8,4,2,5,1,6,3,7));
 	}
 }

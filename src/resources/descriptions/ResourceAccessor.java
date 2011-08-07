@@ -2,10 +2,20 @@ package resources.descriptions;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 
+/**
+ * Wraps descriptive texts used in animation.<br>
+ * The actual enums can be used as store for the texts but have to be initialized once using {@link #init()}.
+ *  
+ * 
+ * @author Leo Roos, Rene Hertling
+ *
+ */
 public enum ResourceAccessor {
 	
 	DESCRIPTION("description"),
@@ -22,21 +32,35 @@ public enum ResourceAccessor {
 	private String name;
 	private List<String> text;
 	
-	public InputStream getResource(){
-		return this.getClass().getResourceAsStream(name);
+	InputStreamReader getResource(){
+		InputStream resourceAsStream = this.getClass().getResourceAsStream(name);
+		try {
+			return new InputStreamReader(resourceAsStream, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			return new InputStreamReader(resourceAsStream);
+		}
 	}
 	
-	public void init() throws IOException{
-		text = getTextFromResource(this);
+	private void init(){
+		try {
+			text = getTextFromResource(this);
+		} catch (IOException e) {
+			throw new IllegalStateException("Expected Resource " + this + " not found");
+		}
 	}
 	
 	public List<String> getText() {
-		assert text != null : "Not properly initialised.";
+		if(!isInitialized())
+			init();
 		return text;
 	}
 	
+	private boolean isInitialized(){
+		return this.text != null;
+	}
+	
 	private List<String> getTextFromResource(ResourceAccessor resource) throws IOException {
-		InputStream file = resource.getResource();
+		InputStreamReader file = resource.getResource();
 		List<String> readLines = IOUtils.readLines(file);
 		return readLines;
 	}

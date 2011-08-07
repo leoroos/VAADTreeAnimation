@@ -12,7 +12,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 
 import de.lere.vaad.treebuilder.BinaryTreeAnimationBuilder;
-import de.lere.vaad.treebuilder.BinaryTreeAnimationBuilder.BinaryTreeLayout;
+import de.lere.vaad.treebuilder.BinaryTreeLayout;
 import de.lere.vaad.treebuilder.BinaryTreeModel;
 import de.lere.vaad.treebuilder.BreadthFirstBuilder;
 
@@ -350,8 +350,6 @@ public class SplayTreeAnimation implements LocationDirectorProvider {
 
 	private void init() throws IOException {
 		initializeLocationDirectors();
-		loadTexts();
-
 	}
 
 	private void initializeLocationDirectors() {
@@ -392,19 +390,6 @@ public class SplayTreeAnimation implements LocationDirectorProvider {
 		String codeGroupText = " \n \n \n";
 		sc = getFilledSourceCode(codeGroupText, sc);
 		return sc;
-	}
-
-	private void loadTexts() throws IOException {
-		ResourceAccessor[] texts = { ResourceAccessor.DESCRIPTION, //
-				ResourceAccessor.INTRO, //
-				ResourceAccessor.BEHAVIOUR, //
-				ResourceAccessor.ZIG_STEP, //
-				ResourceAccessor.ZIGZAG_STEP, //
-				ResourceAccessor.ZIGZIG_STEP, //
-		};
-		for (ResourceAccessor resourceAccessor : texts) {
-			resourceAccessor.init();
-		}
 	}
 
 }
