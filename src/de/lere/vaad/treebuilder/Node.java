@@ -2,10 +2,6 @@ package de.lere.vaad.treebuilder;
 
 import java.util.Scanner;
 
-import de.lere.vaad.utils.NodeHelper;
-
-import junit.framework.AssertionFailedError;
-
 /**
  * @author Leo Roos, Rene Hertling Represents a Node in a Binary-Tree; contains
  *         the parent node of this node (null if its the root node) and left and
@@ -210,17 +206,18 @@ public class Node<T extends Comparable<T>> {
 	 *         it's parent.
 	 */
 	public Node<T> copy() {
+		return internalCopy(this.parent);
+	}
+
+	private Node<T> internalCopy(Node<T> parent) {
 		Node<T> node = new Node<T>(uid, value);
-		if(hasLeftChild()) {
+		node.setParent(parent);
+		if (hasLeftChild()) {
 			node.setLeft(leftNode.copy());
 		}
-		if(hasRightChild()) {
+		if (hasRightChild()) {
 			node.setRight(rightNode.copy());
 		}
-		//don't copy parent
 		return node;
 	}
-	
-	
-
 }

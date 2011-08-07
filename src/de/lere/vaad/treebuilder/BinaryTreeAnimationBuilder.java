@@ -26,7 +26,7 @@ public class BinaryTreeAnimationBuilder<T extends Comparable<T>> implements
 	private BinaryTreeLayout layout;
 	private Language language;
 	private Graph lastCreatedGraph;
-	
+
 	private Timing now = new TicksTiming(0);
 
 	public BinaryTreeAnimationBuilder(Language lang) {
@@ -62,12 +62,12 @@ public class BinaryTreeAnimationBuilder<T extends Comparable<T>> implements
 		String labels[] = getLabelsFromModel(treeNodes).toArray(new String[0]);
 		GraphProperties gps = new GraphProperties();
 		gps.set("fillColor", layout.bgColor);
-		if(lastCreatedGraph != null){
+		if (lastCreatedGraph != null) {
 			lastCreatedGraph.hide(now);
-		}		
-		
+		}
+
 		lastCreatedGraph = language.newGraph(layout.graphName, matrix, nodes,
-				labels, null, gps);				
+				labels, null, gps);
 	}
 
 	int[][] getAdjancencyMatrix(List<de.lere.vaad.treebuilder.Node<T>> treeNodes) {
@@ -103,16 +103,6 @@ public class BinaryTreeAnimationBuilder<T extends Comparable<T>> implements
 
 	List<String> getLabelsFromModel() {
 		return getLabelsFromModel(model.getNodesInOrder());
-	}
-
-	private class Edge {
-		public Edge(Node parentPos, Node childPos) {
-			ParentPos = parentPos;
-			ChildPos = childPos;
-		}
-
-		private final Node ParentPos;
-		private final Node ChildPos;
 	}
 
 	private List<Coordinates> generatePositions(

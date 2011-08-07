@@ -37,4 +37,28 @@ public class NodeHelper {
 		return point;
 	}
 
+	static class CoordinatesToPointTransformer implements
+			LMTransformer<Coordinates, Point> {
+
+		@Override
+		public Point transform(Coordinates input) {
+			return convertCoordinatesToAWTPoint(input);
+		}
+
+	}
+
+	public static final CoordinatesToPointTransformer COORDS_TO_POINTS = new CoordinatesToPointTransformer();
+
+	static class OffsetToPointTransformer implements
+			LMTransformer<Offset, Point> {
+
+		@Override
+		public Point transform(Offset input) {
+			return convertOffsetToAWTPoint(input);
+		}
+
+	}
+
+	public static final OffsetToPointTransformer OFFSET_TO_POINTS = new OffsetToPointTransformer();
+
 }

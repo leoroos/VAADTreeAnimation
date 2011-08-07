@@ -1,4 +1,5 @@
 package de.lere.vaad.treebuilder;
+
 import static de.lere.vaad.treebuilder.BuilderTestUtils.createNIntegerTree;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
@@ -9,14 +10,11 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.*;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.verify;
 
 import java.awt.Point;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,6 +29,8 @@ import org.mockito.Spy;
 import algoanim.animalscript.AnimalScript;
 import algoanim.util.Coordinates;
 import de.lere.vaad.utils.GraphObject;
+import de.lere.vaad.utils.ListMap;
+import de.lere.vaad.utils.NodeHelper;
 import de.lere.vaad.utils.StrUtils;
 
 public class BinaryTreeAnimationBuilderTest {
@@ -45,9 +45,11 @@ public class BinaryTreeAnimationBuilderTest {
 	@Spy
 	AnimalScript language = new AnimalScript("dummynator", "terminator", 640,
 			480);
-	
-	@Mock BinaryTreeModel<Integer> btmock;
-	@Mock BinaryTreeModel<Integer> btmock2;
+
+	@Mock
+	BinaryTreeModel<Integer> btmock;
+	@Mock
+	BinaryTreeModel<Integer> btmock2;
 
 	private BinaryTreeAnimationBuilder<Integer> testee;
 
@@ -73,7 +75,7 @@ public class BinaryTreeAnimationBuilderTest {
 		testee.setModel(model);
 		testee.buildCurrentGraph();
 		String animationCode = language.getAnimationCode();
-//		System.out.println(animationCode);
+		// System.out.println(animationCode);
 		assertThat(animationCode, containsString(expected));
 	}
 
@@ -164,12 +166,10 @@ public class BinaryTreeAnimationBuilderTest {
 	}
 
 	private List<Point> convertCoordsToPoint(List<Coordinates> coordinates) {
-		ArrayList<Point> result = new ArrayList<Point>();
-		for (Coordinates coords : coordinates) {
-			Point point = new Point(coords.getX(), coords.getY());
-			result.add(point);
-		}
-		return result;
+
+		List<Point> list = ListMap
+				.map(coordinates, NodeHelper.COORDS_TO_POINTS);
+		return list;
 	}
 
 	@Test
@@ -212,10 +212,10 @@ public class BinaryTreeAnimationBuilderTest {
 		};
 		assertThat(adjMatrix, arrayContaining(expectedMatrix));
 	}
-	
+
 	@Test
 	public void performAnimationOnInsert() throws Exception {
-		BinaryTreeModel<Integer> model = emptyModel;		
+		BinaryTreeModel<Integer> model = emptyModel;
 		testee.setModel(model);
 		assertNthLastAnimationLineIsGraphOfExpectedDimenstion(1, 0, 0);
 		model.insert(0);
@@ -223,27 +223,27 @@ public class BinaryTreeAnimationBuilderTest {
 	}
 
 	@Test
-	public void setModelAddsListener(){
+	public void setModelAddsListener() {
 		testee.setModel(btmock);
-		verify(btmock).addListener(testee);		
+		verify(btmock).addListener(testee);
 	}
-	
+
 	@Test
-	public void setModelRemovesOldListener(){
+	public void setModelRemovesOldListener() {
 		testee.setModel(btmock);
 		testee.setModel(emptyModel);
 		verify(btmock).removeListener(testee);
 	}
-	
+
 	@Test
-	public void setModelAddsNewModelIfOldExists(){
+	public void setModelAddsNewModelIfOldExists() {
 		testee.setModel(btmock);
 		testee.setModel(btmock2);
 		verify(btmock2).addListener(testee);
 	}
-	
+
 	@Test
-	public void setNonEmptyModelShowsInitialModel(){
+	public void setNonEmptyModelShowsInitialModel() {
 		BinaryTreeModel<Integer> model = BuilderTestUtils.createNIntegerTree(3);
 		testee.setModel(model);
 		String animationCode = language.getAnimationCode();
@@ -253,46 +253,54 @@ public class BinaryTreeAnimationBuilderTest {
 		assertThat(parse.nodes, hasSize(3));
 		assertThat(parse.edges, hasSize(2));
 	}
-	
+
 	@Test
-	public void setEmtpyModelShowsNothing(){
+	public void setEmtpyModelShowsNothing() {
 		testee.setModel(emptyModel);
 		String animationCode = language.getAnimationCode();
-		assertNthLastAnimationLineIsGraphOfExpectedDimenstion(1,0,0);		
+		assertNthLastAnimationLineIsGraphOfExpectedDimenstion(1, 0, 0);
 	}
 
-	private void assertLineIsGraphOfExpectedDimensions(String line,int nodes, int edges) {
+	private void assertLineIsGraphOfExpectedDimensions(String line, int nodes,
+			int edges) {
 		GraphObject gr = GraphObject.parse(line);
-		assertThat("actual nodes of graph objects does not equal the expected",gr.nodes, hasSize(nodes));
-		assertThat("amount of edges differ from expected",gr.edges, hasSize(edges));
+		assertThat("actual nodes of graph objects does not equal the expected",
+				gr.nodes, hasSize(nodes));
+		assertThat("amount of edges differ from expected", gr.edges,
+				hasSize(edges));
 	}
-	
-	private void assertNthLastAnimationLineIsGraphOfExpectedDimenstion(int lineNum, int nodes, int edges){
-		String line = StrUtils.getNthLastLine(language.getAnimationCode(), lineNum);
-		assertLineIsGraphOfExpectedDimensions(line,nodes,edges);
+
+	private void assertNthLastAnimationLineIsGraphOfExpectedDimenstion(
+			int lineNum, int nodes, int edges) {
+		String line = StrUtils.getNthLastLine(language.getAnimationCode(),
+				lineNum);
+		assertLineIsGraphOfExpectedDimensions(line, nodes, edges);
 	}
-	
+
 	@Test
-	public void setNewOverOldHidesOld() throws Exception {		
+	public void setNewOverOldHidesOld() throws Exception {
 		testee.setModel(emptyModel);
-		assertNthLastAnimationLineIsGraphOfExpectedDimenstion(1,0,0);
-		BinaryTreeModel<Integer> model5n = BuilderTestUtils.createNIntegerTree(5);
+		assertNthLastAnimationLineIsGraphOfExpectedDimenstion(1, 0, 0);
+		BinaryTreeModel<Integer> model5n = BuilderTestUtils
+				.createNIntegerTree(5);
 		testee.setModel(model5n);
-		
+
 		String animationCode = language.getAnimationCode();
-		String nthLastLine = StrUtils.getNthLastLine(animationCode,2);
-		assertThat(Arrays.asList(nthLastLine.split(" ")), both(hasItem("hide")).and(hasItem("\""+testee.getLayout().graphName+"\"")));
-		
-		assertNthLastAnimationLineIsGraphOfExpectedDimenstion(1,5,4);	
+		String nthLastLine = StrUtils.getNthLastLine(animationCode, 2);
+		assertThat(Arrays.asList(nthLastLine.split(" ")), both(hasItem("hide"))
+				.and(hasItem("\"" + testee.getLayout().graphName + "\"")));
+
+		assertNthLastAnimationLineIsGraphOfExpectedDimenstion(1, 5, 4);
 	}
-	
+
 	@Test
 	public void setNewModelOverNoModelHidesNothing() throws Exception {
 		testee.setModel(emptyModel);
 		String animationCode = language.getAnimationCode();
 		System.out.println(animationCode);
-		String nthLastLine = StrUtils.getNthLastLine(animationCode,2);
-		assertThat(Arrays.asList(nthLastLine.split(" ")), not(hasItem("hide")));		
-		assertLineIsGraphOfExpectedDimensions(StrUtils.getLastLine(animationCode),0,0);
+		String nthLastLine = StrUtils.getNthLastLine(animationCode, 2);
+		assertThat(Arrays.asList(nthLastLine.split(" ")), not(hasItem("hide")));
+		assertLineIsGraphOfExpectedDimensions(
+				StrUtils.getLastLine(animationCode), 0, 0);
 	}
 }
