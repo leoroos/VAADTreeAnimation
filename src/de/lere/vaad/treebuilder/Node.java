@@ -208,8 +208,7 @@ public class Node<T extends Comparable<T>> {
 	 */
 	public Node<T> copy() {
 		Node<T> node = new Node<T>(uid, value);
-		//delete dependency to prior references
-		node.setParent(null);
+		//first Node does not carry on its parent to delete old references
 		if (hasLeftChild()) {
 			node.setLeft(leftNode.copy());
 		}
