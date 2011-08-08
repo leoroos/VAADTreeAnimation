@@ -3,6 +3,7 @@ package de.lere.vaad.treebuilder;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.io.IOUtils;
+import org.hamcrest.core.IsNull;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -290,5 +292,102 @@ public class NodeTest {
 		} else {
 			assertTrue(node.getLeft().compareStructure(c.getLeft()));
 		}
+	}
+	
+	
+	@Test
+	public void sameNodeShouldBeEqual() throws Exception {
+		Node<Integer> node = new Node<Integer>(1);
+		assertThat(node, equalTo(node));
+	}
+	
+	
+	@Test
+	public void differentNodesNotEqual() throws Exception {
+		Node<Integer> node = new Node<Integer>(1);
+		Node<Integer> node2 = new Node<Integer>(2);
+		assertThat(node, not(equalTo(node2)));
+	}
+	
+	
+	@Test
+	public void nodesEqualAfterCopy() throws Exception {
+		Node<Integer> node = new Node<Integer>(1);
+		Node<Integer> copy = node.copy();
+		assertThat(copy, equalTo(node));
+	}
+	
+	
+	@Test
+	public void nodesWithDifferentStructureEqual() throws Exception {
+		Node<Integer> node = new Node<Integer>(1);
+		Node<Integer> copy = node.copy();
+		copy.setLeft(new Node<Integer>(2));
+		assertFalse(copy.compareStructure(node));
+		assertThat(copy, equalTo(node));
+	}
+	
+	@Test
+	public void getMaximumDeliversRightmostChild(){
+		BinaryTreeModel<Integer> nIntegerTree = BuilderTestUtils.createNIntegerTree(7);
+		Node<Integer> root2 = nIntegerTree.getRoot();
+		Node<Integer> maximumNode = root2.getMaximum();
+		assertThat(maximumNode.getValue(), equalTo(7));
+	}
+	
+	@Test
+	public void getMinimumDeliversLeftMostchild(){
+		BinaryTreeModel<Integer> nIntegerTree = BuilderTestUtils.createNIntegerTree(7);
+		Node<Integer> root2 = nIntegerTree.getRoot();
+		Node<Integer> maximumNode = root2.getMinimum();
+		assertThat(maximumNode.getValue(), equalTo(4));
+	}
+	
+	@Test
+	public void getMaximumDeliversRootIfThereAreNoRightChilds(){
+		BinaryTreeModel<Integer> nIntegerTree = BuilderTestUtils.createNIntegerTree(1);
+		Node<Integer> root2 = nIntegerTree.getRoot();
+		Node<Integer> maximumNode = root2.getMaximum();
+		assertThat(maximumNode.getValue(), equalTo(1));
+	}
+	
+	@Test
+	public void getMinimumDeliversRootIfThereAreNoLeftChilds(){
+		BinaryTreeModel<Integer> nIntegerTree = BuilderTestUtils.createNIntegerTree(1);
+		Node<Integer> root2 = nIntegerTree.getRoot();
+		Node<Integer> maximumNode = root2.getMinimum();
+		assertThat(maximumNode.getValue(), equalTo(1));
+	}
+	
+	@Test
+	public void getSuccessorDeliversSuccessor(){
+		BinaryTreeModel<Integer> nIntegerTree = BuilderTestUtils.createNIntegerTree(7);
+		Node<Integer> root2 = nIntegerTree.getRoot();
+		Node<Integer> predeccesor = root2.getSuccessor();
+		assertThat(predeccesor.getValue(), equalTo(6));
+	}
+	
+	@Test
+	public void getPredecessorDeliversPredecessor(){
+		BinaryTreeModel<Integer> nIntegerTree = BuilderTestUtils.createNIntegerTree(7);
+		Node<Integer> root2 = nIntegerTree.getRoot();
+		Node<Integer> predeccesor = root2.getPredeccesor();
+		assertThat(predeccesor.getValue(), equalTo(5));
+	}
+	
+	@Test
+	public void getPredecessorDeliversNullIfLeftSubtreeEmpty(){
+		BinaryTreeModel<Integer> nIntegerTree = BuilderTestUtils.createNIntegerTree(1);
+		Node<Integer> root2 = nIntegerTree.getRoot();
+		Node<Integer> predeccesor = root2.getPredeccesor();
+		assertThat(predeccesor, nullValue());
+	}
+	
+	@Test
+	public void getSuccessorDeliversNullIfRightSubtreeEmpty(){
+		BinaryTreeModel<Integer> nIntegerTree = BuilderTestUtils.createNIntegerTree(1);
+		Node<Integer> root2 = nIntegerTree.getRoot();
+		Node<Integer> predeccesor = root2.getSuccessor();
+		assertThat(predeccesor, nullValue());
 	}
 }

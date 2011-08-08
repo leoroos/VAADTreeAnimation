@@ -15,12 +15,13 @@ import algoanim.util.Coordinates;
 import algoanim.util.Node;
 import algoanim.util.TicksTiming;
 import algoanim.util.Timing;
+import de.lere.vaad.EndOfTheWorldException;
 import de.lere.vaad.MathHelper;
 
 public class BinaryTreeAnimationBuilder<T extends Comparable<T>> implements
 		BinaryTreeModelListener<T> {
 	public static final BinaryTreeLayout DEFAULT_LAYOUT = new BinaryTreeLayout(
-			new Coordinates(240, 0), 120, 30, Color.WHITE, "DefaultGraphName");
+			new Point(240, 0), 120, 30, Color.WHITE, "DefaultGraphName");
 
 	private BinaryTreeModel<T> model;
 	private BinaryTreeLayout layout;
@@ -54,17 +55,26 @@ public class BinaryTreeAnimationBuilder<T extends Comparable<T>> implements
 	}
 
 	void buildCurrentGraph() {
+		
+		if (lastCreatedGraph != null) {
+			lastCreatedGraph.hide(now);
+		}
+
+		if(model.size() < 1 ){
+			//don't draw empty graph
+			return;
+		}
+		
 		List<de.lere.vaad.treebuilder.Node<T>> treeNodes = model
 				.getNodesInOrder();
+		
 		int[][] matrix = getAdjancencyMatrix(treeNodes);
 		algoanim.util.Node[] nodes = generatePositions(treeNodes).toArray(
 				new Coordinates[0]);
 		String labels[] = getLabelsFromModel(treeNodes).toArray(new String[0]);
 		GraphProperties gps = new GraphProperties();
 		gps.set("fillColor", layout.bgColor);
-		if (lastCreatedGraph != null) {
-			lastCreatedGraph.hide(now);
-		}
+
 
 		lastCreatedGraph = language.newGraph(layout.graphName, matrix, nodes,
 				labels, null, gps);
@@ -122,7 +132,29 @@ public class BinaryTreeAnimationBuilder<T extends Comparable<T>> implements
 	}
 
 	@Override
-	public void updateOnInsert(TreeEvent<T> event) {
+	public void update(TreeInsertEvent<T> event) {
+		buildCurrentGraph();
+//		language.next
+//		insertAnimator.animateInsert(lang, event);
+	}
 
+	@Override
+	public void update(TreeDeleteEvent<T> event) {
+		buildCurrentGraph();
+	}
+
+	@Override
+	public void update(TreeEvent<T> event) {
+		throw new EndOfTheWorldException();
+	}
+
+	@Override
+	public void update(TreeLeftRotateEvent<T> event) {
+		buildCurrentGraph();
+	}
+
+	@Override
+	public void update(TreeRightRotateEvent<T> event) {
+		buildCurrentGraph();
 	}
 }

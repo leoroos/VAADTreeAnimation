@@ -10,7 +10,12 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.verify;
+
+import generators.compression.Huffman.NodeH;
 
 import java.awt.Point;
 import java.io.IOException;
@@ -19,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.commons.lang.UnhandledException;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,8 +41,7 @@ import de.lere.vaad.utils.StrUtils;
 
 public class BinaryTreeAnimationBuilderTest {
 
-	private static final Coordinates BUILDER_GRAPHROOT_COORDS = new Coordinates(
-			300, 275);
+	private static final Point BUILDER_GRAPHROOT_COORDS = new Point(300, 275);
 	private static final int MODEL_SIZE = 8;
 	private static final int FIRST_LEVEL_WIDTH = 240;
 	private static final int VERTICAL_SPACING = 60;
@@ -102,7 +107,7 @@ public class BinaryTreeAnimationBuilderTest {
 		BinaryTreeModel<String> model = new BreadthFirstBuilder()
 				.buildTree("root");
 		btab.setModel(model);
-		btab.setLayout(new BinaryTreeLayout(new Coordinates(123, 456), 0, 0));
+		btab.setLayout(new BinaryTreeLayout(new Point(123, 456), 0, 0));
 		Coordinates generatePositions2 = btab.generatePositions().get(0);
 		Point actual = coordToPoint(generatePositions2);
 		assertThat(actual, equalTo(new Point(123, 456)));
@@ -121,7 +126,8 @@ public class BinaryTreeAnimationBuilderTest {
 		testee.setLayout(new BinaryTreeLayout(BUILDER_GRAPHROOT_COORDS, 120, 60));
 		Coordinates[] expected = new Coordinates[elements];
 		// expected[0] = new Coordinates(300,275);
-		expected[0] = BUILDER_GRAPHROOT_COORDS;
+		expected[0] = NodeHelper
+				.convertAWTPointToCoordinates(BUILDER_GRAPHROOT_COORDS);
 		expected[1] = new Coordinates(180, 335);
 		expected[2] = new Coordinates(420, 335);
 		expected[3] = new Coordinates(120, 395);
@@ -214,12 +220,13 @@ public class BinaryTreeAnimationBuilderTest {
 	}
 
 	@Test
-	public void performAnimationOnInsert() throws Exception {
-		BinaryTreeModel<Integer> model = emptyModel;
-		testee.setModel(model);
-		assertNthLastAnimationLineIsGraphOfExpectedDimenstion(1, 0, 0);
-		model.insert(0);
-		assertNthLastAnimationLineIsGraphOfExpectedDimenstion(1, 1, 0);
+	public void performNoAnimationOnEmptyInsert() throws Exception {
+		testee.update(new TreeInsertEvent<Integer>(emptyModel, emptyModel, null));
+		assertNoGraphLine(lastLine());
+	}
+
+	private String lastLine() {
+		return StrUtils.getLastLine(language.getAnimationCode());
 	}
 
 	@Test
@@ -247,7 +254,6 @@ public class BinaryTreeAnimationBuilderTest {
 		BinaryTreeModel<Integer> model = BuilderTestUtils.createNIntegerTree(3);
 		testee.setModel(model);
 		String animationCode = language.getAnimationCode();
-		System.out.println(animationCode);
 		String lastLine = StrUtils.getLastLine(animationCode);
 		GraphObject parse = GraphObject.parse(lastLine);
 		assertThat(parse.nodes, hasSize(3));
@@ -258,7 +264,17 @@ public class BinaryTreeAnimationBuilderTest {
 	public void setEmtpyModelShowsNothing() {
 		testee.setModel(emptyModel);
 		String animationCode = language.getAnimationCode();
-		assertNthLastAnimationLineIsGraphOfExpectedDimenstion(1, 0, 0);
+		String lastLine = StrUtils.getLastLine(animationCode);
+		assertNoGraphLine(lastLine);
+	}
+
+	private void assertNoGraphLine(String lastLine) {
+		try {
+			GraphObject.parse(lastLine);
+			fail("expected not a graph but was: " + lastLine);
+		} catch (IllegalArgumentException e) {
+			// expected
+		}
 	}
 
 	private void assertLineIsGraphOfExpectedDimensions(String line, int nodes,
@@ -272,15 +288,15 @@ public class BinaryTreeAnimationBuilderTest {
 
 	private void assertNthLastAnimationLineIsGraphOfExpectedDimenstion(
 			int lineNum, int nodes, int edges) {
-		String line = StrUtils.getNthLastLine(language.getAnimationCode(),
-				lineNum);
+		String line = nthLastLine(lineNum);
 		assertLineIsGraphOfExpectedDimensions(line, nodes, edges);
 	}
 
 	@Test
 	public void setNewOverOldHidesOld() throws Exception {
+		emptyModel.insert(2);
 		testee.setModel(emptyModel);
-		assertNthLastAnimationLineIsGraphOfExpectedDimenstion(1, 0, 0);
+		assertNthLastAnimationLineIsGraphOfExpectedDimenstion(1, 1, 0);
 		BinaryTreeModel<Integer> model5n = BuilderTestUtils
 				.createNIntegerTree(5);
 		testee.setModel(model5n);
@@ -295,12 +311,45 @@ public class BinaryTreeAnimationBuilderTest {
 
 	@Test
 	public void setNewModelOverNoModelHidesNothing() throws Exception {
+		emptyModel.insert(Integer.MIN_VALUE);
 		testee.setModel(emptyModel);
-		String animationCode = language.getAnimationCode();
-		System.out.println(animationCode);
-		String nthLastLine = StrUtils.getNthLastLine(animationCode, 2);
+		int nthLast = 2;
+		String nthLastLine = nthLastLine(nthLast);
 		assertThat(Arrays.asList(nthLastLine.split(" ")), not(hasItem("hide")));
 		assertLineIsGraphOfExpectedDimensions(
-				StrUtils.getLastLine(animationCode), 0, 0);
+				lastLine(), 1, 0);
+	}
+
+	private String nthLastLine(int nthLast) {
+		return StrUtils.getNthLastLine(language.getAnimationCode(), nthLast );
+	}
+
+	@Test
+	public void renderDeletionOnDegeneratedModelDoesNotFail() {
+		BinaryTreeModel<Integer> model = BinaryTreeModel.createTreeByInsert(2,
+				2, 2);
+		testee.setModel(model);
+		model.delete(2);
+		model.delete(2);
+		model.delete(2);
+		model.delete(2);
+		System.out.println(language.getAnimationCode());
+	}
+
+	@Test
+	public void deleteRootOfNotZeroLevelTree() {
+		BinaryTreeModel<Integer> model = BinaryTreeModel.createTreeByInsert(2,
+				2, 2);
+		testee.setModel(model);
+		Node<Integer> root = model.getRoot();
+		Node<Integer> delete = model.delete(root);
+		assertEquals(root, delete);
+
+		Node<Integer> root2 = model.getRoot();
+		assertThat(root2, not(equalTo(root)));
+		assertThat(root2.getParent(), nullValue());
+		Node<Integer> delete2 = model.delete(root2);
+		assertThat(root2, equalTo(delete2));
+		System.out.println(language.getAnimationCode());
 	}
 }

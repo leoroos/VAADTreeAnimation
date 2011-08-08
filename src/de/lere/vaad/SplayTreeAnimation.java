@@ -3,11 +3,16 @@ package de.lere.vaad;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
 
@@ -15,6 +20,9 @@ import de.lere.vaad.treebuilder.BinaryTreeAnimationBuilder;
 import de.lere.vaad.treebuilder.BinaryTreeLayout;
 import de.lere.vaad.treebuilder.BinaryTreeModel;
 import de.lere.vaad.treebuilder.BreadthFirstBuilder;
+import de.lere.vaad.treebuilder.BuilderTestUtils;
+import de.lere.vaad.treebuilder.Node;
+import de.lere.vaad.utils.NodeHelper;
 
 import resources.descriptions.ResourceAccessor;
 import algoanim.animalscript.AnimalScript;
@@ -31,6 +39,7 @@ import algoanim.util.Offset;
 
 public class SplayTreeAnimation implements LocationDirectorProvider {
 
+	private static final Coordinates GRAPHROOT_COORDINATES = new Coordinates(400, 300);
 	public static final String DIRECTOR_HEADER = "de.lere.vaad.headerdirector";
 	public static final String DIRECTOR_DESCRIPTION_BEGINNING = "de.lere.vaad.descriptionbeginningdirector";
 	public static final String DIRECTOR_MACROSTEP = "de.lere.vaad.macrostepdirector";
@@ -117,24 +126,51 @@ public class SplayTreeAnimation implements LocationDirectorProvider {
 		
 		nextStateOnLocation(actionHeaderText(), Location.Header);
 
-		nextStateOnLocation(ResourceAccessor.INTRO.getText(),
-				Location.DescriptionBeginning);
+//		nextStateOnLocation(ResourceAccessor.INTRO.getText(),
+//				Location.DescriptionBeginning);
 				
-		BinaryTreeAnimationBuilder<String> aniBui = new BinaryTreeAnimationBuilder<String>(language);
+		BinaryTreeAnimationBuilder<Integer> aniBui = new BinaryTreeAnimationBuilder<Integer>(language);
 		Offset graphRootLocation = getDirector(Location.Graphroot.DIRECTOR_NAME).getLocation();
-		Coordinates graphRootCoords = new Coordinates(graphRootLocation.getX(), graphRootLocation.getY());
-		BinaryTreeLayout blay = new BinaryTreeLayout(graphRootCoords, 120, 20);
+		Point graphRootPoint = NodeHelper.convertOffsetToAWTPoint(graphRootLocation);
+		BinaryTreeLayout blay = new BinaryTreeLayout(new Point(900, 200), 400, 60);
 		aniBui.setLayout(blay );
-		BinaryTreeModel<String> buildTree = new BreadthFirstBuilder().buildTree("P","X","C","A","B","a","d","b","d");
-		aniBui.setModel(buildTree);
-//		aniBui.buildCurrentGraph();
+		BinaryTreeModel<Integer> model = new BinaryTreeModel<Integer>();
+//		language.nextStep();
+		List<Integer> intList = createSomeInts(25);
+		Iterator<Integer> iterator2 = intList.iterator();
+		while(iterator2.hasNext()){
+			model.insert(iterator2.next());
+			//language.nextStep();
+		}
+		aniBui.setModel(model);
+		Collections.shuffle(intList);
+		List<Node<Integer>> nodesInOrder = model.getNodesInOrder();
+		Collections.shuffle(nodesInOrder);
+		Iterator<Node<Integer>> iterator3 = nodesInOrder.iterator();
+		Random r = new Random(123);
+		while(iterator3.hasNext()){
+			Node<Integer> next = iterator3.next();
+			boolean b = r.nextBoolean();
+			if(b){
+				model.rightRotate(next);
+				nextStateOnLocation("Right Rotation aroung" + next.getValue(), Location.Microstep);
+			}
+			else {
+				model.leftRotate(next);
+				nextStateOnLocation("Left Rotation" + next.getValue(), Location.Microstep);
+			}
+			language.nextStep();
+		}
 		
-		language.nextStep();
-
+		Iterator<Integer> iterator = intList.iterator();		
+		while(iterator.hasNext()){
+			Integer next = iterator.next();
+			model.delete(next);		
+			language.nextStep();
+		}	
+		
 		nextStateOnLocation(ResourceAccessor.DESCRIPTION.getText(),
 				Location.DescriptionBeginning);
-
-		language.nextStep();
 
 		nextStateOnLocation(actionSourceCodeText(),
 				Location.DescriptionBeginning);
@@ -149,9 +185,7 @@ public class SplayTreeAnimation implements LocationDirectorProvider {
 				"ungerade Knotenanzahl hat und es sich um die letzte\n" + 
 				"Splay-Operation einer Transformation handelt.";
 		nextStateOnLocation(actionZigMacroDescription, Location.Macrostep);
-		
-		language.nextStep();
-		
+	
 		nextStateOnLocation("Führe Rechtsrotation um p aus.", Location.Macrostep);
 
 		//
@@ -167,12 +201,9 @@ public class SplayTreeAnimation implements LocationDirectorProvider {
 		nextStateOnLocation("Führe Rechtsrotation um g aus.",
 				Location.Microstep);
 
-		language.nextStep();
-
+	
 		nextStateOnLocation("Führe Rechtsrotation um p aus.",
 				Location.Microstep);
-
-		language.nextStep();
 
 		//
 		// ZigZag-Step
@@ -227,6 +258,16 @@ public class SplayTreeAnimation implements LocationDirectorProvider {
 		language.nextStep();
 	}
 
+	Random r = new Random(22);
+	
+	private List<Integer> createSomeInts(int howmuch) {
+		ArrayList<Integer> list = new ArrayList<Integer>();
+		for(int i = 0; i < howmuch; ++i){
+			list.add(r.nextInt(howmuch * 20));
+		}
+		return list;
+	}
+	
 	/**
 	 * Puts the a new action on a location
 	 * 
@@ -375,9 +416,8 @@ public class SplayTreeAnimation implements LocationDirectorProvider {
 		addDirector(DIRECTOR_MICROSTEP, new AnimationLocationDirector(
 				microStepLocation));
 
-		Coordinates graphroot = new Coordinates(250, 300);
 		addDirector(DIRECTOR_GRAPHROOT,
-				new AnimationLocationDirector(CorrectedOffset.getOffsetForCoordinate(graphroot)));
+				new AnimationLocationDirector(CorrectedOffset.getOffsetForCoordinate(GRAPHROOT_COORDINATES)));
 
 	}
 

@@ -8,7 +8,7 @@ import algoanim.util.Coordinates;
 public class BinaryTreeLayout {
 
 	public static final Color DEFAULT_BG_COLOR = Color.WHITE;
-	public final algoanim.util.Coordinates rootLocation;
+	public final Point rootLocation;
 	public final double firstLevelWidth;
 	public final double verticalGaps;
 	public final Color bgColor;
@@ -32,7 +32,7 @@ public class BinaryTreeLayout {
 	 * @param bgColor background color of nodes
 	 * @param graphName TODO
 	 */
-	public BinaryTreeLayout(algoanim.util.Coordinates rootLocation,
+	public BinaryTreeLayout(Point rootLocation,
 			int firstLevelWidth, int verticalGap, Color bgColor, String graphName) {
 		this.rootLocation = rootLocation;
 		this.firstLevelWidth = firstLevelWidth;
@@ -42,12 +42,12 @@ public class BinaryTreeLayout {
 	}
 
 
-	public BinaryTreeLayout(Coordinates builderGraphrootCoords,
+	public BinaryTreeLayout(Point graphRootPoint,
 			int firstLevelWidth2, int verticalSpacing) {
-		this(builderGraphrootCoords, firstLevelWidth2, verticalSpacing, DEFAULT_BG_COLOR, "DefaultGraphName");
+		this(graphRootPoint, firstLevelWidth2, verticalSpacing, DEFAULT_BG_COLOR, "DefaultGraphName");
 	}
 
 	Point getRootPoint() {
-		return new Point(rootLocation.getX(), rootLocation.getY());
+		return this.rootLocation;
 	}
 }

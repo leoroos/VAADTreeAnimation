@@ -61,4 +61,9 @@ public class NodeHelper {
 
 	public static final OffsetToPointTransformer OFFSET_TO_POINTS = new OffsetToPointTransformer();
 
+	public static Coordinates convertAWTPointToCoordinates(
+			Point point) {
+		return new Coordinates(point.x, point.y);
+	}
+
 }

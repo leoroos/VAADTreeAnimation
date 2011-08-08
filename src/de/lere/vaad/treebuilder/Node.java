@@ -93,7 +93,7 @@ public class Node<T extends Comparable<T>> {
 		return value;
 	}
 
-	public boolean compareStructure(Node<T> inorderbuild) {
+	public boolean compareStructure(Node<?> inorderbuild) {
 		if (inorderbuild == null)
 			return false;
 		boolean equals = this.value.equals(inorderbuild.value);
@@ -106,10 +106,10 @@ public class Node<T extends Comparable<T>> {
 		return false;
 	}
 
-	private boolean compareNodes(Node<T> c1, Node<T> c2) {
+	private boolean compareNodes(Node<?> c1, Node<?> c2) {
 		if (c1 == null)
 			return c2 == null;
-		else{
+		else {
 			return c1.compareStructure(c2);
 		}
 	}
@@ -162,12 +162,16 @@ public class Node<T extends Comparable<T>> {
 		}
 	}
 
-	private boolean isRightChild() {
+	boolean isRightChild() {
+		if (!hasParent())
+			return false;
 		return this.getParent().hasRightChild()
 				&& this.getParent().getRight().equals(this);
 	}
 
-	private boolean isLeftChild() {
+	boolean isLeftChild() {
+		if (!hasParent())
+			return false;
 		return this.getParent().hasLeftChild()
 				&& this.getParent().getLeft().equals(this);
 	}
@@ -203,12 +207,13 @@ public class Node<T extends Comparable<T>> {
 
 	/**
 	 * @return a recursively copied node. I.e. it has the same Value and UID but
-	 *         is not the same object. The same is true for it's children and
-	 *         it's parent.
+	 *         is not the same object. The same is true for it's children. <br>
+	 *         The returned node won't copy it's parent, i.e. it's a newly
+	 *         rooted tree.
 	 */
 	public Node<T> copy() {
 		Node<T> node = new Node<T>(uid, value);
-		//first Node does not carry on its parent to delete old references
+		// first Node does not carry on its parent to delete old references
 		if (hasLeftChild()) {
 			node.setLeft(leftNode.copy());
 		}
@@ -216,6 +221,82 @@ public class Node<T extends Comparable<T>> {
 			node.setRight(rightNode.copy());
 		}
 		return node;
+	}
+
+	/**
+	 * The nodes equals implementation simply compares the node uids. it does
+	 * not check any further information like value or children.<br>
+	 * Node a may be equal to node b although they have different structures,
+	 * which can happen after the same node has been copied and changed.
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
+		if (obj == this)
+			return true;
+		if (obj.getClass() == this.getClass()) {
+			return this.getUid().equals(((Node<?>) obj).getUid());
+		} else
+			return false;
+	}
+	
+	@Override
+	public int hashCode() {		
+		return 11 * getUid().hashCode();
+	}
+
+	public Node<T> getMaximum() {
+		Node<T> node = this;
+		while (node.hasRightChild()) {
+			node = node.getRight();
+		}
+		return node;
+	}
+
+	public Node<T> getMinimum() {
+		Node<T> node = this;
+		while (node.hasLeftChild()) {
+			node = node.getLeft();
+		}
+		return node;
+	}
+
+	public Node<T> getSuccessor() {
+		if (hasRightChild()) {
+			Node<T> right = getRight();
+			return right.getMinimum();
+		} else {
+			return null;
+		}
+	}
+
+	public Node<T> getPredeccesor() {
+		if (hasLeftChild()) {
+			Node<T> left = getLeft();
+			return left.getMaximum();
+		} else {
+			return null;
+		}
+	}
+
+	public Node<T> search(T value) {
+		int compareTo = this.getValue().compareTo(value);
+		if (compareTo == 0) {
+			return this;
+		} else if (compareTo < 0) {
+			if (this.hasRightChild()) {
+				return this.getRight().search(value);
+			} else {
+				return null;
+			}
+		} else {
+			if (this.hasLeftChild()) {
+				return this.getLeft().search(value);
+			} else {
+				return null;
+			}
+		}
 	}
 
 }

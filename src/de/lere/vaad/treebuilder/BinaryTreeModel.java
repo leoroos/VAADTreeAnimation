@@ -1,10 +1,13 @@
 package de.lere.vaad.treebuilder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
  * @author Leo Roos, Rene Hertling Represents the logical structure of a binary
@@ -90,11 +93,22 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 		return -1;
 	}
 
-	public void insert(T value) {
+	public Node<T> insert(T value) {
+		BinaryTreeModel<T> before = this.copy();
+		Node<T> insertedNode = null;
 		if (root == null) {
 			root = new Node<T>(value);
+			insertedNode = root;
 		} else {
-			root.insert(value);
+			insertedNode = root.insert(value);
+		}
+		fireChange(new TreeInsertEvent<T>(before, this.copy(), insertedNode));
+		return insertedNode;
+	}
+
+	void fireChange(TreeEvent<T> event) {
+		for (BinaryTreeModelListener<T> l : listeners) {
+			event.notifyListener(l);
 		}
 	}
 
@@ -156,18 +170,199 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 	}
 
 	/**
-	 * Provides a copy of this BinaryTreemodel. Only copies the logical
-	 * structure of the tree; does not copy any listener-related stuff; the
-	 * resulting tree is a deep copy of this tree.
+	 * Provides a copy of this BinaryTreeModel. Only copies the logical
+	 * structure of the tree. Listeners are not copied. the resulting tree is a
+	 * deep copy of the original tree (see {@link Node#copy()}).
 	 * 
-	 * @return
+	 * @return a copy of this {@link BinaryTreeModel}
 	 */
 	public BinaryTreeModel<T> copy() {
 		BinaryTreeModel<T> copy = new BinaryTreeModel<T>();
-		Node copiedRoot = null;
+		Node<T> copiedRoot = null;
 		if (root != null) {
 			copiedRoot = root.copy();
 		}
 		return copy.init(copiedRoot);
+	}
+
+	/**
+	 * Only compares the structure of the root nodes of the two models.
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
+		if (obj == this)
+			return true;
+		if (obj.getClass() == this.getClass()) {
+			BinaryTreeModel<?> other = (BinaryTreeModel<?>) obj;
+			Node<T> root = this.root;
+			boolean rootsEqual = false;
+			if (root == null)
+				rootsEqual = other.root == null;
+			else {
+				rootsEqual = this.root.compareStructure(other.root);
+			}
+			return rootsEqual;
+		} else
+			return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(this);
+	}
+
+	private boolean hasEqualListener(BinaryTreeModel<?> other) {
+		if (this.listeners.size() != other.listeners.size())
+			return false;
+
+		boolean thiscontainsAll = this.listeners.containsAll(other.listeners);
+		if (thiscontainsAll) {
+			if (other.listeners.containsAll(this.listeners)) {
+				return true;
+			}
+		}
+
+		return true;
+	}
+
+	public static <T extends Comparable<T>> BinaryTreeModel<T> createTreeByInsert(
+			List<T> args) {
+		BinaryTreeModel<T> binaryTreeModel = new BinaryTreeModel<T>();
+		for (T t : args) {
+			binaryTreeModel.insert(t);
+		}
+		return binaryTreeModel;
+	}
+
+	public static <T extends Comparable<T>> BinaryTreeModel<T> createTreeByInsert(
+			T... args) {
+		return createTreeByInsert(Arrays.asList(args));
+	}
+
+	/**
+	 * @param v
+	 *            the value for which a node has to be deleted next. The first
+	 *            node with the given value will be returned.
+	 * @return the deleted node or <code>null</code>
+	 */
+	public Node<T> delete(T v) {
+		BinaryTreeModel<T> old = copy();
+		Node<T> nodeToDelete = this.search(v);
+		Node<T> deleted = null;
+		if (nodeToDelete != null) {
+			deleted = delete(nodeToDelete);
+		}
+		BinaryTreeModel<T> current = copy();
+		fireChange(new TreeDeleteEvent<T>(old, current, deleted));
+		return deleted;
+	}
+
+	private void transplant(Node<T> u, Node<T> v) {
+		if (!u.hasParent()) {
+			root = v;
+			if (v != null)
+				v.setParent(null);
+		} else if (u.isLeftChild()) {
+			u.getParent().setLeft(v);
+		} else if (u.isRightChild()) {
+			u.getParent().setRight(v);
+		} else
+			throw new IllegalStateException();
+	}
+
+	Node<T> delete(Node<T> z) {
+		if (!z.hasLeftChild()) {
+			transplant(z, z.getRight());
+		} else if (!z.hasRightChild()) {
+			transplant(z, z.getLeft());
+		} else {
+			Node<T> y = z.getRight().getMinimum();
+			if (!y.getParent().equals(z)) {
+				transplant(y, y.getRight());
+				y.setRight(z.getRight());
+			}
+			transplant(z, y);
+			y.setLeft(z.getLeft());
+		}
+		return z;
+	}
+
+	public Node<T> search(T v) {
+		if (this.root == null) {
+			return null;
+		} else {
+			return root.search(v);
+		}
+	}
+
+	/**
+	 * the root of the rotated subtree. The will usually be different to
+	 * <code>x</code>, but may be the same if the rotation is performed on a
+	 * leaf
+	 * 
+	 * @param x
+	 *            the node to rotate around
+	 * @return the root of the rotated subtree which is defined by x.
+	 */
+	public Node<T> leftRotate(Node<T> x) {		
+		BinaryTreeModel<T> before = this.copy();
+		Node<T> nodeOfInterest;
+		if (x.hasRightChild()) {
+			nodeOfInterest = doLeftRotate(x);
+		} else {
+			nodeOfInterest = x;			
+		}
+		fireChange(new TreeLeftRotateEvent<T>(before, this.copy(), nodeOfInterest));
+		return nodeOfInterest;
+	}
+
+	private Node<T> doLeftRotate(Node<T> x) {
+		Node<T> y = x.getRight();
+		x.setRight(y.getLeft());
+		if (y.hasLeftChild()) {
+			y.getLeft().setParent(x);
+		}
+		y.setParent(x.getParent());
+		if (!x.hasParent()) {
+			this.root = y;
+		} else if (x.equals(x.getParent().getLeft())) {
+			x.getParent().setLeft(y);
+		} else {
+			x.getParent().setRight(y);
+		}
+		y.setLeft(x);
+		return y;
+	}
+
+	public Node<T> rightRotate(Node<T> x) {
+		BinaryTreeModel<T> before = this.copy();
+		Node<T> nodeOfInterest;
+		if (x.hasLeftChild()) {
+			nodeOfInterest = doRightRotate(x);
+		} else {
+			nodeOfInterest = x;
+		}
+		fireChange(new TreeRightRotateEvent<T>(before, this.copy(), nodeOfInterest));
+		return nodeOfInterest;
+	}
+
+	private Node<T> doRightRotate(Node<T> x) {
+		Node<T> y = x.getLeft();
+		x.setLeft(y.getRight());
+		if (y.hasRightChild()) {
+			y.getRight().setParent(x);
+		}
+		y.setParent(x.getParent());
+		if (!x.hasParent()) {
+			this.root = y;
+		} else if (x.equals(x.getParent().getRight())) {
+			x.getParent().setRight(y);
+		} else {
+			x.getParent().setLeft(y);
+		}
+		y.setRight(x);
+		return y;
 	}
 }
