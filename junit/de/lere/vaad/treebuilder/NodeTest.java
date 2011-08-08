@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.Random;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -80,7 +81,44 @@ public class NodeTest {
 		// val
 		assertTrue(root.compareStructure(root2));
 	}
-
+	
+	@Test
+	public void testCompareEqualStructureDeeper() throws Exception {
+		int deep = 200;
+		BinaryTreeModel<Integer> createNIntegerTree = BuilderTestUtils.createNIntegerTree(deep);
+		BinaryTreeModel<Integer> createNIntegerTree2 = BuilderTestUtils.createNIntegerTree(deep);
+		assertTrue(createNIntegerTree.getRoot().compareStructure(createNIntegerTree2.getRoot()));
+	}
+	
+	@Test
+	public void testCompareUnEqualStructureDeeper() throws Exception {
+		int deep = 15;
+		BinaryTreeModel<Integer> m1 = BuilderTestUtils.createNIntegerTree(deep);
+		BinaryTreeModel<Integer> m2 = BuilderTestUtils.createNIntegerTree(deep);
+		
+		Node<Integer> last = null;
+		Node<Integer> next = m2.getRoot();
+		while(next != null){
+			last = next;			
+			Random random = new Random(22);
+			int nextInt = random.nextInt(1);
+			switch (nextInt) {
+			case 0:
+				next = next.getLeft();
+				break;
+			case 1:
+				next = next.getRight();
+				break;	
+			default:
+				throw new RuntimeException("WTF");
+			}
+		}
+		
+		last.setLeft(new Node<Integer>(Integer.MAX_VALUE));
+		assertFalse("expected different structurecomparison with " + deep + " nodes",m1.getRoot().compareStructure(m2.getRoot()));
+	}
+	
+	
 	@Test
 	public void testCompareStructureUnequal() throws Exception {
 		Node<String> root2 = new Node<String>("root2");
@@ -202,6 +240,18 @@ public class NodeTest {
 		Node<String> parentOfCopy = root.getRight().copy().getParent();
 		assertFalse("copy of child should have no parent", root.getRight().getParent().compareStructure(parentOfCopy));
 		assertNull(parentOfCopy);
+	}
+	
+	
+	@Test
+	public void testChildOfCopiedHasParent() throws Exception {
+		Node<Integer> root = BuilderTestUtils.createNIntegerTree(15).getRoot();
+		Node<Integer> copiedRC = root.getRight().copy();
+		assertNull(copiedRC.getParent());
+		Node<Integer> parentOfchildOfCopied = copiedRC.getLeft().getParent();
+		assertTrue("child of copied should have parent", copiedRC.compareStructure(parentOfchildOfCopied));
+		assertSame(copiedRC, parentOfchildOfCopied);
+		assertTrue("right child of copied should have parent too", copiedRC.compareStructure(copiedRC.getRight().getParent()));
 	}
 
 	@Test

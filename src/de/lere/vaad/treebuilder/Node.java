@@ -109,8 +109,9 @@ public class Node<T extends Comparable<T>> {
 	private boolean compareNodes(Node<T> c1, Node<T> c2) {
 		if (c1 == null)
 			return c2 == null;
-		else
-			return c1.value.equals(c2.value);
+		else{
+			return c1.compareStructure(c2);
+		}
 	}
 
 	public int compareValue(Node<T> node) {
@@ -206,18 +207,16 @@ public class Node<T extends Comparable<T>> {
 	 *         it's parent.
 	 */
 	public Node<T> copy() {
-		return internalCopy(null);
-	}
-
-	private Node<T> internalCopy(Node<T> parent) {
 		Node<T> node = new Node<T>(uid, value);
-		node.setParent(parent);
+		//delete dependency to prior references
+		node.setParent(null);
 		if (hasLeftChild()) {
-			node.setLeft(leftNode.internalCopy(this));
+			node.setLeft(leftNode.copy());
 		}
 		if (hasRightChild()) {
-			node.setRight(rightNode.internalCopy(this));
+			node.setRight(rightNode.copy());
 		}
 		return node;
 	}
+
 }
