@@ -213,10 +213,10 @@ public class Node<T extends Comparable<T>> {
 		Node<T> node = new Node<T>(uid, value);
 		node.setParent(parent);
 		if (hasLeftChild()) {
-			node.setLeft(leftNode.copy());
+			node.setLeft(leftNode.internalCopy(this));
 		}
 		if (hasRightChild()) {
-			node.setRight(rightNode.copy());
+			node.setRight(rightNode.internalCopy(this));
 		}
 		return node;
 	}
