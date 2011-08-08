@@ -154,4 +154,20 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 			return root.structureToString();
 		}
 	}
+
+	/**
+	 * Provides a copy of this BinaryTreemodel. Only copies the logical
+	 * structure of the tree; does not copy any listener-related stuff; the
+	 * resulting tree is a deep copy of this tree.
+	 * 
+	 * @return
+	 */
+	public BinaryTreeModel<T> copy() {
+		BinaryTreeModel<T> copy = new BinaryTreeModel<T>();
+		Node copiedRoot = null;
+		if (root != null) {
+			copiedRoot = root.copy();
+		}
+		return copy.init(copiedRoot);
+	}
 }

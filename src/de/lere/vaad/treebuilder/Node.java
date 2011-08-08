@@ -206,7 +206,7 @@ public class Node<T extends Comparable<T>> {
 	 *         it's parent.
 	 */
 	public Node<T> copy() {
-		return internalCopy(this.parent);
+		return internalCopy(null);
 	}
 
 	private Node<T> internalCopy(Node<T> parent) {
