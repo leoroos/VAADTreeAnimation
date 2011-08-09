@@ -373,4 +373,11 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 		y.setRight(x);
 		return y;
 	}
+	
+	public static <T extends Comparable<T>> Node<T> lookupNodeByID(
+			BinaryTreeModel<T> model, Node<T> node){
+		List<Node<T>> nodes = model.getNodesInOrder();
+		int index = nodes.indexOf(node);
+		return nodes.get(index);
+	}
 }

@@ -84,7 +84,7 @@ public class SplayTreeAnimation {
 	private TreeAnimationProperties splayProps = new TreeAnimationProperties();
 
 	private final LocationDirectorProvider lh;
-	
+
 	/**
 	 * Add a director for a specific location.
 	 * 
@@ -105,10 +105,10 @@ public class SplayTreeAnimation {
 		tp.authors = "Rene Hertling, Leo Roos";
 
 		tp.title = "Splaytree Animation";
-		
 
-		Language l = new AnimalScript(tp.title, tp.authors, tp.screenResolution.width, tp.screenResolution.height);
-		SplayTreeAnimation animation = new SplayTreeAnimation(l,tp);
+		Language l = new AnimalScript(tp.title, tp.authors,
+				tp.screenResolution.width, tp.screenResolution.height);
+		SplayTreeAnimation animation = new SplayTreeAnimation(l, tp);
 		try {
 			animation.buildAnimation(tp);
 		} catch (IOException e1) {
@@ -143,52 +143,50 @@ public class SplayTreeAnimation {
 
 		BinaryTreeAnimationBuilder<Integer> aniBui = new BinaryTreeAnimationBuilder<Integer>(
 				language);
-		Offset graphRootLocation = lh.getDirector(Location.Graphroot.DIRECTOR_NAME)
-				.getLocation();
+		Offset graphRootLocation = lh.getDirector(
+				Location.Graphroot.DIRECTOR_NAME).getLocation();
 		Point graphRootPoint = NodeHelper
 				.convertOffsetToAWTPoint(graphRootLocation);
 		BinaryTreeLayout blay = new BinaryTreeLayout(graphRootPoint, 200, 60);
 		aniBui.setLayout(blay);
-		BinaryTreeModel<Integer> model = new BinaryTreeModel<Integer>();
-		// language.nextStep();
-		List<Integer> intList = createSomeInts(15);
-		Iterator<Integer> iterator2 = intList.iterator();
-		while (iterator2.hasNext()) {
-			model.insert(iterator2.next());
-			// language.nextStep();
-		}
+		BinaryTreeModel<Integer> model = BinaryTreeModel.createTreeByInsert(10,5,15,1,7);
 		aniBui.setModel(model);
-		model.insert(1234);
-		language.nextStep();
-		model.insert(12345);
-		language.nextStep();
-		Collections.shuffle(intList);
-		List<Node<Integer>> nodesInOrder = model.getNodesInOrder();
-		Collections.shuffle(nodesInOrder);
-		Iterator<Node<Integer>> iterator3 = nodesInOrder.iterator();
-		Random r = new Random(123);
-		// while(iterator3.hasNext()){
-		// Node<Integer> next = iterator3.next();
-		// boolean b = r.nextBoolean();
-		// if(b){
-		// model.rightRotate(next);
-		// nextStateOnLocation("Right Rotation aroung" + next.getValue(),
-		// Location.Microstep);
-		// }
-		// else {
-		// model.leftRotate(next);
-		// nextStateOnLocation("Left Rotation" + next.getValue(),
-		// Location.Microstep);
-		// }
-		// language.nextStep();
-		// }
-
-		Iterator<Integer> iterator = intList.iterator();
-		while (iterator.hasNext()) {
-			Integer next = iterator.next();
-			model.delete(next);
-			language.nextStep();
-		}
+		model.rightRotate(model.getRoot());
+//		// language.nextStep();
+//		List<Integer> intList = createSomeInts(15);
+//		Iterator<Integer> iterator2 = intList.iterator();
+//		while (iterator2.hasNext()) {
+//			model.insert(iterator2.next());
+//			// language.nextStep();
+//		}	
+//		aniBui.setModel(model);
+//		model.insert(1234);
+//		model.insert(12345);
+//		Collections.shuffle(intList);
+//		List<Node<Integer>> nodesInOrder = model.getNodesInOrder();
+//		Collections.shuffle(nodesInOrder);
+//		Iterator<Node<Integer>> iterator3 = nodesInOrder.iterator();
+//		Random r = new Random(123);
+//		while (iterator3.hasNext()) {
+//			Node<Integer> next = iterator3.next();
+//			boolean b = r.nextBoolean();
+//			if (b) {
+//				model.rightRotate(next);
+//				nextStateOnLocation("Right Rotation aroung" + next.getValue(),
+//						Location.Microstep);
+//			} else {
+//				model.leftRotate(next);
+//				nextStateOnLocation("Left Rotation" + next.getValue(),
+//						Location.Microstep);
+//			}
+//			language.nextStep();
+//		}
+//
+//		Iterator<Integer> iterator = intList.iterator();
+//		while (iterator.hasNext()) {
+//			Integer next = iterator.next();
+//			model.delete(next);			
+//		}
 
 		nextStateOnLocation(SplayTreeResourceAccessor.DESCRIPTION.getText(),
 				Location.DescriptionBeginning);
@@ -309,16 +307,17 @@ public class SplayTreeAnimation {
 		ActionAdapter aAction = new ActionAdapter() {
 
 			@Override
-			public void activateOn(LocationProvider location) {				
+			public void activateOn(LocationProvider location) {
 				Group aTextGroup = createTextGroup(text, location.getLocation());
 				hideOnDeactivate(aTextGroup);
 			}
 		};
 		nextStateOnLocation(aAction, location);
 	}
-	
-	private @Nullable Group createTextGroup(List<String> readLines, Offset anchor) {
-		if(readLines.isEmpty())
+
+	private @Nullable
+	Group createTextGroup(List<String> readLines, Offset anchor) {
+		if (readLines.isEmpty())
 			return null;
 		Offset nextTextPos = anchor;
 		int groupId = runninggroupidentifier++;
@@ -326,7 +325,8 @@ public class SplayTreeAnimation {
 		for (int i = 0; i < readLines.size(); i++) {
 			Text text = language.newText(nextTextPos, readLines.get(i), groupId
 					+ "id" + i, null);
-			nextTextPos = new Offset(0, this.animationProperties.verticalTextGap, text, "SW");
+			nextTextPos = new Offset(0,
+					this.animationProperties.verticalTextGap, text, "SW");
 			texts.add(text);
 		}
 		Group introGroup = language.newGroup(texts, "group" + groupId);
@@ -406,8 +406,6 @@ public class SplayTreeAnimation {
 		return sc;
 	}
 
-
-
 	private void initializeLocationDirectors() {
 		Coordinates headerPosCoord = new Coordinates(10, 10);
 		Text headerDummyPrimitive = language.newText(headerPosCoord,
@@ -442,8 +440,9 @@ public class SplayTreeAnimation {
 				CorrectedOffset.getOffsetForCoordinate(GRAPHROOT_COORDINATES)));
 
 	}
-	
-	private @Nullable Group createTextGroup(String text, Offset location) {
+
+	private @Nullable
+	Group createTextGroup(String text, Offset location) {
 		List<String> stringToLinesAtDelimiter = StrUtils.toLines(text);
 		return createTextGroup(stringToLinesAtDelimiter, location);
 	}
