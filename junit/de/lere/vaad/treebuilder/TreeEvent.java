@@ -8,7 +8,7 @@ public abstract class TreeEvent<T extends Comparable<T>> {
 	public final BinaryTreeModel<T> beforeChange;
 	public final BinaryTreeModel<T> afterChange;
 	//May be null
-	private final Node<T> nodeOfModification;
+	public final Node<T> nodeOfModification;
 	
 	public TreeEvent(BinaryTreeModel<T> before, BinaryTreeModel<T> after, Node<T> nodeOfModification) {
 		this.beforeChange = before;

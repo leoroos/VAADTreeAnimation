@@ -132,35 +132,39 @@ public class SplayTreeAnimation implements LocationDirectorProvider {
 		BinaryTreeAnimationBuilder<Integer> aniBui = new BinaryTreeAnimationBuilder<Integer>(language);
 		Offset graphRootLocation = getDirector(Location.Graphroot.DIRECTOR_NAME).getLocation();
 		Point graphRootPoint = NodeHelper.convertOffsetToAWTPoint(graphRootLocation);
-		BinaryTreeLayout blay = new BinaryTreeLayout(new Point(900, 200), 400, 60);
+		BinaryTreeLayout blay = new BinaryTreeLayout(graphRootPoint, 200, 60);
 		aniBui.setLayout(blay );
 		BinaryTreeModel<Integer> model = new BinaryTreeModel<Integer>();
 //		language.nextStep();
-		List<Integer> intList = createSomeInts(25);
+		List<Integer> intList = createSomeInts(15);
 		Iterator<Integer> iterator2 = intList.iterator();
 		while(iterator2.hasNext()){
 			model.insert(iterator2.next());
 			//language.nextStep();
 		}
 		aniBui.setModel(model);
+		model.insert(1234);
+		language.nextStep();
+		model.insert(12345);
+		language.nextStep();
 		Collections.shuffle(intList);
 		List<Node<Integer>> nodesInOrder = model.getNodesInOrder();
 		Collections.shuffle(nodesInOrder);
 		Iterator<Node<Integer>> iterator3 = nodesInOrder.iterator();
 		Random r = new Random(123);
-		while(iterator3.hasNext()){
-			Node<Integer> next = iterator3.next();
-			boolean b = r.nextBoolean();
-			if(b){
-				model.rightRotate(next);
-				nextStateOnLocation("Right Rotation aroung" + next.getValue(), Location.Microstep);
-			}
-			else {
-				model.leftRotate(next);
-				nextStateOnLocation("Left Rotation" + next.getValue(), Location.Microstep);
-			}
-			language.nextStep();
-		}
+//		while(iterator3.hasNext()){
+//			Node<Integer> next = iterator3.next();
+//			boolean b = r.nextBoolean();
+//			if(b){
+//				model.rightRotate(next);
+//				nextStateOnLocation("Right Rotation aroung" + next.getValue(), Location.Microstep);
+//			}
+//			else {
+//				model.leftRotate(next);
+//				nextStateOnLocation("Left Rotation" + next.getValue(), Location.Microstep);
+//			}
+//			language.nextStep();
+//		}
 		
 		Iterator<Integer> iterator = intList.iterator();		
 		while(iterator.hasNext()){

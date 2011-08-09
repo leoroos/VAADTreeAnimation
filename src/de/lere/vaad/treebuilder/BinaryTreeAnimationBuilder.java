@@ -28,7 +28,11 @@ public class BinaryTreeAnimationBuilder<T extends Comparable<T>> implements
 	private Language language;
 	private Graph lastCreatedGraph;
 
-	private Timing now = new TicksTiming(0);
+	private static final Timing NOW = new TicksTiming(0);
+	private static final Timing HIGHLIGHT_EDGE_DURATION = new TicksTiming(25);
+
+	private static final TicksTiming DELETE_NODE_HIGHLIGHT_DURATION = new TicksTiming(
+			25);
 
 	public BinaryTreeAnimationBuilder(Language lang) {
 		this.language = lang;
@@ -54,38 +58,62 @@ public class BinaryTreeAnimationBuilder<T extends Comparable<T>> implements
 		return layout;
 	}
 
-	void buildCurrentGraph() {
-		
-		if (lastCreatedGraph != null) {
-			lastCreatedGraph.hide(now);
-		}
-
-		if(model.size() < 1 ){
-			//don't draw empty graph
-			return;
-		}
-		
-		List<de.lere.vaad.treebuilder.Node<T>> treeNodes = model
-				.getNodesInOrder();
-		
-		int[][] matrix = getAdjancencyMatrix(treeNodes);
-		algoanim.util.Node[] nodes = generatePositions(treeNodes).toArray(
-				new Coordinates[0]);
-		String labels[] = getLabelsFromModel(treeNodes).toArray(new String[0]);
-		GraphProperties gps = new GraphProperties();
-		gps.set("fillColor", layout.bgColor);
-
-
-		lastCreatedGraph = language.newGraph(layout.graphName, matrix, nodes,
-				labels, null, gps);
+	OrderedGraphInformation<T> buildCurrentGraph() {
+		OrderedGraphInformation<T> infos = currentGraphInfos();
+		writeGraph(infos);
+		return infos;
 	}
 
-	int[][] getAdjancencyMatrix(List<de.lere.vaad.treebuilder.Node<T>> treeNodes) {
-		int nodes = treeNodes.size();
-		HashMap<de.lere.vaad.treebuilder.Node<T>, Integer> nodeToIndex = new HashMap<de.lere.vaad.treebuilder.Node<T>, Integer>();
-		for (int i = 0; i < treeNodes.size(); i++) {
-			nodeToIndex.put(treeNodes.get(i), i);
+	private OrderedGraphInformation<T> currentGraphInfos() {
+		OrderedGraphInformation<T> infos = new OrderedGraphInformation<T>(
+				model.getNodesInOrder(), this.layout);
+		return infos;
+	}
+
+	private void writeGraph(OrderedGraphInformation<T> infos) {
+		if (lastCreatedGraph != null) {
+			lastCreatedGraph.hide(NOW);
 		}
+		if (model.size() < 1) {
+			// don't draw empty graph
+			return;
+		}
+		lastCreatedGraph = language.newGraph(layout.graphName, infos.matrix,
+				infos.animalNodes, infos.animalLabels, null,
+				infos.graphProperties);
+	}
+
+	private static class OrderedGraphInformation<T extends Comparable<T>> {
+
+		public OrderedGraphInformation(
+				List<de.lere.vaad.treebuilder.Node<T>> orderednodes,
+				BinaryTreeLayout layout) {
+			nodes = orderednodes;
+			indexedNodes = nodeListToIndexedMap(nodes);
+			matrix = getAdjancencyMatrix(nodes);
+			animalNodes = generateCoordinates(nodes, layout).toArray(
+					new Coordinates[0]);
+			String labels[] = getLabelsFromModel(nodes).toArray(new String[0]);
+			animalLabels = labels;
+			GraphProperties gps = new GraphProperties();
+			gps.set("fillColor", layout.bgColor);
+			gps.set("highlightColor", Color.RED);
+			graphProperties = gps;
+		}
+
+		public GraphProperties graphProperties;
+		public String[] animalLabels;
+		public Node[] animalNodes;
+		public int[][] matrix;
+		public HashMap<de.lere.vaad.treebuilder.Node<T>, Integer> indexedNodes;
+		public List<de.lere.vaad.treebuilder.Node<T>> nodes;
+
+	}
+
+	static <T extends Comparable<T>> int[][] getAdjancencyMatrix(
+			List<de.lere.vaad.treebuilder.Node<T>> treeNodes) {
+		HashMap<de.lere.vaad.treebuilder.Node<T>, Integer> nodeToIndex = nodeListToIndexedMap(treeNodes);
+		int nodes = nodeToIndex.size();
 		int[][] adjacencyMatrix = new int[nodes][nodes];
 		Set<Entry<de.lere.vaad.treebuilder.Node<T>, Integer>> entrySet = nodeToIndex
 				.entrySet();
@@ -102,7 +130,16 @@ public class BinaryTreeAnimationBuilder<T extends Comparable<T>> implements
 		return adjacencyMatrix;
 	}
 
-	private List<String> getLabelsFromModel(
+	private static <T extends Comparable<T>> HashMap<de.lere.vaad.treebuilder.Node<T>, Integer> nodeListToIndexedMap(
+			List<de.lere.vaad.treebuilder.Node<T>> treeNodes) {
+		HashMap<de.lere.vaad.treebuilder.Node<T>, Integer> nodeToIndex = new HashMap<de.lere.vaad.treebuilder.Node<T>, Integer>();
+		for (int i = 0; i < treeNodes.size(); i++) {
+			nodeToIndex.put(treeNodes.get(i), i);
+		}
+		return nodeToIndex;
+	}
+
+	private static <T extends Comparable<T>> List<String> getLabelsFromModel(
 			List<de.lere.vaad.treebuilder.Node<T>> treeNodes) {
 		ArrayList<String> result = new ArrayList<String>();
 		for (de.lere.vaad.treebuilder.Node<T> node : treeNodes) {
@@ -115,12 +152,12 @@ public class BinaryTreeAnimationBuilder<T extends Comparable<T>> implements
 		return getLabelsFromModel(model.getNodesInOrder());
 	}
 
-	private List<Coordinates> generatePositions(
-			List<de.lere.vaad.treebuilder.Node<T>> list) {
+	private static <T extends Comparable<T>> List<Coordinates> generateCoordinates(
+			List<de.lere.vaad.treebuilder.Node<T>> list, BinaryTreeLayout layout) {
 		List<Coordinates> lst = new ArrayList<Coordinates>();
 		for (de.lere.vaad.treebuilder.Node<T> node : list) {
 			int position = node.getPosition();
-			Point location = MathHelper.getLocation(layout.getRootPoint(),
+			Point location = MathHelper.getLocation(layout.rootLocation,
 					position, layout.firstLevelWidth, layout.verticalGaps);
 			lst.add(Node.convertToNode(location));
 		}
@@ -128,19 +165,96 @@ public class BinaryTreeAnimationBuilder<T extends Comparable<T>> implements
 	}
 
 	List<Coordinates> generatePositions() {
-		return generatePositions(model.getNodesInOrder());
+		return generateCoordinates(model.getNodesInOrder(), layout);
 	}
+
+	/**
+	 * <pre>
+	 * 	#remove edge to graph
+	 * 	highlightEdge on  "Zig" (1,4) 
+	 * 	hide "Zig" after 75 ticks	
+	 * 	#new graph without edge to moved node	
+	 * 	graph "Zig" size 5 highlightColor red nodes { "P" offset (0,0) from "loc1" , "X" offset (0,0) from "loc2" , "C" offset (0,0) from "loc3", "A" offset (0,0) from "loc4" , "B" offset (0,0) from "loc5" } edges { ( 0, 1) ( 0, 2) ( 1 , 3 ) }
+	 * }
+	 * 
+	 * {	
+	 * 	move "Zig" type "translate #1" via "vec1_3" within 150 ticks
+	 * 	move "Zig" type "translate #2" via "vec2_1" within 150 ticks
+	 * 	move "Zig" type "translate #3" via "vec3_7" within 150 ticks
+	 * 	move "Zig" type "translate #4" via "vec4_2" within 150 ticks
+	 * 	move "Zig" type "translate #5" via "vec5_6" within 150 ticks			
+	 * }
+	 * 
+	 * {
+	 * 	hide "Zig"		
+	 * 	graph "Zig" size 5 highlightColor red nodes { "X" offset (0,0) from "loc1" ,  "A" offset (0,0) from "loc2" , "P" offset (0,0) from "loc3" , "B" offset (0,0) from "loc6",  "C" offset (0,0) from "loc7" } edges { ( 0, 1) ( 0, 2) ( 2 , 3 ) (2,4) }
+	 * 	highlightEdge on "Zig" (2,3)
+	 * 	unhighlightEdge on "Zig" (2,3) after 75 ticks
+	 * </pre>
+	 * */
 
 	@Override
 	public void update(TreeInsertEvent<T> event) {
-		buildCurrentGraph();
-//		language.next
-//		insertAnimator.animateInsert(lang, event);
+		if (event.nodeOfModification == null)
+			return;
+
+		OrderedGraphInformation<T> infos = buildCurrentGraph();
+
+		de.lere.vaad.treebuilder.Node<T> nodeOfModification = event.nodeOfModification;
+
+		int endNode = infos.indexedNodes.get(nodeOfModification);
+		int startNode = infos.indexedNodes.get(nodeOfModification.getParent());
+
+		lastCreatedGraph.highlightNode(endNode, NOW, HIGHLIGHT_EDGE_DURATION);
+		lastCreatedGraph.unhighlightNode(endNode, HIGHLIGHT_EDGE_DURATION,
+				HIGHLIGHT_EDGE_DURATION);
+		lastCreatedGraph.highlightEdge(startNode, endNode, NOW,
+				HIGHLIGHT_EDGE_DURATION);
+		lastCreatedGraph.unhighlightEdge(startNode, endNode,
+				HIGHLIGHT_EDGE_DURATION, HIGHLIGHT_EDGE_DURATION);
+
+		// language.next
+		// insertAnimator.animateInsert(lang, event);
 	}
 
 	@Override
 	public void update(TreeDeleteEvent<T> event) {
-		buildCurrentGraph();
+		if (event.nodeOfModification == null)
+			return;
+
+		OrderedGraphInformation<T> infos = infosForNodes(event.beforeChange
+				.getNodesInOrder());
+
+		Integer deletee = infos.indexedNodes.get(event.nodeOfModification);
+		de.lere.vaad.treebuilder.Node<T> successor2 = event.successor;
+		Integer successor = infos.indexedNodes.get(successor2);
+
+		lastCreatedGraph.highlightNode(deletee, NOW,
+				DELETE_NODE_HIGHLIGHT_DURATION);
+		language.nextStep();
+
+		if (successor != null) {
+			lastCreatedGraph.highlightNode(successor,
+					DELETE_NODE_HIGHLIGHT_DURATION,
+					DELETE_NODE_HIGHLIGHT_DURATION);
+
+			language.nextStep();
+		}
+		//
+		// lastCreatedGraph.unhighlightNode(
+		// indexedNodes, DELETE_NODE_HIGHLIGHT_DURATION,
+		// DELETE_NODE_HIGHLIGHT_DURATION);
+		// infos.graph.highlightNode(endNode, NOW, HIGHLIGHT_EDGE_DURATION);
+		// infos.graph.highlightEdge(startNode, endNode, NOW,
+		// HIGHLIGHT_EDGE_DURATION);
+		//
+		writeGraph(currentGraphInfos());
+
+	}
+
+	private OrderedGraphInformation<T> infosForNodes(
+			List<de.lere.vaad.treebuilder.Node<T>> nodes) {
+		return new OrderedGraphInformation<T>(nodes, this.layout);
 	}
 
 	@Override

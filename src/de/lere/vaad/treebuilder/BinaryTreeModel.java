@@ -251,42 +251,50 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 		BinaryTreeModel<T> old = copy();
 		Node<T> nodeToDelete = this.search(v);
 		Node<T> deleted = null;
+		Node<T> successor = null;
 		if (nodeToDelete != null) {
-			deleted = delete(nodeToDelete);
+			deleted = nodeToDelete;
+			successor = delete(nodeToDelete);
 		}
 		BinaryTreeModel<T> current = copy();
-		fireChange(new TreeDeleteEvent<T>(old, current, deleted));
+		fireChange(new TreeDeleteEvent<T>(old, current, deleted, successor));
 		return deleted;
 	}
 
-	private void transplant(Node<T> u, Node<T> v) {
-		if (!u.hasParent()) {
-			root = v;
-			if (v != null)
-				v.setParent(null);
-		} else if (u.isLeftChild()) {
-			u.getParent().setLeft(v);
-		} else if (u.isRightChild()) {
-			u.getParent().setRight(v);
+	private void transplant(Node<T> old, Node<T> newnode) {
+		if (!old.hasParent()) {
+			root = newnode;
+			if (newnode != null)
+				newnode.setParent(null);
+		} else if (old.isLeftChild()) {
+			old.getParent().setLeft(newnode);
+		} else if (old.isRightChild()) {
+			old.getParent().setRight(newnode);
 		} else
 			throw new IllegalStateException();
 	}
 
-	Node<T> delete(Node<T> z) {
-		if (!z.hasLeftChild()) {
-			transplant(z, z.getRight());
-		} else if (!z.hasRightChild()) {
-			transplant(z, z.getLeft());
+	/**
+	 * @param deletee node to delete
+	 * @return the node with which the deleted node has been replaced. Maybe <code>null</code> for root or leaf.
+	 */
+	Node<T> delete(Node<T> deletee) {
+		if (!deletee.hasLeftChild()) {
+			transplant(deletee, deletee.getRight());
+			return deletee.getRight();
+		} else if (!deletee.hasRightChild()) {
+			transplant(deletee, deletee.getLeft());
+			return deletee.getLeft();
 		} else {
-			Node<T> y = z.getRight().getMinimum();
-			if (!y.getParent().equals(z)) {
-				transplant(y, y.getRight());
-				y.setRight(z.getRight());
+			Node<T> successor = deletee.getRight().getMinimum();
+			if (!successor.getParent().equals(deletee)) {
+				transplant(successor, successor.getRight());
+				successor.setRight(deletee.getRight());
 			}
-			transplant(z, y);
-			y.setLeft(z.getLeft());
+			transplant(deletee, successor);
+			successor.setLeft(deletee.getLeft());
+			return successor;
 		}
-		return z;
 	}
 
 	public Node<T> search(T v) {

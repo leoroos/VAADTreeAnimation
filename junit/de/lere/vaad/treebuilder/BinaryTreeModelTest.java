@@ -188,7 +188,7 @@ public class BinaryTreeModelTest {
 		BinaryTreeModel<Integer> createNIntegerTree = BuilderTestUtils.createNIntegerTree(1);
 		Node<Integer> root = createNIntegerTree.getRoot();
 		Node<Integer> deleted = createNIntegerTree.delete(root);
-		assertThat(deleted, equalTo(root));
+		assertThat(deleted, nullValue());
 		assertThat(createNIntegerTree, equalTo(new BinaryTreeModel<Integer>()));
 	}
 	
@@ -198,7 +198,7 @@ public class BinaryTreeModelTest {
 		Node<Integer> left = createNIntegerTree.getRoot().getLeft();		
 		Node<Integer> deletedNode = createNIntegerTree.delete(left);
 		assertThat(createNIntegerTree.size(), equalTo(6));
-		assertThat(deletedNode.getValue(), equalTo(5));
+		assertThat(deletedNode.getValue(), equalTo(7));
 	}
 	
 	@Test

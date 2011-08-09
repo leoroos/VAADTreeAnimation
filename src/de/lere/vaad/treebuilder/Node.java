@@ -146,6 +146,9 @@ public class Node<T extends Comparable<T>> {
 		return this.leftNode != null;
 	}
 
+	/**
+	 * @return
+	 */
 	public int getPosition() {
 		if (this.hasParent()) {
 
