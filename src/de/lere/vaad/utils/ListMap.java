@@ -21,21 +21,5 @@ public class ListMap {
 		}
 		return result;
 	}
-	
-	/**
-	 * Returns the input.
-	 * 
-	 * @author Leo Roos, Rene Hertling
-	 *
-	 * @param <A>
-	 */
-	public static class IdentityTransformer<A> implements LMTransformer<A, A>{
-
-		@Override
-		public A transform(A input) {
-			return input;
-		}
-		
-	}
 
 }

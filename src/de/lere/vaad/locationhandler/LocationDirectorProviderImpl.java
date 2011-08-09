@@ -1,4 +1,4 @@
-package de.lere.vaad;
+package de.lere.vaad.locationhandler;
 
 import java.util.Hashtable;
 
@@ -22,6 +22,11 @@ public class LocationDirectorProviderImpl implements LocationDirectorProvider{
 	public LocationDirector getDirector(String key){
 		return this.directors.get(key);
 	}
+	
+	public void nextStateOnLocation(Action action, String directorName) {
+		getDirector(directorName).nextState(action);
+	}
+
 	
 
 }

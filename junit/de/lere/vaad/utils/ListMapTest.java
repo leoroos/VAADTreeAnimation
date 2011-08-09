@@ -3,7 +3,6 @@ package de.lere.vaad.utils;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
@@ -13,10 +12,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-
-import de.lere.vaad.utils.ListMap.IdentityTransformer;
 
 
 public class ListMapTest {

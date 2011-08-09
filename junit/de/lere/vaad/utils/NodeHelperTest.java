@@ -10,7 +10,6 @@ import java.awt.Point;
 
 import org.junit.Test;
 
-import de.lere.vaad.CorrectedOffset;
 import de.lere.vaad.treebuilder.BinaryTreeModel;
 import de.lere.vaad.treebuilder.BreadthFirstBuilder;
 import de.lere.vaad.treebuilder.BuilderTestUtils;

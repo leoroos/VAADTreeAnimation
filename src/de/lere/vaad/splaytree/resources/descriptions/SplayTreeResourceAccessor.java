@@ -1,4 +1,4 @@
-package resources.descriptions;
+package de.lere.vaad.splaytree.resources.descriptions;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,7 +16,7 @@ import org.apache.commons.io.IOUtils;
  * @author Leo Roos, Rene Hertling
  *
  */
-public enum ResourceAccessor {
+public enum SplayTreeResourceAccessor {
 	
 	DESCRIPTION("description"),
 	INTRO("intro"),
@@ -25,7 +25,7 @@ public enum ResourceAccessor {
 	ZIGZAG_STEP("zigzagStep"),
 	ZIGZIG_STEP("zigzigStep");
 	
-	ResourceAccessor(String name){
+	SplayTreeResourceAccessor(String name){
 		this.name = name;
 	}
 	
@@ -59,7 +59,7 @@ public enum ResourceAccessor {
 		return this.text != null;
 	}
 	
-	private List<String> getTextFromResource(ResourceAccessor resource) throws IOException {
+	private List<String> getTextFromResource(SplayTreeResourceAccessor resource) throws IOException {
 		InputStreamReader file = resource.getResource();
 		List<String> readLines = IOUtils.readLines(file);
 		return readLines;

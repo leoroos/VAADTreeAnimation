@@ -1,4 +1,4 @@
-package resources.descriptions;
+package de.lere.vaad.splaytree.resources.descriptions;
 
 import java.io.InputStreamReader;
 import java.util.List;
@@ -8,12 +8,14 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
+import de.lere.vaad.splaytree.resources.descriptions.SplayTreeResourceAccessor;
+
 public class ResourceAccessorTest extends TestCase {
 
 	@Test
 	public void testGetResource() {
-		ResourceAccessor[] values = ResourceAccessor.values();
-		for (ResourceAccessor resourceAccessor : values) {
+		SplayTreeResourceAccessor[] values = SplayTreeResourceAccessor.values();
+		for (SplayTreeResourceAccessor resourceAccessor : values) {
 			InputStreamReader resource = resourceAccessor.getResource();
 			Assert.assertNotNull(
 					"Enum must point to valid resource. Missing in:"
@@ -23,7 +25,7 @@ public class ResourceAccessorTest extends TestCase {
 
 	@Test
 	public void testReturnActualtext() throws Exception {
-		ResourceAccessor zigStep = ResourceAccessor.ZIG_STEP;
+		SplayTreeResourceAccessor zigStep = SplayTreeResourceAccessor.ZIG_STEP;
 		List<String> text = zigStep.getText();
 		for (String string : text) {
 			assertNotNull(string);

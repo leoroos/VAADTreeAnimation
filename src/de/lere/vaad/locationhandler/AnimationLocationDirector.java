@@ -1,4 +1,4 @@
-package de.lere.vaad;
+package de.lere.vaad.locationhandler;
 
 import algoanim.util.Offset;
 

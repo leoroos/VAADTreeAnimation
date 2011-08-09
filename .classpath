@@ -16,5 +16,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/vaad_lab3_current/doc/AlgoAnimAPIDoc.zip!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/annotations.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

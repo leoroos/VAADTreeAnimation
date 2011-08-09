@@ -1,4 +1,4 @@
-package de.lere.vaad;
+package de.lere.vaad.utils;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
@@ -10,6 +10,8 @@ import java.util.ArrayList;
 
 import org.junit.Ignore;
 import org.junit.Test;
+
+import de.lere.vaad.utils.MathHelper;
 
 public class MathHelperTest {
 

@@ -1,7 +1,7 @@
 package de.lere.vaad.treebuilder;
 
 /**
- * The sacred class of Node ordering.
+ * The <i><b>sacred</b></i> class of Node ordering.
  * 
  * @author Leo Roos, Rene Hertling
  *

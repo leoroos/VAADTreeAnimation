@@ -1,4 +1,4 @@
-package de.lere.vaad;
+package de.lere.vaad.utils;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.*;
@@ -13,6 +13,9 @@ import junit.framework.AssertionFailedError;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.lere.vaad.OffsetFactory;
+import de.lere.vaad.OffsetFactoryImpl;
+import de.lere.vaad.utils.CorrectedOffset;
 import de.lere.vaad.utils.NodeHelper;
 
 import algoanim.animalscript.AnimalScript;

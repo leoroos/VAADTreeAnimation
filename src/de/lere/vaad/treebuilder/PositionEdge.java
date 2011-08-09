@@ -29,18 +29,16 @@ public class PositionEdge {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == null) {
+		if (obj == null)
 			return false;
-		}
-		if (obj == this) {
+		if (obj == this)
 			return true;
-		}
-		if (obj.getClass() != getClass()) {
+		if (obj.getClass() == this.getClass()) {
+			PositionEdge rhs = (PositionEdge) obj;
+			return new EqualsBuilder().append(parent, rhs.parent)
+					.append(child, rhs.child).isEquals();
+		} else
 			return false;
-		}
-		PositionEdge rhs = (PositionEdge) obj;
-		return new EqualsBuilder().append(parent, rhs.parent)
-				.append(child, rhs.child).isEquals();
 	}
 	
 	@Override

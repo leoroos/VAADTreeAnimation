@@ -16,7 +16,7 @@ import algoanim.util.Node;
 import algoanim.util.TicksTiming;
 import algoanim.util.Timing;
 import de.lere.vaad.EndOfTheWorldException;
-import de.lere.vaad.MathHelper;
+import de.lere.vaad.utils.MathHelper;
 
 /**
  * provides the animations for a model and it's changes

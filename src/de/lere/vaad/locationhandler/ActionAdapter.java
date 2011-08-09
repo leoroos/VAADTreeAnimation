@@ -1,7 +1,9 @@
-package de.lere.vaad;
+package de.lere.vaad.locationhandler;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 import algoanim.primitives.Primitive;
 
@@ -20,7 +22,7 @@ public abstract class ActionAdapter implements Action {
 	 * Subclasses that wish to overwrite this method should call super to ensure
 	 * that all objects added to the <i>to hide</i> List are hidden.
 	 * 
-	 * @see de.lere.vaad.Action#deactivate()
+	 * @see de.lere.vaad.locationhandler.Action#deactivate()
 	 */
 	@Override
 	public void deactivate() {
@@ -41,8 +43,7 @@ public abstract class ActionAdapter implements Action {
 	 * @param hideme
 	 *            the object to hide, should <b>not</b> be <code>null</code>.
 	 */
-	protected void hideOnDeactivate(Primitive hideme) {
-		assert hideme != null;
+	protected void hideOnDeactivate(@Nullable Primitive hideme) {
 		toHide.add(hideme);
 	}
 
