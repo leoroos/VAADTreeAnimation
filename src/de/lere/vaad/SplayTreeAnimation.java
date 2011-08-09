@@ -23,6 +23,7 @@ import de.lere.vaad.treebuilder.BreadthFirstBuilder;
 import de.lere.vaad.treebuilder.BuilderTestUtils;
 import de.lere.vaad.treebuilder.Node;
 import de.lere.vaad.utils.NodeHelper;
+import de.lere.vaad.utils.StrUtils;
 
 import resources.descriptions.ResourceAccessor;
 import algoanim.animalscript.AnimalScript;
@@ -303,7 +304,7 @@ public class SplayTreeAnimation implements LocationDirectorProvider {
 	 * @see #nextStateOnLocation(List, Location)
 	 */
 	private void nextStateOnLocation(final String newText, Location location) {
-		nextStateOnLocation(StringHelper.getStringToLinesAtDelimiter(newText),
+		nextStateOnLocation(StrUtils.toLines(newText),
 				location);
 	}
 
@@ -362,8 +363,7 @@ public class SplayTreeAnimation implements LocationDirectorProvider {
 	 * {@code codeGroupText}.
 	 */
 	private SourceCode getFilledSourceCode(String codeGroupText, SourceCode sc) {
-		List<String> split = StringHelper
-				.getStringToLinesAtDelimiter(codeGroupText);
+		List<String> split = StrUtils.toLines(codeGroupText);
 		for (int i = 0; i < split.size(); i++) {
 			sc.addCodeLine(split.get(i), "", 0, null);
 		}
@@ -371,8 +371,7 @@ public class SplayTreeAnimation implements LocationDirectorProvider {
 	}
 
 	private Group createTextGroup(String text, Offset location) {
-		List<String> stringToLinesAtDelimiter = StringHelper
-				.getStringToLinesAtDelimiter(text);
+		List<String> stringToLinesAtDelimiter = StrUtils.toLines(text);
 		return createTextGroup(stringToLinesAtDelimiter, location);
 	}
 

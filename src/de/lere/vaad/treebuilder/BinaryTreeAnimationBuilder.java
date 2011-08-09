@@ -18,6 +18,13 @@ import algoanim.util.Timing;
 import de.lere.vaad.EndOfTheWorldException;
 import de.lere.vaad.MathHelper;
 
+/**
+ * provides the animations for a model and it's changes
+ * 
+ * @author Leo Roos, Rene Hertling
+ *
+ * @param <T>
+ */
 public class BinaryTreeAnimationBuilder<T extends Comparable<T>> implements
 		BinaryTreeModelListener<T> {
 	public static final BinaryTreeLayout DEFAULT_LAYOUT = new BinaryTreeLayout(
@@ -255,11 +262,6 @@ public class BinaryTreeAnimationBuilder<T extends Comparable<T>> implements
 	private OrderedGraphInformation<T> infosForNodes(
 			List<de.lere.vaad.treebuilder.Node<T>> nodes) {
 		return new OrderedGraphInformation<T>(nodes, this.layout);
-	}
-
-	@Override
-	public void update(TreeEvent<T> event) {
-		throw new EndOfTheWorldException();
 	}
 
 	@Override
