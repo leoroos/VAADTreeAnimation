@@ -19,30 +19,30 @@ public class DefaultBinaryTreeAnimations<T extends Comparable<T>> implements
 	@Override
 	public void animate(Language lang, TreeRightRotateEvent<T> event,
 			BinaryTreeLayout layout) {
-		writer.buildGraph(lang, event.afterChange, layout);
+		writer.buildGraph(lang, event.afterChange, layout, Timings.NOW);
 	}
 
 	@Override
 	public void animate(Language lang, TreeLeftRotateEvent<T> event,
 			BinaryTreeLayout layout) {
-		writer.buildGraph(lang, event.afterChange, layout);
+		writer.buildGraph(lang, event.afterChange, layout, Timings.NOW);
 	}
 
 	@Override
 	public void animate(Language lang, TreeInsertEvent<T> event,
 			BinaryTreeLayout layout) {
-		writer.buildGraph(lang, event.afterChange, layout);
+		writer.buildGraph(lang, event.afterChange, layout, Timings.NOW);
 	}
 
 	@Override
 	public void animate(Language lang, TreeDeleteEvent<T> event,
 			BinaryTreeLayout layout) {
-		writer.buildGraph(lang, event.afterChange, layout);
+		writer.buildGraph(lang, event.afterChange, layout, Timings.NOW);
 	}
 
 	@Override
 	public void animate(Language lang, BinaryTreeModel<T> model,
 			BinaryTreeLayout layout) {
-		writer.buildGraph(lang, model, layout);
+		writer.buildGraph(lang, model, layout, Timings.NOW);
 	}
 }

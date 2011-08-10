@@ -5,25 +5,34 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
+import algoanim.exceptions.IllegalDirectionException;
 import algoanim.primitives.Graph;
+import algoanim.primitives.Polyline;
 import algoanim.primitives.generators.Language;
 import algoanim.properties.GraphProperties;
 import algoanim.util.Coordinates;
+import algoanim.util.DisplayOptions;
+import algoanim.util.Hidden;
 import algoanim.util.Timing;
 import de.lere.vaad.utils.MathHelper;
 
 public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> {
 
 	private Graph lastCreatedGraph;
-
+	private Language lang;
+	private int polylineId;
+		
 	public GraphWriterImpl() {
 		lastCreatedGraph = new NullGraph();
+		this.lang = null;
+		polylineId = 0;
 	}
 
 	@Override
 	public void buildGraph(Language language, BinaryTreeModel<T> model,
-			BinaryTreeLayout layout) {
+			BinaryTreeLayout layout, Timing delay) {
 		OrderedGraphInformation<T> infos = graphInfos(model);
+		this.lang = language;		
 		writeGraph(language, infos, model, layout);
 	}
 
@@ -150,10 +159,18 @@ public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> 
 			 Point vector = new Point(newLocation.x - oldLocation.x,
 			 newLocation.y - oldLocation.y);
 			Integer oldIndex = origInfos.indexedNodes.get(original);
-			lastCreatedGraph.translateNodes( new int[] { (oldIndex +1)},
-					algoanim.util.Node.convertToNode(vector), when,
-					howLong);
-		//	lastCreatedGraph.moveVia(null, "translate #" +(oldIndex+1), "vec", when, howLong);
+//			lastCreatedGraph.translateNodes( new int[] { (oldIndex +1)},
+//					algoanim.util.Node.convertToNode(vector), when,
+//					howLong);
+			
+			Polyline polyline = lang.newPolyline(new Coordinates [] { algoanim.util.Node.convertToNode(oldLocation), algoanim.util.Node.convertToNode(newLocation)}, "vec" + polylineId, new Hidden());			
+			polyline.hide(Timings.NOW);
+			try {
+				lastCreatedGraph.moveVia(null, "translate #" +(oldIndex+1), polyline, when, howLong);
+			} catch (IllegalDirectionException e) {
+				throw new IllegalArgumentException("Laber");
+			}
+			polylineId++;
 		}
 	}
 }

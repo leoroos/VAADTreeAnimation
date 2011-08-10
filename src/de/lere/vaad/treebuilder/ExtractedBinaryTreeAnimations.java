@@ -1,6 +1,7 @@
 package de.lere.vaad.treebuilder;
 
 import algoanim.primitives.generators.Language;
+import algoanim.util.Timing;
 
 public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 		TreeDeleteOperationAnimator<T>, TreeInsertOperationAnimator<T>,
@@ -19,7 +20,7 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 	@Override
 	public void animate(Language lang, TreeRightRotateEvent<T> event,
 			BinaryTreeLayout layout) {
-		writer.buildGraph(lang, event.beforeChange, layout);
+		writer.buildGraph(lang, event.beforeChange, layout, Timings.NOW);
 		lang.nextStep();
 
 		StepTiming stepTiming = new StepTiming(Timings.NOW, Timings._25_TICKS);
@@ -34,22 +35,21 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 		writer.hideEdge(event.beforeChange, parentOfDetach, nodeToDetach,
 				stepTiming.now(), stepTiming.newInterval(25));
 		writer.translateNodes(event.beforeChange, event.afterChange, layout,
-				stepTiming.now(), stepTiming.newInterval(500));
-		lang.nextStep();
-		writer.buildGraph(lang, event.afterChange, layout);
-		writer.hideEdge(event.afterChange, rotateAround,
-				rotateAround.getLeft(), stepTiming.now(),
-				stepTiming.newInterval(25));
-		writer.highlightEdge(event.afterChange, rotateAround,
-				rotateAround.getLeft(), stepTiming.now(),
-				stepTiming.getInterval());
+				stepTiming.newInterval(25), stepTiming.newInterval(500));
+		writer.buildGraph(lang, event.afterChange, layout, Timings.NOW);
+		writer.highlightEdge(event.afterChange, event.nodeOfModification
+				.getRight(), event.nodeOfModification.getRight().getLeft(),
+				stepTiming.newInterval(25), Timings._25_TICKS);
+		writer.unhighlightEdge(event.afterChange, event.nodeOfModification
+				.getRight(), event.nodeOfModification.getRight().getLeft(),
+				stepTiming.newInterval(25), Timings._25_TICKS);
 		lang.nextStep();
 	}
 
 	@Override
 	public void animate(Language lang, TreeLeftRotateEvent<T> event,
 			BinaryTreeLayout layout) {
-		writer.buildGraph(lang, event.afterChange, layout);
+		writer.buildGraph(lang, event.afterChange, layout, Timings.NOW);
 		lang.nextStep();
 	}
 
@@ -59,7 +59,7 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 		if (event.nodeOfModification == null)
 			return;
 
-		writer.buildGraph(lang, event.afterChange, layout);
+		writer.buildGraph(lang, event.afterChange, layout, Timings.NOW);
 
 		de.lere.vaad.treebuilder.Node<T> nodeOfModification = event.nodeOfModification;
 		Node<T> parentNode = nodeOfModification.getParent();
@@ -74,7 +74,7 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 				nodeOfModification, Timings._25_TICKS, Timings._25_TICKS);
 		lang.nextStep();
 
-		writer.buildGraph(lang, event.afterChange, layout);
+		writer.buildGraph(lang, event.afterChange, layout,Timings.NOW);
 
 		lang.nextStep();
 	}
@@ -102,7 +102,7 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 		// infos.graph.highlightEdge(startNode, endNode, NOW,
 		// HIGHLIGHT_EDGE_DURATION);
 		//
-		writer.buildGraph(lang, event.afterChange, layout);
+		writer.buildGraph(lang, event.afterChange, layout, Timings.NOW);
 
 		lang.nextStep();
 	}
@@ -110,7 +110,7 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 	@Override
 	public void animate(Language lang, BinaryTreeModel<T> model,
 			BinaryTreeLayout layout) {
-		writer.buildGraph(lang, model, layout);
+		writer.buildGraph(lang, model, layout, Timings.NOW);
 		lang.nextStep();
 	}
 }

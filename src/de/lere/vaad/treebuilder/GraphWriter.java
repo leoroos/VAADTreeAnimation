@@ -5,7 +5,7 @@ import algoanim.util.Timing;
 
 public interface GraphWriter<T extends Comparable<T>> {
 	void buildGraph(Language language, BinaryTreeModel<T> model,
-			BinaryTreeLayout layout);
+			BinaryTreeLayout layout, Timing delay);
 
 	void highlightNode(BinaryTreeModel<T> model, Node<T> endNode, Timing now,
 			Timing howLong);
