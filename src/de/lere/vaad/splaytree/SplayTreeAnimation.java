@@ -2,12 +2,9 @@ package de.lere.vaad.splaytree;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -70,12 +67,14 @@ public class SplayTreeAnimation {
 	private SourceCode sourceCode;
 	private int runninggroupidentifier = 0;
 	private final TreeAnimationProperties animationProperties;
+	private final BinaryTreeLayout layout;
 
 	private SplayTreeAnimation(Language l, TreeAnimationProperties tp) {
 		this.language = l;
 		this.animationProperties = tp;
 		l.setStepMode(true);
 		this.lh = new LocationDirectorProviderImpl();
+		this.layout = new BinaryTreeLayout(NodeHelper.convertCoordinatesToAWTPoint(GRAPHROOT_COORDINATES), 200, 60);
 	}
 
 	/**
@@ -138,55 +137,10 @@ public class SplayTreeAnimation {
 
 		nextStateOnLocation(actionHeaderText(), Location.Header);
 
-		// nextStateOnLocation(ResourceAccessor.INTRO.getText(),
-		// Location.DescriptionBeginning);
-
-		BinaryTreeAnimationBuilder<Integer> aniBui = new BinaryTreeAnimationBuilder<Integer>(
-				language);
-		Offset graphRootLocation = lh.getDirector(
-				Location.Graphroot.DIRECTOR_NAME).getLocation();
-		Point graphRootPoint = NodeHelper
-				.convertOffsetToAWTPoint(graphRootLocation);
-		BinaryTreeLayout blay = new BinaryTreeLayout(new Point(400,0), 200, 60);
-		aniBui.setLayout(blay);
-		BinaryTreeModel<Integer> model = BinaryTreeModel.createTreeByInsert(10,5,15,1,7);
-		aniBui.setModel(model);
-		model.rightRotate(model.getRoot());
-//		// language.nextStep();
-//		List<Integer> intList = createSomeInts(15);
-//		Iterator<Integer> iterator2 = intList.iterator();
-//		while (iterator2.hasNext()) {
-//			model.insert(iterator2.next());
-//			// language.nextStep();
-//		}	
-//		aniBui.setModel(model);
-//		model.insert(1234);
-//		model.insert(12345);
-//		Collections.shuffle(intList);
-//		List<Node<Integer>> nodesInOrder = model.getNodesInOrder();
-//		Collections.shuffle(nodesInOrder);
-//		Iterator<Node<Integer>> iterator3 = nodesInOrder.iterator();
-//		Random r = new Random(123);
-//		while (iterator3.hasNext()) {
-//			Node<Integer> next = iterator3.next();
-//			boolean b = r.nextBoolean();
-//			if (b) {
-//				model.rightRotate(next);
-//				nextStateOnLocation("Right Rotation aroung" + next.getValue(),
-//						Location.Microstep);
-//			} else {
-//				model.leftRotate(next);
-//				nextStateOnLocation("Left Rotation" + next.getValue(),
-//						Location.Microstep);
-//			}
-//			language.nextStep();
-//		}
-//
-//		Iterator<Integer> iterator = intList.iterator();
-//		while (iterator.hasNext()) {
-//			Integer next = iterator.next();
-//			model.delete(next);			
-//		}
+		 nextStateOnLocation(SplayTreeResourceAccessor.INTRO.getText(),
+		 Location.DescriptionBeginning);
+		 
+		 step();
 
 		nextStateOnLocation(SplayTreeResourceAccessor.DESCRIPTION.getText(),
 				Location.DescriptionBeginning);
@@ -194,7 +148,7 @@ public class SplayTreeAnimation {
 		nextStateOnLocation(actionSourceCodeText(),
 				Location.DescriptionBeginning);
 
-		language.nextStep();
+		step();
 
 		//
 		// Zig-Step
@@ -205,48 +159,83 @@ public class SplayTreeAnimation {
 				+ "Splay-Operation einer Transformation handelt.";
 		nextStateOnLocation(actionZigMacroDescription, Location.Macrostep);
 
-		nextStateOnLocation("Führe Rechtsrotation um p aus.",
+		nextStateOnLocation("Führe Rechtsrotation um P aus.",
 				Location.Macrostep);
 
+		
+
+		BinaryTreeAnimationBuilder<String> animator = new BinaryTreeAnimationBuilder<String>(
+				language);
+		animator.setLayout(this.layout);
+		BinaryTreeModel<String> model = BinaryTreeModel.createTreeByInsert("P,F,R,A,G".split(","));		
+		animator.setModel(model);
+		
+		step();
+		
+		Node<String> search = model.search("P");
+		model.rightRotate(search);
+				
+		step();
 		//
 		// ZigZig-Step
 		//
 
-		String actionZigzigMacroDescription = "Sind x und p beide links bzw. rechts von g wird der\n"
-				+ "Zig-zig Schritt ausgeführt.";
+		hideAll(animator);
+		String actionZigzigMacroDescription = "Es wird C gesucht.\n" +
+				"Ist der gesuchte Knoten der linke Sohn seines Vaters der wiederum ein linkes Kind ist,\n"
+				+ "wird der Zig-zig Schritt ausgeführt, der eine doppelte Rechtsrotation ist.\n" +
+						"(bzw. doppelte Linksrotation im Spiegelverekehrten Fall)";
 		nextStateOnLocation(actionZigzigMacroDescription, Location.Macrostep);
 
-		language.nextStep();
+		model = BinaryTreeModel.createTreeByInsert("P,G,R,C,H,A,B".split(","));		
+		animator.setModel(model);
+		
+		
+		step();
 
 		nextStateOnLocation("Führe Rechtsrotation um g aus.",
 				Location.Microstep);
+		
+		Node<String> g = model.search("G");
+		model.rightRotate(g);
+		
 
 		nextStateOnLocation("Führe Rechtsrotation um p aus.",
 				Location.Microstep);
+		
+		rightRotateAround(model, "P");
+		
+		
 
 		//
 		// ZigZag-Step
 		//
-		String actionZigzagMacroDescription = "Befindet sich p links von g und x rechts von p, bzw.\n"
-				+ "p rechts von g und x links von p, wird ein Zig-zag Schritt ausgeführt.\n";
+		hideAll(animator);
+		String actionZigzagMacroDescription = "Sei I gesucht.\n" +
+				"I befindet sich links von P und recht von G bzw.\n"
+				+ "Hier wird ein Zig-zag Schritt ausgeführt.\n";
 		nextStateOnLocation(actionZigzagMacroDescription, Location.Macrostep);
+		
+		model = BinaryTreeModel.createTreeByInsert("P,G,S,E,I,H,J".split(","));		
+		animator.setModel(model);
 
-		language.nextStep();
+		step();
 
-		nextStateOnLocation("Führe Linksrotation um p aus.", Location.Microstep);
+		nextStateOnLocation("Führe Linksrotation um G aus.", Location.Microstep);
+		leftRotateAround(model, "G");
+		
+		step();
 
-		language.nextStep();
-
-		nextStateOnLocation("Führe Rechtsrotation um g aus.",
+		nextStateOnLocation("Führe Rechtsrotation um P aus.",
 				Location.Microstep);
+		rightRotateAround(model, "P");
 
-		language.nextStep();
+		step();
 
 		//
 		// Description of Behavior for Access Operations
 		//
-		nextStateOnLocation("", Location.Microstep);
-		nextStateOnLocation("", Location.DescriptionBeginning);
+		hideAll(animator);
 		String accessBehaviourMacroDescription = "Verhalten bei zugreifenden Operationen	\n"
 				+ "Suche:\n"
 				+ "Wird ein Knoten gesucht, wird auf diesem eine Splay Operation ausgeführt.\n"
@@ -258,7 +247,7 @@ public class SplayTreeAnimation {
 				+ "und sein Parent zur Wurzel gesplayed.";
 		nextStateOnLocation(accessBehaviourMacroDescription, Location.Macrostep);
 
-		language.nextStep();
+		step();
 		//
 		// Showcase the operations
 		//
@@ -267,14 +256,37 @@ public class SplayTreeAnimation {
 
 		nextStateOnLocation("Suche nach einen Schlüssel $$", Location.Microstep);
 
-		language.nextStep();
+		step();
 
 		nextStateOnLocation("Einfügen des Schlüssels $$", Location.Microstep);
 
-		language.nextStep();
+		step();
 
 		nextStateOnLocation("Löschen eines Schlüssels $$", Location.Microstep);
 
+		step();
+	}
+	
+
+	private void hideAll(BinaryTreeAnimationBuilder<String> animator) {
+		nextStateOnLocation("", Location.DescriptionBeginning);
+		nextStateOnLocation("", Location.Macrostep);
+		nextStateOnLocation("", Location.Microstep);
+		if (animator != null)
+			animator.setModel(new BinaryTreeModel<String> ());
+	}
+
+	private void rightRotateAround(BinaryTreeModel<String> model, String v) {
+		Node<String> p = model.search(v);
+		model.rightRotate(p);
+	}
+	
+	private void leftRotateAround(BinaryTreeModel<String> model, String v) {
+		Node<String> p = model.search(v);
+		model.leftRotate(p);
+	}
+
+	private void step() {
 		language.nextStep();
 	}
 

@@ -85,6 +85,7 @@ public class BinaryTreeAnimationBuilder<T extends Comparable<T>> implements
 
 	@Override
 	public void update(TreeSearchEvent<T> event) {
-		throw new UnsupportedOperationException("I don't know how to handle this");
+		GraphWriterImpl<T> writerImpl = new GraphWriterImpl<T>();
+		writerImpl.buildGraph(language, model, layout, new TicksTiming(0));
 	}
 }
