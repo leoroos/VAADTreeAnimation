@@ -21,7 +21,7 @@ public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> 
 	private Graph lastCreatedGraph;
 	private Language lang;
 	private int polylineId;
-		
+
 	public GraphWriterImpl() {
 		lastCreatedGraph = new NullGraph();
 		this.lang = null;
@@ -32,7 +32,7 @@ public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> 
 	public void buildGraph(Language language, BinaryTreeModel<T> model,
 			BinaryTreeLayout layout, Timing delay) {
 		OrderedGraphInformation<T> infos = graphInfos(model);
-		this.lang = language;		
+		this.lang = language;
 		writeGraph(language, infos, model, layout, delay);
 	}
 
@@ -155,20 +155,20 @@ public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> 
 					original);
 			int oldPosition = original.getPosition();
 			int newPosition = moved.getPosition();
-			Point oldLocation = MathHelper.getLocation(layout.rootLocation, oldPosition, layout.firstLevelWidth, layout.verticalGaps); 
+			Point oldLocation = MathHelper.getLocation(layout.rootLocation,
+					oldPosition, layout.firstLevelWidth, layout.verticalGaps);
 			Point newLocation = MathHelper.getLocation(layout.rootLocation,
 					newPosition, layout.firstLevelWidth, layout.verticalGaps);
-			 Point vector = new Point(newLocation.x - oldLocation.x,
-			 newLocation.y - oldLocation.y);
+
 			Integer oldIndex = origInfos.indexedNodes.get(original);
-//			lastCreatedGraph.translateNodes( new int[] { (oldIndex +1)},
-//					algoanim.util.Node.convertToNode(vector), when,
-//					howLong);
-			
-			Polyline polyline = lang.newPolyline(new Coordinates [] { algoanim.util.Node.convertToNode(oldLocation), algoanim.util.Node.convertToNode(newLocation)}, "vec" + polylineId, new Hidden());			
+			Polyline polyline = lang.newPolyline(new Coordinates[] {
+					algoanim.util.Node.convertToNode(oldLocation),
+					algoanim.util.Node.convertToNode(newLocation) }, "vec"
+					+ polylineId, new Hidden());
 			polyline.hide(Timings.NOW);
 			try {
-				lastCreatedGraph.moveVia(null, "translate #" +(oldIndex+1), polyline, when, howLong);
+				lastCreatedGraph.moveVia(null, "translate #" + (oldIndex + 1),
+						polyline, when, howLong);
 			} catch (IllegalDirectionException e) {
 				throw new IllegalArgumentException("Laber");
 			}

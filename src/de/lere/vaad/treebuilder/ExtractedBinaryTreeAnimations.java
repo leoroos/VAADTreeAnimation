@@ -21,7 +21,6 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 	public void animate(Language lang, TreeRightRotateEvent<T> event,
 			BinaryTreeLayout layout) {
 		writer.buildGraph(lang, event.beforeChange, layout, Timings.NOW);
-		lang.nextStep();
 
 		StepTiming stepTiming = new StepTiming(Timings.NOW, Timings._25_TICKS);
 
@@ -49,7 +48,28 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 	@Override
 	public void animate(Language lang, TreeLeftRotateEvent<T> event,
 			BinaryTreeLayout layout) {
-		writer.buildGraph(lang, event.afterChange, layout, Timings.NOW);
+		writer.buildGraph(lang, event.beforeChange, layout, Timings.NOW);
+
+		StepTiming stepTiming = new StepTiming(Timings.NOW, Timings._25_TICKS);
+
+		Node<T> rotateAround = event.nodeOfModification;
+		Node<T> nodeInOriginal = BinaryTreeModel.lookupNodeByID(
+				event.beforeChange, rotateAround);
+		Node<T> parentOfDetach = nodeInOriginal;
+		Node<T> nodeToDetach = parentOfDetach.getLeft();
+		writer.highlightEdge(event.beforeChange, parentOfDetach, nodeToDetach,
+				stepTiming.now(), stepTiming.newInterval(25));
+		writer.hideEdge(event.beforeChange, parentOfDetach, nodeToDetach,
+				stepTiming.now(), stepTiming.newInterval(25));
+		writer.translateNodes(event.beforeChange, event.afterChange, layout,
+				stepTiming.now(), stepTiming.newInterval(100));
+		writer.buildGraph(lang, event.afterChange, layout, stepTiming.now());
+		writer.highlightEdge(event.afterChange, event.nodeOfModification
+				.getLeft(), event.nodeOfModification.getLeft().getRight(),
+				stepTiming.now(), stepTiming.newInterval(25));
+		writer.unhighlightEdge(event.afterChange, event.nodeOfModification
+				.getLeft(), event.nodeOfModification.getLeft().getRight(),
+				stepTiming.now(), stepTiming.newInterval(25));
 		lang.nextStep();
 	}
 
@@ -74,7 +94,7 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 				nodeOfModification, Timings._25_TICKS, Timings._25_TICKS);
 		lang.nextStep();
 
-		writer.buildGraph(lang, event.afterChange, layout,Timings.NOW);
+		writer.buildGraph(lang, event.afterChange, layout, Timings.NOW);
 
 		lang.nextStep();
 	}

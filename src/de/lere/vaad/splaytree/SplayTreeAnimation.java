@@ -170,10 +170,14 @@ public class SplayTreeAnimation {
 		BinaryTreeModel<String> model = BinaryTreeModel.createTreeByInsert("P,F,R,A,G".split(","));		
 		animator.setModel(model);
 		
-		step();
-		
-		Node<String> search = model.search("P");
-		model.rightRotate(search);
+		for(int i = 0; i < 20; ++i ){
+			if((i % 2) == 0 ){
+				model.rightRotate(model.getRoot());
+			}
+			else {
+				model.leftRotate(model.getRoot());
+			}
+		}
 				
 		step();
 		//
