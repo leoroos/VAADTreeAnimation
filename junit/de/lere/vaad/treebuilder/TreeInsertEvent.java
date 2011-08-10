@@ -8,7 +8,7 @@ public class TreeInsertEvent<T extends Comparable<T>> extends TreeEvent<T> {
 	}
 
 	@Override
-	public void notifyListener(BinaryTreeModelListener<T> listener) {
+	public void notifyListener(TreeEventListener<T> listener) {
 		listener.update(this);
 	}
 }

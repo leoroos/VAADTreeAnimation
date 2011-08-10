@@ -18,10 +18,14 @@ import algoanim.util.TicksTiming;
 import algoanim.util.Timing;
 import de.lere.vaad.treebuilder.BinaryTreeLayout;
 import de.lere.vaad.treebuilder.BinaryTreeModel;
-import de.lere.vaad.treebuilder.BinaryTreeModelListener;
+import de.lere.vaad.treebuilder.Timings;
+import de.lere.vaad.treebuilder.TreeEvent;
+import de.lere.vaad.treebuilder.TreeEventListener;
+import de.lere.vaad.treebuilder.GraphWriterImpl;
 import de.lere.vaad.treebuilder.TreeDeleteEvent;
 import de.lere.vaad.treebuilder.TreeInsertEvent;
 import de.lere.vaad.treebuilder.TreeLeftRotateEvent;
+import de.lere.vaad.treebuilder.TreeNewEvent;
 import de.lere.vaad.treebuilder.TreeRightRotateEvent;
 import de.lere.vaad.treebuilder.TreeSearchEvent;
 import de.lere.vaad.utils.MathHelper;
@@ -35,7 +39,7 @@ import de.lere.vaad.utils.NodeHelper;
  * @param <T>
  */
 public class BinarySearchTreeAnimator<T extends Comparable<T>> implements
-		BinaryTreeModelListener<T> {
+		TreeEventListener<T> {
 	public static final BinaryTreeLayout DEFAULT_LAYOUT = new BinaryTreeLayout(
 			new Point(240, 0), 120, 30, Color.WHITE, "DefaultGraphName");
 
@@ -189,32 +193,6 @@ public class BinarySearchTreeAnimator<T extends Comparable<T>> implements
 		return generateCoordinates(model.getNodesInOrder(), layout);
 	}
 
-	/**
-	 * <pre>
-	 * 	#remove edge to graph
-	 * 	highlightEdge on  "Zig" (1,4) 
-	 * 	hide "Zig" after 75 ticks	
-	 * 	#new graph without edge to moved node	
-	 * 	graph "Zig" size 5 highlightColor red nodes { "P" offset (0,0) from "loc1" , "X" offset (0,0) from "loc2" , "C" offset (0,0) from "loc3", "A" offset (0,0) from "loc4" , "B" offset (0,0) from "loc5" } edges { ( 0, 1) ( 0, 2) ( 1 , 3 ) }
-	 * }
-	 * 
-	 * {	
-	 * 	move "Zig" type "translate #1" via "vec1_3" within 150 ticks
-	 * 	move "Zig" type "translate #2" via "vec2_1" within 150 ticks
-	 * 	move "Zig" type "translate #3" via "vec3_7" within 150 ticks
-	 * 	move "Zig" type "translate #4" via "vec4_2" within 150 ticks
-	 * 	move "Zig" type "translate #5" via "vec5_6" within 150 ticks			
-	 * }
-	 * 
-	 * {
-	 * 	hide "Zig"		
-	 * 	graph "Zig" size 5 highlightColor red nodes { "X" offset (0,0) from "loc1" ,  "A" offset (0,0) from "loc2" , "P" offset (0,0) from "loc3" , "B" offset (0,0) from "loc6",  "C" offset (0,0) from "loc7" } edges { ( 0, 1) ( 0, 2) ( 2 , 3 ) (2,4) }
-	 * 	highlightEdge on "Zig" (2,3)
-	 * 	unhighlightEdge on "Zig" (2,3) after 75 ticks
-	 * </pre>
-	 * */
-
-	@Override
 	public void update(TreeInsertEvent<T> event) {
 		if (event.nodeOfModification == null)
 			return;
@@ -259,7 +237,6 @@ public class BinarySearchTreeAnimator<T extends Comparable<T>> implements
 				HIGHLIGHT_NODE_DURATION);
 	}
 
-	@Override
 	public void update(TreeDeleteEvent<T> event) {
 		if (event.nodeOfModification == null)
 			return;
@@ -268,59 +245,36 @@ public class BinarySearchTreeAnimator<T extends Comparable<T>> implements
 				.getNodesInOrder());
 
 		Integer deletee = oldinfos.indexedNodes.get(event.nodeOfModification);
-		de.lere.vaad.treebuilder.Node<T> successor2 = event.successor;
-		Integer successor = oldinfos.indexedNodes.get(successor2);
+		de.lere.vaad.treebuilder.Node<T> successorNode = event.successor;
+		
 
 		lastCreatedGraph.highlightNode(deletee, NOW,
 				DELETE_NODE_HIGHLIGHT_DURATION);
 		language.nextStep();
 
-		if (successor != null) {
-			lastCreatedGraph.highlightNode(successor,
-					DELETE_NODE_HIGHLIGHT_DURATION,
-					DELETE_NODE_HIGHLIGHT_DURATION);
-			language.nextStep();
+		GraphWriterImpl<T> impl = new GraphWriterImpl<T>(language,
+				lastCreatedGraph);
 
-			List<de.lere.vaad.treebuilder.Node<T>> nodesAfter = event.afterChange
-					.getNodesInOrder();
-			List<de.lere.vaad.treebuilder.Node<T>> nodesBefore = event.beforeChange
-					.getNodesInOrder();
-			nodesBefore.retainAll(nodesAfter);
-			for (int i = 0; i < nodesBefore.size(); i++) {
-
-				de.lere.vaad.treebuilder.Node<T> node = nodesBefore.get(i);
-				Integer originalIndex = oldinfos.getIndexOf(node);
-				Integer newNodePosition = event.afterChange
-						.getNodePosition(node);
-
-				moveNodeOfIndexToNodePosition(originalIndex, newNodePosition);
-
-				// }
-				// }
-
+		if (successorNode != null) {
+			Integer successor = oldinfos.indexedNodes.get(successorNode);
+			de.lere.vaad.treebuilder.Node<T> oldSuccParent = BinaryTreeModel.lookupNodeByID(event.beforeChange, successorNode).getParent();
+			// impl.hideEdge(event.beforeChange,
+			// successor2,successor2.getParent(), Timings.NOW,
+			// Timings._25_TICKS);
+			Integer successorParentIndex = oldinfos.getIndexOf(oldSuccParent);
+			if (successorParentIndex != null) {
+				lastCreatedGraph.hideEdge(successorParentIndex, successor, NOW,
+						HIGHLIGHT_NODE_DURATION);
+				impl.highlightNode(model, successorNode, NOW,
+						DELETE_NODE_HIGHLIGHT_DURATION);
 				language.nextStep();
 			}
+			impl.translateNodes(event.beforeChange, event.afterChange,
+					DEFAULT_LAYOUT, NOW, HIGHLIGHT_NODE_DURATION);
+			language.nextStep();
 		}
 
-		//
-		// lastCreatedGraph.unhighlightNode(
-		// indexedNodes, DELETE_NODE_HIGHLIGHT_DURATION,
-		// DELETE_NODE_HIGHLIGHT_DURATION);
-		// infos.graph.highlightNode(endNode, NOW, HIGHLIGHT_EDGE_DURATION);
-		// infos.graph.highlightEdge(startNode, endNode, NOW,
-		// HIGHLIGHT_EDGE_DURATION);
-		//
-		writeGraph(currentGraphInfos());
-	}
-
-	private void moveNodeOfIndexToNodePosition(Integer originalPos,
-			int newNodePosition) {
-		Point newLocation = MathHelper.getLocation(layout.rootLocation,
-				newNodePosition, layout.firstLevelWidth, layout.verticalGaps);
-
-		lastCreatedGraph.translateNodes(new int[] { originalPos + 1 },
-				NodeHelper.convertAWTPointToCoordinates(newLocation), NOW,
-				HIGHLIGHT_NODE_DURATION);
+		buildCurrentGraph();
 	}
 
 	private OrderedGraphInformation<T> infosForNodes(
@@ -328,17 +282,14 @@ public class BinarySearchTreeAnimator<T extends Comparable<T>> implements
 		return new OrderedGraphInformation<T>(nodes, this.layout);
 	}
 
-	@Override
 	public void update(TreeLeftRotateEvent<T> event) {
 		buildCurrentGraph();
 	}
 
-	@Override
 	public void update(TreeRightRotateEvent<T> event) {
 		buildCurrentGraph();
 	}
 
-	@Override
 	public void update(TreeSearchEvent<T> event) {
 		OrderedGraphInformation<T> currentGraphInfos = buildCurrentGraph();
 		List<de.lere.vaad.treebuilder.Node<T>> listFromRootToNode = getListFromRootToNode(event.nodeOfModification);
@@ -354,4 +305,23 @@ public class BinarySearchTreeAnimator<T extends Comparable<T>> implements
 	private void writeHighlightNode(Integer node) {
 		lastCreatedGraph.highlightNode(node, NOW, HIGHLIGHT_NODE_DURATION);
 	}
+
+	@Override
+	public void update(TreeEvent<T> event) {
+		if (event instanceof TreeInsertEvent<?>) {
+			update((TreeInsertEvent<T>) event);
+		} else if (event instanceof TreeDeleteEvent<?>) {
+			update((TreeDeleteEvent<T>) event);
+		} else if (event instanceof TreeLeftRotateEvent<?>) {
+			update((TreeLeftRotateEvent<T>) event);
+		} else if (event instanceof TreeRightRotateEvent<?>) {
+			update((TreeRightRotateEvent<T>) event);
+		} else if (event instanceof TreeNewEvent<?>) {
+			update((TreeNewEvent<T>) event);
+		} else if (event instanceof TreeSearchEvent<?>) {
+			update((TreeSearchEvent<T>) event);
+		}
+
+	}
+
 }

@@ -22,12 +22,16 @@ public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> 
 	private Language lang;
 	private int polylineId;
 
-	public GraphWriterImpl() {
-		lastCreatedGraph = new NullGraph();
-		this.lang = null;
+	public GraphWriterImpl(Language lang) {
+		this(lang, new NullGraph());
+	}
+	
+	public GraphWriterImpl(Language lang, Graph lastCreatedGraph) {
+		this.lang = lang;
+		this.lastCreatedGraph = lastCreatedGraph;
 		polylineId = 0;
 	}
-
+	
 	@Override
 	public void buildGraph(Language language, BinaryTreeModel<T> model,
 			BinaryTreeLayout layout, Timing delay) {
@@ -40,6 +44,13 @@ public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> 
 		OrderedGraphInformation<T> infos = new OrderedGraphInformation<T>(
 				model.getNodesInOrder());
 		return infos;
+	}
+	
+	public void setLastGraph(Graph graph) {
+		if (graph == null) {
+			this.lastCreatedGraph = new NullGraph();
+		} else
+			this.lastCreatedGraph = graph;
 	}
 
 	public void writeGraph(Language language, OrderedGraphInformation<T> infos,
@@ -153,6 +164,9 @@ public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> 
 		for (Node<T> original : origInfos.nodes) {
 			Node<T> moved = BinaryTreeModel.lookupNodeByID(positionToMoveTo,
 					original);
+			if(moved == null)
+				continue;
+			
 			int oldPosition = original.getPosition();
 			int newPosition = moved.getPosition();
 			Point oldLocation = MathHelper.getLocation(layout.rootLocation,

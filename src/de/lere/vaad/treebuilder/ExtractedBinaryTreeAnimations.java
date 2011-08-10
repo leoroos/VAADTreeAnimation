@@ -4,9 +4,7 @@ import algoanim.primitives.generators.Language;
 import algoanim.util.Timing;
 
 public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
-		TreeDeleteOperationAnimator<T>, TreeInsertOperationAnimator<T>,
-		TreeLeftRotationAnimator<T>, TreeRightRotationAnimator<T>,
-		NewTreeAnimator<T> {
+		TreeAnimator<T> {
 
 	private GraphWriter<T> writer;
 
@@ -17,7 +15,6 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 		this.writer = writer;
 	}
 
-	@Override
 	public void animate(Language lang, TreeRightRotateEvent<T> event,
 			BinaryTreeLayout layout) {
 		writer.buildGraph(lang, event.beforeChange, layout, Timings.NOW);
@@ -45,7 +42,6 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 		lang.nextStep();
 	}
 
-	@Override
 	public void animate(Language lang, TreeLeftRotateEvent<T> event,
 			BinaryTreeLayout layout) {
 		writer.buildGraph(lang, event.beforeChange, layout, Timings.NOW);
@@ -73,7 +69,6 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 		lang.nextStep();
 	}
 
-	@Override
 	public void animate(Language lang, TreeInsertEvent<T> event,
 			BinaryTreeLayout layout) {
 		if (event.nodeOfModification == null)
@@ -99,7 +94,6 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 		lang.nextStep();
 	}
 
-	@Override
 	public void animate(Language lang, TreeDeleteEvent<T> event,
 			BinaryTreeLayout layout) {
 		if (event.nodeOfModification == null)
@@ -127,10 +121,28 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 		lang.nextStep();
 	}
 
-	@Override
 	public void animate(Language lang, BinaryTreeModel<T> model,
 			BinaryTreeLayout layout) {
 		writer.buildGraph(lang, model, layout, Timings.NOW);
 		lang.nextStep();
+	}
+
+	@Override
+	public void animate(Language lang, TreeEvent<T> event,
+			BinaryTreeLayout layout) {
+		if(event instanceof TreeInsertEvent<?>){
+			animate(lang, (TreeInsertEvent<T>)event, layout);
+		}else if (event instanceof TreeDeleteEvent<?>){
+			animate(lang, (TreeDeleteEvent<T>) event, layout);
+		}else if (event instanceof TreeLeftRotateEvent<?>){
+			animate(lang, (TreeLeftRotateEvent<T>) event, layout);
+		}else if (event instanceof TreeRightRotateEvent<?>){
+			animate(lang, (TreeRightRotateEvent<T>) event, layout);
+		}else if (event instanceof TreeDeleteEvent<?>){
+			animate(lang, (TreeDeleteEvent<T>) event, layout);
+		}else if (event instanceof TreeNewEvent<?>){
+			animate(lang, (TreeNewEvent<T>) event, layout);
+		}
+		
 	}
 }

@@ -1,9 +1,8 @@
 package de.lere.vaad.treebuilder;
 
-public class TreeLeftRotateEvent<T extends Comparable<T>> extends TreeEvent<T> {
+public class TreeNewEvent<T extends Comparable<T>> extends TreeEvent<T> {
 
-
-	public TreeLeftRotateEvent(BinaryTreeModel<T> before, BinaryTreeModel<T> after,
+	public TreeNewEvent(BinaryTreeModel<T> before, BinaryTreeModel<T> after,
 			Node<T> nodeOfModification) {
 		super(before, after, nodeOfModification);
 	}

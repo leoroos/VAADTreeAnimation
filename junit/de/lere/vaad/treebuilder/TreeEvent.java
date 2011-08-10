@@ -37,5 +37,5 @@ public abstract class TreeEvent<T extends Comparable<T>> {
 		return 11 * beforeChange.hashCode() + afterChange.hashCode();
 	}
 	
-	public abstract void notifyListener(BinaryTreeModelListener<T> listener);
+	public abstract void notifyListener(TreeEventListener<T> listener);
 }

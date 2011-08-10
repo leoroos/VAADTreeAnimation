@@ -17,17 +17,17 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 
 	private Node<T> root;
 
-	private List<BinaryTreeModelListener<T>> listeners;
+	private List<TreeEventListener<T>> listeners;
 
 	public BinaryTreeModel() {
-		this.listeners = new ArrayList<BinaryTreeModelListener<T>>();
+		this.listeners = new ArrayList<TreeEventListener<T>>();
 	}
 
-	public void addListener(BinaryTreeModelListener<T> listener) {
+	public void addListener(TreeEventListener<T> listener) {
 		listeners.add(listener);
 	}
 
-	public boolean removeListener(BinaryTreeModelListener<T> listener) {
+	public boolean removeListener(TreeEventListener<T> listener) {
 		return listeners.remove(listener);
 	}
 
@@ -107,7 +107,7 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 	}
 
 	void fireChange(TreeEvent<T> event) {
-		for (BinaryTreeModelListener<T> l : listeners) {
+		for (TreeEventListener<T> l : listeners) {
 			event.notifyListener(l);
 		}
 	}
@@ -382,6 +382,8 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 			BinaryTreeModel<T> model, Node<T> node){
 		List<Node<T>> nodes = model.getNodesInOrder();
 		int index = nodes.indexOf(node);
+		if(index < 0)
+			return null;
 		return nodes.get(index);
 	}
 }

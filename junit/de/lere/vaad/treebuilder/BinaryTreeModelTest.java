@@ -32,7 +32,7 @@ import de.lere.vaad.utils.ListMap;
 public class BinaryTreeModelTest {
 
 	private BinaryTreeModel<Integer> model;
-	private BinaryTreeModelListener listener;
+	private TreeEventListener listener;
 
 	@Before
 	public void setUp() {
@@ -64,7 +64,7 @@ public class BinaryTreeModelTest {
 	@Test
 	public void shouldFireEventOnSearchNothingFoundWithNull() throws Exception {
 		BinaryTreeModel<Integer> spy = spy(model);
-		BinaryTreeModelListener<Integer> btmlMock = createLinkBtmlMock(spy);
+		TreeEventListener<Integer> btmlMock = createLinkBtmlMock(spy);
 		spy.search(10);
 		verify(spy).fireChange(
 				new TreeSearchEvent<Integer>(model.copy(), model.copy(), null));
@@ -75,7 +75,7 @@ public class BinaryTreeModelTest {
 	public void shouldFireEventOnSearchWithFoundNode() throws Exception {
 		BinaryTreeModel<Integer> model = BinaryTreeModel
 				.createTreeByInsert(5, 3, 6);
-		BinaryTreeModelListener<Integer> btmlMock = createLinkBtmlMock(model);
+		TreeEventListener<Integer> btmlMock = createLinkBtmlMock(model);
 		Node<Integer> search = model.search(6);
 		verify(btmlMock).update(new TreeSearchEvent<Integer>(model.copy(), model.copy(), search));
 	}
@@ -97,14 +97,14 @@ public class BinaryTreeModelTest {
 
 	@Test
 	public void shouldFireEventOnInsert() throws Exception {
-		BinaryTreeModelListener<Integer> btmlMock = createLinkBtmlMock(model);
+		TreeEventListener<Integer> btmlMock = createLinkBtmlMock(model);
 		model.insert(10);
 		verify(btmlMock).update(Mockito.any(TreeInsertEvent.class));
 	}
 
 	@Test
 	public void shouldFireEventOnDelete() throws Exception {
-		BinaryTreeModelListener<Integer> btmlMock = createLinkBtmlMock(model);
+		TreeEventListener<Integer> btmlMock = createLinkBtmlMock(model);
 		model.insert(10);
 		model.delete(10);
 		verify(btmlMock).update(Mockito.any(TreeDeleteEvent.class));
@@ -112,30 +112,30 @@ public class BinaryTreeModelTest {
 
 	@Test
 	public void shouldNotFireDeleteEventOnInsert() throws Exception {
-		BinaryTreeModelListener<Integer> btmlMock = createLinkBtmlMock(model);
+		TreeEventListener<Integer> btmlMock = createLinkBtmlMock(model);
 		model.insert(10);
 		verify(btmlMock, never()).update(Mockito.any(TreeDeleteEvent.class));
 	}
 
 	@Test
 	public void shouldFireEventOnLeftRotate() throws Exception {
-		BinaryTreeModelListener<Integer> btmlMock = createLinkBtmlMock(model);
+		TreeEventListener<Integer> btmlMock = createLinkBtmlMock(model);
 		model.insert(10);
 		Node<Integer> root = model.getRoot();
 		model.leftRotate(root);
 		verify(btmlMock).update(Mockito.any(TreeLeftRotateEvent.class));
 	}
 
-	private BinaryTreeModelListener<Integer> createLinkBtmlMock(
+	private TreeEventListener<Integer> createLinkBtmlMock(
 			BinaryTreeModel<Integer> model) {
-		BinaryTreeModelListener<Integer> btmlMock = mock(BinaryTreeModelListener.class);
+		TreeEventListener<Integer> btmlMock = mock(TreeEventListener.class);
 		model.addListener(btmlMock);
 		return btmlMock;
 	}
 
 	@Test
 	public void shouldNotFireRightRotateEventOnOtherEvent() throws Exception {
-		BinaryTreeModelListener<Integer> btmlMock = createLinkBtmlMock(model);
+		TreeEventListener<Integer> btmlMock = createLinkBtmlMock(model);
 		model.insert(10);
 		model.delete(10);
 		verify(btmlMock, never()).update(
@@ -144,7 +144,7 @@ public class BinaryTreeModelTest {
 
 	@Test
 	public void shouldFireEventOnRightRotate() throws Exception {
-		BinaryTreeModelListener btmlMock = mock(BinaryTreeModelListener.class);
+		TreeEventListener btmlMock = mock(TreeEventListener.class);
 		model.addListener(btmlMock);
 		model.insert(10);
 		model.rightRotate(model.getRoot());
@@ -193,7 +193,7 @@ public class BinaryTreeModelTest {
 		BinaryTreeModel<Integer> origM = BuilderTestUtils
 				.createNIntegerTree(15);
 		BinaryTreeModel<Integer> copyM = origM.copy();
-		BinaryTreeModelListener btml = mock(BinaryTreeModelListener.class);
+		TreeEventListener btml = mock(TreeEventListener.class);
 		origM.addListener(btml);
 		copyM.insert(2);
 		verify(btml, times(0)).update(Mockito.any(TreeInsertEvent.class));

@@ -196,7 +196,7 @@ public class BinarySerachTreeAnimation {
 		nextStateOnLocation(
 				"Beim Einfügen wird zuerst wie beim Suchen vorgegangen.\n"
 						+ "Es wird versucht den einzufügenden Knoten zu suchen, wird dabei ein Blatt\n"
-						+ "erreicht wird der Knoten dort wo erwartet worden wäre ihn zu finden eingfügt.",
+						+ "erreicht wird der Knoten dort wo erwartet worden wäre ihn zu finden eingefügt.",
 				Location.Macrostep);
 		animator.setModel(model);
 
@@ -313,7 +313,7 @@ public class BinarySerachTreeAnimation {
 		nextStateOnLocation("Ende", Location.Macrostep);
 		step();
 	}
-
+ 
 	private void hideAll(BinarySearchTreeAnimator<String> animator) {
 		nextStateOnLocation("", Location.DescriptionBeginning);
 		nextStateOnLocation("", Location.Macrostep);

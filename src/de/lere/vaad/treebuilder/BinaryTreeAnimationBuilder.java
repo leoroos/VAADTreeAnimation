@@ -17,7 +17,7 @@ import algoanim.util.Timing;
  * @param <T>
  */
 public class BinaryTreeAnimationBuilder<T extends Comparable<T>> implements
-		BinaryTreeModelListener<T> {
+		TreeEventListener<T> {
 	public static final BinaryTreeLayout DEFAULT_LAYOUT = new BinaryTreeLayout(
 			new Point(240, 0), 120, 30, Color.WHITE, "DefaultGraphName");
 
@@ -25,34 +25,26 @@ public class BinaryTreeAnimationBuilder<T extends Comparable<T>> implements
 	private BinaryTreeLayout layout;
 	private Language language;
 
-	private NewTreeAnimator<T> newTreeAnimatror;
-	private TreeInsertOperationAnimator<T> insertAnimator;
-	private TreeDeleteOperationAnimator<T> deleteAnimator;
-	private TreeLeftRotationAnimator<T> leftRotationAnimator;
-	private TreeRightRotationAnimator<T> rightRotationAnimator;	
-	
-	//public final DefaultBinaryTreeAnimations<T> defaultAnimations = new DefaultBinaryTreeAnimations<T>(new GraphWriterImpl<T>());
-	public final ExtractedBinaryTreeAnimations<T> defaultAnimations = new ExtractedBinaryTreeAnimations<T>(new GraphWriterImpl<T>());
+	private TreeAnimator<T> animations;
 
 	public BinaryTreeAnimationBuilder(Language lang) {
 		this.language = lang;
 		this.model = new BinaryTreeModel<T>();
-		this.layout = DEFAULT_LAYOUT;		
-		this.newTreeAnimatror = defaultAnimations;
-		this.insertAnimator = defaultAnimations;
-		this.deleteAnimator = defaultAnimations;
-		this.leftRotationAnimator = defaultAnimations;
-		this.rightRotationAnimator = defaultAnimations;
+		this.layout = DEFAULT_LAYOUT;
+		// defaultAnimations = new DefaultBinaryTreeAnimations<T>(new
+		// GraphWriterImpl<T>());
+		this.animations = new ExtractedBinaryTreeAnimations<T>(
+				new GraphWriterImpl<T>(language));
 	}
 
 	public void setModel(BinaryTreeModel<T> model) {
-		BinaryTreeModel<T> old = this.model.copy();
 		if (this.model != null) {
 			this.model.removeListener(this);
 		}
 		this.model = model;
 		this.model.addListener(this);
-		this.newTreeAnimatror.animate(language, model, this.layout);
+		BinaryTreeModel<T> copy = this.model.copy();
+		this.update(new TreeNewEvent<T>(copy, copy, null));
 	}
 
 	public void setLayout(BinaryTreeLayout layout) {
@@ -62,30 +54,10 @@ public class BinaryTreeAnimationBuilder<T extends Comparable<T>> implements
 	public BinaryTreeLayout getLayout() {
 		return layout;
 	}
-	
-	@Override
-	public void update(TreeInsertEvent<T> event) {
-		insertAnimator.animate(language, event, layout);
-	}
 
 	@Override
-	public void update(TreeDeleteEvent<T> event) {		
-		deleteAnimator.animate(language, event, layout);
-	}	
-
-	@Override
-	public void update(TreeLeftRotateEvent<T> event) {
-		leftRotationAnimator.animate(language, event, layout);		
+	public void update(TreeEvent<T> event) {
+		this.animations.animate(language, event, layout);
 	}
 
-	@Override
-	public void update(TreeRightRotateEvent<T> event) {
-		rightRotationAnimator.animate(language, event, layout);
-	}
-
-	@Override
-	public void update(TreeSearchEvent<T> event) {
-//		GraphWriterImpl<T> writerImpl = new GraphWriterImpl<T>();
-//		writerImpl.buildGraph(language, model, layout, new TicksTiming(0));
-	}
 }
