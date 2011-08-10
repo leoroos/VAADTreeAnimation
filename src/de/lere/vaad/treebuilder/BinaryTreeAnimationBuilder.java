@@ -85,7 +85,7 @@ public class BinaryTreeAnimationBuilder<T extends Comparable<T>> implements
 
 	@Override
 	public void update(TreeSearchEvent<T> event) {
-		GraphWriterImpl<T> writerImpl = new GraphWriterImpl<T>();
-		writerImpl.buildGraph(language, model, layout, new TicksTiming(0));
+//		GraphWriterImpl<T> writerImpl = new GraphWriterImpl<T>();
+//		writerImpl.buildGraph(language, model, layout, new TicksTiming(0));
 	}
 }
