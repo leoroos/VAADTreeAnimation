@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Point;
 import java.util.List;
 
+import de.lere.vaad.EndOfTheWorldException;
+
 import algoanim.primitives.Graph;
 import algoanim.primitives.generators.Language;
 import algoanim.util.TicksTiming;
@@ -63,31 +65,6 @@ public class BinaryTreeAnimationBuilder<T extends Comparable<T>> implements
 		return layout;
 	}
 	
-	/**
-	 * <pre>
-	 * 	#remove edge to graph
-	 * 	highlightEdge on  "Zig" (1,4) 
-	 * 	hide "Zig" after 75 ticks	
-	 * 	#new graph without edge to moved node	
-	 * 	graph "Zig" size 5 highlightColor red nodes { "P" offset (0,0) from "loc1" , "X" offset (0,0) from "loc2" , "C" offset (0,0) from "loc3", "A" offset (0,0) from "loc4" , "B" offset (0,0) from "loc5" } edges { ( 0, 1) ( 0, 2) ( 1 , 3 ) }
-	 * }
-	 * 
-	 * {	
-	 * 	move "Zig" type "translate #1" via "vec1_3" within 150 ticks
-	 * 	move "Zig" type "translate #2" via "vec2_1" within 150 ticks
-	 * 	move "Zig" type "translate #3" via "vec3_7" within 150 ticks
-	 * 	move "Zig" type "translate #4" via "vec4_2" within 150 ticks
-	 * 	move "Zig" type "translate #5" via "vec5_6" within 150 ticks			
-	 * }
-	 * 
-	 * {
-	 * 	hide "Zig"		
-	 * 	graph "Zig" size 5 highlightColor red nodes { "X" offset (0,0) from "loc1" ,  "A" offset (0,0) from "loc2" , "P" offset (0,0) from "loc3" , "B" offset (0,0) from "loc6",  "C" offset (0,0) from "loc7" } edges { ( 0, 1) ( 0, 2) ( 2 , 3 ) (2,4) }
-	 * 	highlightEdge on "Zig" (2,3)
-	 * 	unhighlightEdge on "Zig" (2,3) after 75 ticks
-	 * </pre>
-	 * */
-
 	@Override
 	public void update(TreeInsertEvent<T> event) {
 		insertAnimator.animate(language, event, layout);
@@ -106,5 +83,10 @@ public class BinaryTreeAnimationBuilder<T extends Comparable<T>> implements
 	@Override
 	public void update(TreeRightRotateEvent<T> event) {
 		rightRotationAnimator.animate(language, event, layout);
+	}
+
+	@Override
+	public void update(TreeSearchEvent<T> event) {
+		throw new EndOfTheWorldException("Won't handle this event");
 	}
 }

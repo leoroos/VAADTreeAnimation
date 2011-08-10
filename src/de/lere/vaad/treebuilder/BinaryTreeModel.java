@@ -298,11 +298,14 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 	}
 
 	public Node<T> search(T v) {
+		Node<T> found;
 		if (this.root == null) {
-			return null;
+			found = null;
 		} else {
-			return root.search(v);
+			found = root.search(v);
 		}
+		fireChange(new TreeSearchEvent<T>(this.copy(),this.copy(),found));
+		return found;
 	}
 
 	/**
@@ -374,6 +377,7 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 		return y;
 	}
 	
+	//FIXME is this still relevant?
 	public static <T extends Comparable<T>> Node<T> lookupNodeByID(
 			BinaryTreeModel<T> model, Node<T> node){
 		List<Node<T>> nodes = model.getNodesInOrder();
