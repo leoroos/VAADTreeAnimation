@@ -35,14 +35,14 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 		writer.hideEdge(event.beforeChange, parentOfDetach, nodeToDetach,
 				stepTiming.now(), stepTiming.newInterval(25));
 		writer.translateNodes(event.beforeChange, event.afterChange, layout,
-				stepTiming.newInterval(25), stepTiming.newInterval(500));
-		writer.buildGraph(lang, event.afterChange, layout, Timings.NOW);
+				stepTiming.now(), stepTiming.newInterval(500));
+		writer.buildGraph(lang, event.afterChange, layout, stepTiming.now());
 		writer.highlightEdge(event.afterChange, event.nodeOfModification
 				.getRight(), event.nodeOfModification.getRight().getLeft(),
-				stepTiming.newInterval(25), Timings._25_TICKS);
+				stepTiming.now(), stepTiming.newInterval(25));
 		writer.unhighlightEdge(event.afterChange, event.nodeOfModification
 				.getRight(), event.nodeOfModification.getRight().getLeft(),
-				stepTiming.newInterval(25), Timings._25_TICKS);
+				stepTiming.now(), stepTiming.newInterval(25));
 		lang.nextStep();
 	}
 

@@ -33,7 +33,7 @@ public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> 
 			BinaryTreeLayout layout, Timing delay) {
 		OrderedGraphInformation<T> infos = graphInfos(model);
 		this.lang = language;		
-		writeGraph(language, infos, model, layout);
+		writeGraph(language, infos, model, layout, delay);
 	}
 
 	public OrderedGraphInformation<T> graphInfos(BinaryTreeModel<T> model) {
@@ -43,9 +43,9 @@ public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> 
 	}
 
 	public void writeGraph(Language language, OrderedGraphInformation<T> infos,
-			BinaryTreeModel<T> model, BinaryTreeLayout layout) {
+			BinaryTreeModel<T> model, BinaryTreeLayout layout, Timing delay) {
 		if (lastCreatedGraph != null) {
-			lastCreatedGraph.hide(Timings.NOW);
+			lastCreatedGraph.hide(delay);
 			lastCreatedGraph = new NullGraph();
 		}
 		if (model.size() < 1) {
@@ -57,6 +57,8 @@ public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> 
 		GraphProperties graphProperties = from(layout);
 		lastCreatedGraph = language.newGraph(layout.graphName, infos.matrix,
 				nodes, infos.animalLabels, null, graphProperties);
+		lastCreatedGraph.hide(Timings.NOW);
+		lastCreatedGraph.show(delay);
 	}
 
 	private GraphProperties from(BinaryTreeLayout layout) {
