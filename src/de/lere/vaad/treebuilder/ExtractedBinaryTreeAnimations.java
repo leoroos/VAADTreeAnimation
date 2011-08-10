@@ -1,6 +1,7 @@
 package de.lere.vaad.treebuilder;
 
 import algoanim.primitives.generators.Language;
+import algoanim.util.TicksTiming;
 import algoanim.util.Timing;
 
 public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
@@ -17,6 +18,9 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 
 	public void animate(Language lang, TreeRightRotateEvent<T> event,
 			BinaryTreeLayout layout) {
+		if(event.beforeChange.equals(event.afterChange)){
+			return;
+		}
 		writer.buildGraph(lang, event.beforeChange, layout, Timings.NOW);
 
 		StepTiming stepTiming = new StepTiming(Timings.NOW, Timings._25_TICKS);
@@ -24,26 +28,34 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 		Node<T> rotateAround = event.nodeOfModification;
 		Node<T> nodeInOriginal = BinaryTreeModel.lookupNodeByID(
 				event.beforeChange, rotateAround);
+		Node<T> parentOfRotate = nodeInOriginal.getParent();
+		Node<T> grandParentOfRotate = parentOfRotate != null ? parentOfRotate.getParent() : null;
 		Node<T> parentOfDetach = nodeInOriginal;
 		Node<T> nodeToDetach = parentOfDetach.getRight();
 		writer.highlightEdge(event.beforeChange, parentOfDetach, nodeToDetach,
-				stepTiming.now(), stepTiming.newInterval(25));
+				stepTiming.now(), new TicksTiming(25));
+		writer.highlightEdge(event.beforeChange, grandParentOfRotate, parentOfRotate, stepTiming.now(), stepTiming.newInterval(25));
 		writer.hideEdge(event.beforeChange, parentOfDetach, nodeToDetach,
+				stepTiming.now(), new TicksTiming(25));
+		writer.hideEdge(event.beforeChange, grandParentOfRotate, parentOfRotate,
 				stepTiming.now(), stepTiming.newInterval(25));
 		writer.translateNodes(event.beforeChange, event.afterChange, layout,
 				stepTiming.now(), stepTiming.newInterval(100));
 		writer.buildGraph(lang, event.afterChange, layout, stepTiming.now());
-		writer.highlightEdge(event.afterChange, event.nodeOfModification
-				.getRight(), event.nodeOfModification.getRight().getLeft(),
-				stepTiming.now(), stepTiming.newInterval(25));
-		writer.unhighlightEdge(event.afterChange, event.nodeOfModification
-				.getRight(), event.nodeOfModification.getRight().getLeft(),
+		Node<T> right = event.nodeOfModification.getRight();
+		Node<T> rightLeft = right != null ? right.getLeft() : null;
+		writer.highlightEdge(event.afterChange, right, rightLeft,
+				stepTiming.now(), Timings._25_TICKS);
+		writer.unhighlightEdge(event.afterChange, right, rightLeft,
 				stepTiming.now(), stepTiming.newInterval(25));
 		lang.nextStep();
 	}
 
 	public void animate(Language lang, TreeLeftRotateEvent<T> event,
 			BinaryTreeLayout layout) {
+		if(event.beforeChange.equals(event.afterChange)){
+			return;
+		}
 		writer.buildGraph(lang, event.beforeChange, layout, Timings.NOW);
 
 		StepTiming stepTiming = new StepTiming(Timings.NOW, Timings._25_TICKS);
@@ -51,20 +63,25 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 		Node<T> rotateAround = event.nodeOfModification;
 		Node<T> nodeInOriginal = BinaryTreeModel.lookupNodeByID(
 				event.beforeChange, rotateAround);
+		Node<T> parentOfRotate = nodeInOriginal.getParent();
+		Node<T> grandParentOfRotate = parentOfRotate != null ? parentOfRotate.getParent() : null;
 		Node<T> parentOfDetach = nodeInOriginal;
 		Node<T> nodeToDetach = parentOfDetach.getLeft();
 		writer.highlightEdge(event.beforeChange, parentOfDetach, nodeToDetach,
 				stepTiming.now(), stepTiming.newInterval(25));
+		writer.highlightEdge(event.beforeChange, grandParentOfRotate, parentOfRotate, stepTiming.now(), stepTiming.newInterval(25));
 		writer.hideEdge(event.beforeChange, parentOfDetach, nodeToDetach,
+				stepTiming.now(), stepTiming.newInterval(25));
+		writer.hideEdge(event.beforeChange, grandParentOfRotate, parentOfRotate,
 				stepTiming.now(), stepTiming.newInterval(25));
 		writer.translateNodes(event.beforeChange, event.afterChange, layout,
 				stepTiming.now(), stepTiming.newInterval(100));
 		writer.buildGraph(lang, event.afterChange, layout, stepTiming.now());
-		writer.highlightEdge(event.afterChange, event.nodeOfModification
-				.getLeft(), event.nodeOfModification.getLeft().getRight(),
-				stepTiming.now(), stepTiming.newInterval(25));
-		writer.unhighlightEdge(event.afterChange, event.nodeOfModification
-				.getLeft(), event.nodeOfModification.getLeft().getRight(),
+		Node<T> left = event.nodeOfModification.getLeft();
+		Node<T> leftRight = left != null ? left.getLeft() : null;
+		writer.highlightEdge(event.afterChange,left, leftRight,
+				stepTiming.now(), Timings._25_TICKS);
+		writer.unhighlightEdge(event.afterChange, left, leftRight,
 				stepTiming.now(), stepTiming.newInterval(25));
 		lang.nextStep();
 	}
