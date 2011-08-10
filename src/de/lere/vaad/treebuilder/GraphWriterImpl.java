@@ -144,16 +144,16 @@ public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> 
 					original);
 			int oldPosition = original.getPosition();
 			int newPosition = moved.getPosition();
-			// Point oldLocation = MathHelper.getLocation(layout.rootLocation,
-			// oldPosition, layout.firstLevelWidth, layout.verticalGaps);
+			Point oldLocation = MathHelper.getLocation(layout.rootLocation, oldPosition, layout.firstLevelWidth, layout.verticalGaps); 
 			Point newLocation = MathHelper.getLocation(layout.rootLocation,
 					newPosition, layout.firstLevelWidth, layout.verticalGaps);
-			// Point vector = new Point(newLocation.x - oldLocation.x,
-			// newLocation.y - oldLocation.y);
+			 Point vector = new Point(newLocation.x - oldLocation.x,
+			 newLocation.y - oldLocation.y);
 			Integer oldIndex = origInfos.indexedNodes.get(original);
-			lastCreatedGraph.translateNode(oldIndex,
-					algoanim.util.Node.convertToNode(newLocation), when,
+			lastCreatedGraph.translateNodes( new int[] { (oldIndex +1)},
+					algoanim.util.Node.convertToNode(vector), when,
 					howLong);
+		//	lastCreatedGraph.moveVia(null, "translate #" +(oldIndex+1), "vec", when, howLong);
 		}
 	}
 }

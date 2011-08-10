@@ -4,8 +4,6 @@ import java.awt.Color;
 import java.awt.Point;
 import java.util.List;
 
-import de.lere.vaad.EndOfTheWorldException;
-
 import algoanim.primitives.Graph;
 import algoanim.primitives.generators.Language;
 import algoanim.util.TicksTiming;
@@ -87,6 +85,6 @@ public class BinaryTreeAnimationBuilder<T extends Comparable<T>> implements
 
 	@Override
 	public void update(TreeSearchEvent<T> event) {
-		throw new EndOfTheWorldException("Won't handle this event");
+		throw new UnsupportedOperationException("I don't know how to handle this");
 	}
 }

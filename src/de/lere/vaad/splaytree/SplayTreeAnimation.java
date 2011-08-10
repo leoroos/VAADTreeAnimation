@@ -147,7 +147,7 @@ public class SplayTreeAnimation {
 				Location.Graphroot.DIRECTOR_NAME).getLocation();
 		Point graphRootPoint = NodeHelper
 				.convertOffsetToAWTPoint(graphRootLocation);
-		BinaryTreeLayout blay = new BinaryTreeLayout(graphRootPoint, 200, 60);
+		BinaryTreeLayout blay = new BinaryTreeLayout(new Point(400,0), 200, 60);
 		aniBui.setLayout(blay);
 		BinaryTreeModel<Integer> model = BinaryTreeModel.createTreeByInsert(10,5,15,1,7);
 		aniBui.setModel(model);

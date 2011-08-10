@@ -286,21 +286,20 @@ public class BinarySearchTreeAnimator<T extends Comparable<T>> implements
 			List<de.lere.vaad.treebuilder.Node<T>> nodesBefore = event.beforeChange
 					.getNodesInOrder();
 			nodesBefore.retainAll(nodesAfter);
-			// for (int i = 0; i < 2/*nodesBefore.size() */; i ++) {
+			for (int i = 0; i < nodesBefore.size(); i++) {
 
-			// de.lere.vaad.treebuilder.Node<T> node =
-			// nodesBefore.get(successor2);
-			Integer originalIndex = oldinfos.getIndexOf(successor2);
-			Integer newNodePosition = event.afterChange
-					.getNodePosition(successor2);
+				de.lere.vaad.treebuilder.Node<T> node = nodesBefore.get(i);
+				Integer originalIndex = oldinfos.getIndexOf(node);
+				Integer newNodePosition = event.afterChange
+						.getNodePosition(node);
 
-			moveNodeOfIndexToNodePosition(originalIndex,
-					newNodePosition);
+				moveNodeOfIndexToNodePosition(originalIndex, newNodePosition);
 
-			// }
-			// }
+				// }
+				// }
 
-			language.nextStep();
+				language.nextStep();
+			}
 		}
 
 		//
@@ -319,8 +318,8 @@ public class BinarySearchTreeAnimator<T extends Comparable<T>> implements
 		Point newLocation = MathHelper.getLocation(layout.rootLocation,
 				newNodePosition, layout.firstLevelWidth, layout.verticalGaps);
 
-		lastCreatedGraph.translateNodes(new int[] { originalPos +1 },
-				NodeHelper.convertAWTPointToCoordinates(new Point(0,0)), NOW,
+		lastCreatedGraph.translateNodes(new int[] { originalPos + 1 },
+				NodeHelper.convertAWTPointToCoordinates(newLocation), NOW,
 				HIGHLIGHT_NODE_DURATION);
 	}
 
