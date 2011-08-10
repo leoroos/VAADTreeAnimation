@@ -1,10 +1,6 @@
 package de.lere.vaad.treebuilder;
 
-import java.util.List;
-
 import algoanim.primitives.generators.Language;
-import algoanim.util.TicksTiming;
-import algoanim.util.Timing;
 
 public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 		TreeDeleteOperationAnimator<T>, TreeInsertOperationAnimator<T>,
@@ -31,18 +27,22 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 		Node<T> rotateAround = event.nodeOfModification;
 		Node<T> nodeInOriginal = BinaryTreeModel.lookupNodeByID(
 				event.beforeChange, rotateAround);
-		Node<T> parentOfDetach = nodeInOriginal.getLeft();
+		Node<T> parentOfDetach = nodeInOriginal;
 		Node<T> nodeToDetach = parentOfDetach.getRight();
 		writer.highlightEdge(event.beforeChange, parentOfDetach, nodeToDetach,
-				stepTiming.now(), stepTiming.newInterval());
+				stepTiming.now(), stepTiming.newInterval(25));
 		writer.hideEdge(event.beforeChange, parentOfDetach, nodeToDetach,
-				stepTiming.now(), stepTiming.newInterval());
+				stepTiming.now(), stepTiming.newInterval(25));
 		writer.translateNodes(event.beforeChange, event.afterChange, layout,
-				stepTiming.now(), stepTiming.newInterval());
+				stepTiming.now(), stepTiming.newInterval(500));
 		lang.nextStep();
 		writer.buildGraph(lang, event.afterChange, layout);
-		writer.hideEdge(event.afterChange, rotateAround, rotateAround.getLeft(), stepTiming.now(), stepTiming.newInterval());
-		writer.highlightEdge(event.afterChange, rotateAround, rotateAround.getLeft(), stepTiming.now(), stepTiming.getInterval());
+		writer.hideEdge(event.afterChange, rotateAround,
+				rotateAround.getLeft(), stepTiming.now(),
+				stepTiming.newInterval(25));
+		writer.highlightEdge(event.afterChange, rotateAround,
+				rotateAround.getLeft(), stepTiming.now(),
+				stepTiming.getInterval());
 		lang.nextStep();
 	}
 

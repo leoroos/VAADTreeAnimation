@@ -3,32 +3,28 @@ package de.lere.vaad.treebuilder;
 import java.awt.Color;
 import java.awt.Point;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
 
-import de.lere.vaad.utils.MathHelper;
 import algoanim.primitives.Graph;
 import algoanim.primitives.generators.Language;
 import algoanim.properties.GraphProperties;
 import algoanim.util.Coordinates;
-import de.lere.vaad.treebuilder.Node;
 import algoanim.util.Timing;
+import de.lere.vaad.utils.MathHelper;
 
 public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> {
 
 	private Graph lastCreatedGraph;
 
 	public GraphWriterImpl() {
-		lastCreatedGraph = new NullGraph();		
+		lastCreatedGraph = new NullGraph();
 	}
 
 	@Override
-	public void buildGraph(Language language,
-			BinaryTreeModel<T> model, BinaryTreeLayout layout) {
+	public void buildGraph(Language language, BinaryTreeModel<T> model,
+			BinaryTreeLayout layout) {
 		OrderedGraphInformation<T> infos = graphInfos(model);
-		writeGraph(language, infos, model, layout);		
+		writeGraph(language, infos, model, layout);
 	}
 
 	public OrderedGraphInformation<T> graphInfos(BinaryTreeModel<T> model) {
@@ -134,25 +130,30 @@ public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> 
 		Integer endIndex = getNodeIndex(model, endNode);
 
 		if (startIndex != null && endIndex != null) {
-			lastCreatedGraph.hideEdge(startIndex, endIndex, when,
-					howLong);
+			lastCreatedGraph.hideEdge(startIndex, endIndex, when, howLong);
 		}
 	}
 
 	@Override
 	public void translateNodes(BinaryTreeModel<T> initialPosition,
-			BinaryTreeModel<T> positionToMoveTo, BinaryTreeLayout layout, Timing when, Timing howLong) {
-		OrderedGraphInformation<T> initialPos = graphInfos(initialPosition);
-		OrderedGraphInformation<T> movedPosition = graphInfos(positionToMoveTo);
-		Set<Entry<Node<T>,Integer>> entrySet = initialPos.indexedNodes.entrySet();
-		for(Entry<Node<T>,Integer> entry : entrySet){
-			Node<T> node = entry.getKey();
-			int oldIndex = entry.getValue();
-			Integer newPos = movedPosition.indexedNodes.get(node);
-			if(newPos != null){
-				Point location = MathHelper.getLocation(layout.rootLocation, newPos, layout.firstLevelWidth, layout.verticalGaps);
-				lastCreatedGraph.translateNode(oldIndex, algoanim.util.Node.convertToNode(location), when, howLong);
-			}
+			BinaryTreeModel<T> positionToMoveTo, BinaryTreeLayout layout,
+			Timing when, Timing howLong) {
+		OrderedGraphInformation<T> origInfos = graphInfos(initialPosition);
+		for (Node<T> original : origInfos.nodes) {
+			Node<T> moved = BinaryTreeModel.lookupNodeByID(positionToMoveTo,
+					original);
+			int oldPosition = original.getPosition();
+			int newPosition = moved.getPosition();
+			// Point oldLocation = MathHelper.getLocation(layout.rootLocation,
+			// oldPosition, layout.firstLevelWidth, layout.verticalGaps);
+			Point newLocation = MathHelper.getLocation(layout.rootLocation,
+					newPosition, layout.firstLevelWidth, layout.verticalGaps);
+			// Point vector = new Point(newLocation.x - oldLocation.x,
+			// newLocation.y - oldLocation.y);
+			Integer oldIndex = origInfos.indexedNodes.get(original);
+			lastCreatedGraph.translateNode(oldIndex,
+					algoanim.util.Node.convertToNode(newLocation), when,
+					howLong);
 		}
 	}
 }
