@@ -1,28 +1,33 @@
 package de.lere.vaad.treebuilder;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.any;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import de.lere.vaad.treebuilder.BinaryTreeModel.Edge;
@@ -73,11 +78,13 @@ public class BinaryTreeModelTest {
 
 	@Test
 	public void shouldFireEventOnSearchWithFoundNode() throws Exception {
-		BinaryTreeModel<Integer> model = BinaryTreeModel
-				.createTreeByInsert(5, 3, 6);
+		BinaryTreeModel<Integer> model = BinaryTreeModel.createTreeByInsert(5,
+				3, 6);
 		TreeEventListener<Integer> btmlMock = createLinkBtmlMock(model);
 		Node<Integer> search = model.search(6);
-		verify(btmlMock).update(new TreeSearchEvent<Integer>(model.copy(), model.copy(), search));
+		verify(btmlMock)
+				.update(new TreeSearchEvent<Integer>(model.copy(),
+						model.copy(), search));
 	}
 
 	@Test
@@ -97,9 +104,11 @@ public class BinaryTreeModelTest {
 
 	@Test
 	public void shouldFireEventOnInsert() throws Exception {
+		ArgumentCaptor<TreeModelChangeEvent> captorTE = getCaptorTE();
 		TreeEventListener<Integer> btmlMock = createLinkBtmlMock(model);
 		model.insert(10);
-		verify(btmlMock).update(Mockito.any(TreeInsertEvent.class));
+		verify(btmlMock, atLeastOnce()).update(captorTE.capture());
+		assertThat(captorTE.getValue(), instanceOf(TreeInsertEvent.class));
 	}
 
 	@Test
@@ -107,23 +116,35 @@ public class BinaryTreeModelTest {
 		TreeEventListener<Integer> btmlMock = createLinkBtmlMock(model);
 		model.insert(10);
 		model.delete(10);
-		verify(btmlMock).update(Mockito.any(TreeDeleteEvent.class));
+		verify(btmlMock, atLeast(1)).update(Mockito.any(TreeDeleteEvent.class));
 	}
 
 	@Test
 	public void shouldNotFireDeleteEventOnInsert() throws Exception {
+		ArgumentCaptor<TreeModelChangeEvent> argument = getCaptorTE();
 		TreeEventListener<Integer> btmlMock = createLinkBtmlMock(model);
 		model.insert(10);
-		verify(btmlMock, never()).update(Mockito.any(TreeDeleteEvent.class));
+		verify(btmlMock, atLeastOnce()).update(argument.capture());
+		assertThat(argument.getAllValues(),
+				not(containsInAnyOrder(instanceOf(TreeDeleteEvent.class))));
 	}
 
 	@Test
 	public void shouldFireEventOnLeftRotate() throws Exception {
+		ArgumentCaptor<TreeModelChangeEvent> argument = getCaptorTE();
 		TreeEventListener<Integer> btmlMock = createLinkBtmlMock(model);
 		model.insert(10);
 		Node<Integer> root = model.getRoot();
 		model.leftRotate(root);
-		verify(btmlMock).update(Mockito.any(TreeLeftRotateEvent.class));
+		verify(btmlMock, atLeastOnce()).update(argument.capture());
+		assertThat(argument.getValue(),
+				instanceOf(TreeLeftRotateEvent.class));
+	}
+
+	private ArgumentCaptor<TreeModelChangeEvent> getCaptorTE() {
+		ArgumentCaptor<TreeModelChangeEvent> argument = ArgumentCaptor
+		.forClass(TreeModelChangeEvent.class);
+		return argument;
 	}
 
 	private TreeEventListener<Integer> createLinkBtmlMock(
@@ -135,39 +156,40 @@ public class BinaryTreeModelTest {
 
 	@Test
 	public void shouldNotFireRightRotateEventOnOtherEvent() throws Exception {
+		ArgumentCaptor<TreeModelChangeEvent> captor = getCaptorTE();
 		TreeEventListener<Integer> btmlMock = createLinkBtmlMock(model);
-		model.insert(10);
+		model.insert(10);		
 		model.delete(10);
-		verify(btmlMock, never()).update(
-				Mockito.any(TreeRightRotateEvent.class));
+		verify(btmlMock, atLeastOnce()).update(
+				captor.capture());
+		assertThat(captor.getValue(), instanceOf(TreeDeleteEvent.class));
 	}
 
 	@Test
 	public void shouldFireEventOnRightRotate() throws Exception {
+		ArgumentCaptor<TreeModelChangeEvent> captor = getCaptorTE();
 		TreeEventListener btmlMock = mock(TreeEventListener.class);
 		model.addListener(btmlMock);
 		model.insert(10);
 		model.rightRotate(model.getRoot());
-		verify(btmlMock).update(Mockito.any(TreeRightRotateEvent.class));
+		verify(btmlMock, atLeastOnce()).update(captor.capture());
+		assertThat(captor.getValue(), instanceOf(TreeRightRotateEvent.class));
 	}
-
-	TreeInsertEvent<Integer> catchedIntEvent;
 
 	@Test
 	public void shouldFireTreeEventWithStateBeforeAndAfterChange()
 			throws Exception {
-
-		BinaryTreeModel<Integer> spyModel = new BinaryTreeModel<Integer>() {
-			@Override
-			void fireChange(TreeEvent<Integer> insertEvent) {
-				catchedIntEvent = (TreeInsertEvent<Integer>) insertEvent;
-			}
-		};
-		BinaryTreeModel<Integer> before = spyModel.copy();
-		Node<Integer> insert = spyModel.insert(10);
-		BinaryTreeModel<Integer> after = spyModel.copy();
-		assertThat(catchedIntEvent, equalTo(new TreeInsertEvent<Integer>(
-				before, after, insert)));
+		ArgumentCaptor<TreeModelChangeEvent> captor = getCaptorTE();
+		TreeEventListener<Integer> btmlMock = createLinkBtmlMock(model);
+		BinaryTreeModel<Integer> before = model.copy();
+		Node<Integer> insert = model.insert(10);
+		BinaryTreeModel<Integer> after = model.copy();
+		verify(btmlMock, atLeastOnce()).update(captor.capture());
+		TreeInsertEvent expectedEvent = new TreeInsertEvent<Integer>(
+				before, after, insert);
+		TreeModelChangeEvent actual = captor.getValue();
+		assertThat(actual, instanceOf(TreeInsertEvent.class));
+		assertThat((TreeInsertEvent)actual, equalTo(expectedEvent));
 	}
 
 	@Test
@@ -197,6 +219,14 @@ public class BinaryTreeModelTest {
 		origM.addListener(btml);
 		copyM.insert(2);
 		verify(btml, times(0)).update(Mockito.any(TreeInsertEvent.class));
+	}
+
+	@Test
+	public void shouldInsertEqualValueToTheLeft() throws Exception {
+		BinaryTreeModel<Integer> model = BinaryTreeModel.createTreeByInsert(3,
+				2, 4);
+		model.insert(2);
+		assertThat(model.getRoot().getLeft().getLeft().getValue(), equalTo(2));
 	}
 
 	@Test

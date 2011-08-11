@@ -17,6 +17,10 @@ public class DefaultBinaryTreeAnimations<T extends Comparable<T>> implements
 	@Override
 	public void animate(Language lang, TreeEvent<T> event,
 			BinaryTreeLayout layout) {
-		writer.buildGraph(lang, event.afterChange, layout, Timings.NOW);		
+		if (event instanceof TreeModelChangeEvent<?>) {
+			writer.buildGraph(lang,
+					((TreeModelChangeEvent<T>) event).afterChange, layout,
+					Timings.NOW);
+		}
 	}
 }

@@ -1,6 +1,6 @@
 package de.lere.vaad.treebuilder;
 
-public class TreeInsertEvent<T extends Comparable<T>> extends TreeEvent<T> {
+public class TreeInsertEvent<T extends Comparable<T>> extends TreeModelChangeEvent<T> {
 
 	public TreeInsertEvent(BinaryTreeModel<T> before, BinaryTreeModel<T> after,
 			Node<T> insertedNode) {

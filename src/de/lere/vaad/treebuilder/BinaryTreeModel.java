@@ -1,5 +1,5 @@
 package de.lere.vaad.treebuilder;
-
+import static de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -8,6 +8,10 @@ import java.util.List;
 import java.util.Queue;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
+
+import de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing;
+import de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition;
+import de.lere.vaad.utils.NodeHelper;
 
 /**
  * @author Leo Roos, Rene Hertling Represents the logical structure of a binary
@@ -95,15 +99,48 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 
 	public Node<T> insert(T value) {
 		BinaryTreeModel<T> before = this.copy();
-		Node<T> insertedNode = null;
-		if (root == null) {
-			root = new Node<T>(value);
-			insertedNode = root;
-		} else {
-			insertedNode = root.insert(value);
+		Node<T> y = null;
+		Node<T> x = getRoot();
+		fireTreeInsertSource(Init,x, value);
+		while(x != null){
+			fireTreeInsertSource(WhileNoInsertionPossible,x, value);
+			y = x;
+			fireTreeInsertSource(TestingIfWhereToFromCurrent,x,value);
+			if(NodeOrder.isChildConsideredLeft(x.getValue(), value)){
+				x = x.getLeft();
+				fireTreeInsertSource(LookingAlongLeftChild,x, value);
+			} else {
+				x = x.getRight();
+				fireTreeInsertSource(LookingAlongRightChild,x, value);
+			}
 		}
-		fireChange(new TreeInsertEvent<T>(before, this.copy(), insertedNode));
-		return insertedNode;
+		fireTreeInsertSource(SettingParentForNewCurrentNode,y, value);
+		Node<T> finalToInsert = new Node<T>(value);		
+		finalToInsert.setParent(y);
+		fireTreeInsertSource(CheckingIfNewIsRoot,finalToInsert,value);
+		if(y == null){
+			this.root = finalToInsert;
+			fireTreeInsertSource(FinalIsSettingToRoot,finalToInsert, value);
+		} else if (checkWhetherLeftChildAndFireAccording(CheckingIfToSetLeftInFinalStep, y, value) ) {
+			fireTreeInsertSource(FinalIsSettingAsLeftChildFrom,y, value);
+			y.setLeft(finalToInsert);
+		} else {
+			fireTreeInsertSource(FinalIsSettingAsRightChildFrom,finalToInsert,value);
+			y.setRight(finalToInsert);
+		}
+				
+		fireChange(new TreeInsertEvent<T>(before, this.copy(), finalToInsert));
+		return finalToInsert;
+	}
+
+	private boolean checkWhetherLeftChildAndFireAccording(InsertSourceCodePosition pos, Node<T> current, T value) {
+		boolean leftChild = NodeOrder.isChildConsideredLeft(current.getValue(), value);		
+		fireTreeInsertSource(pos, current, value);
+		return leftChild;
+	}
+
+	private void fireTreeInsertSource(InsertSourceCodePosition pos, Node<T> x, T value) {
+		fireChange(new TreeInsertSourceCodeTraversing<T>(pos, x, value));
 	}
 
 	void fireChange(TreeEvent<T> event) {
@@ -118,8 +155,8 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 			childPos = childPosition;
 		}
 
-		final Node<T> parentPos;
-		final Node<T> childPos;
+		public final Node<T> parentPos;
+		public final Node<T> childPos;
 	}
 
 	public List<Edge<T>> getEdgeList() {
@@ -249,7 +286,7 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 	 */
 	public Node<T> delete(T v) {
 		BinaryTreeModel<T> old = copy();
-		Node<T> nodeToDelete = this.search(v);
+		Node<T> nodeToDelete = internalSearch(v);
 		Node<T> deleted = null;
 		Node<T> successor = null;
 		if (nodeToDelete != null) {
@@ -298,13 +335,18 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 	}
 
 	public Node<T> search(T v) {
+		Node<T> found = internalSearch(v);
+		fireChange(new TreeSearchEvent<T>(this.copy(),this.copy(),found));
+		return found;
+	}
+
+	private Node<T> internalSearch(T v) {
 		Node<T> found;
 		if (this.root == null) {
 			found = null;
 		} else {
 			found = root.search(v);
 		}
-		fireChange(new TreeSearchEvent<T>(this.copy(),this.copy(),found));
 		return found;
 	}
 

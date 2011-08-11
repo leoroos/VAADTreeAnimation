@@ -20,6 +20,7 @@ import de.lere.vaad.treebuilder.BinaryTreeLayout;
 import de.lere.vaad.treebuilder.BinaryTreeModel;
 import de.lere.vaad.treebuilder.Timings;
 import de.lere.vaad.treebuilder.TreeEvent;
+import de.lere.vaad.treebuilder.TreeModelChangeEvent;
 import de.lere.vaad.treebuilder.TreeEventListener;
 import de.lere.vaad.treebuilder.GraphWriterImpl;
 import de.lere.vaad.treebuilder.TreeDeleteEvent;
@@ -246,7 +247,6 @@ public class BinarySearchTreeAnimator<T extends Comparable<T>> implements
 
 		Integer deletee = oldinfos.indexedNodes.get(event.nodeOfModification);
 		de.lere.vaad.treebuilder.Node<T> successorNode = event.successor;
-		
 
 		lastCreatedGraph.highlightNode(deletee, NOW,
 				DELETE_NODE_HIGHLIGHT_DURATION);
@@ -257,7 +257,9 @@ public class BinarySearchTreeAnimator<T extends Comparable<T>> implements
 
 		if (successorNode != null) {
 			Integer successor = oldinfos.indexedNodes.get(successorNode);
-			de.lere.vaad.treebuilder.Node<T> oldSuccParent = BinaryTreeModel.lookupNodeByID(event.beforeChange, successorNode).getParent();
+			de.lere.vaad.treebuilder.Node<T> oldSuccParent = BinaryTreeModel
+					.lookupNodeByID(event.beforeChange, successorNode)
+					.getParent();
 			// impl.hideEdge(event.beforeChange,
 			// successor2,successor2.getParent(), Timings.NOW,
 			// Timings._25_TICKS);

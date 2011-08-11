@@ -8,7 +8,7 @@ package de.lere.vaad.treebuilder;
  * 
  * @param <T>
  */
-public class TreeDeleteEvent<T extends Comparable<T>> extends TreeEvent<T> {
+public class TreeDeleteEvent<T extends Comparable<T>> extends TreeModelChangeEvent<T> {
 
 	/**
 	 * Node with which the original node has been replaced. May be null

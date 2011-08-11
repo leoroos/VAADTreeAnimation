@@ -1,5 +1,8 @@
 package de.lere.vaad.binarysearchtree;
 
+import static org.hamcrest.Matchers.describedAs;
+
+import java.awt.Color;
 import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
@@ -17,9 +20,15 @@ import algoanim.primitives.Primitive;
 import algoanim.primitives.SourceCode;
 import algoanim.primitives.Text;
 import algoanim.primitives.generators.Language;
+import algoanim.properties.AnimationPropertiesKeys;
 import algoanim.properties.SourceCodeProperties;
+import algoanim.util.CodeGroupDisplayOptions;
 import algoanim.util.Coordinates;
+import algoanim.util.Hidden;
+import algoanim.util.Node;
 import algoanim.util.Offset;
+import algoanim.util.Timing;
+import de.lere.vaad.EndOfTheWorldException;
 import de.lere.vaad.TreeAnimationProperties;
 import de.lere.vaad.locationhandler.Action;
 import de.lere.vaad.locationhandler.ActionAdapter;
@@ -31,12 +40,19 @@ import de.lere.vaad.locationhandler.LocationProvider;
 import de.lere.vaad.treebuilder.BinaryTreeAnimationBuilder;
 import de.lere.vaad.treebuilder.BinaryTreeLayout;
 import de.lere.vaad.treebuilder.BinaryTreeModel;
+import de.lere.vaad.treebuilder.GraphWriter;
+import de.lere.vaad.treebuilder.GraphWriterImpl;
+import de.lere.vaad.treebuilder.Timings;
+import de.lere.vaad.treebuilder.TreeEvent;
+import de.lere.vaad.treebuilder.TreeEventListener;
+import de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing;
+import de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition;
 import de.lere.vaad.utils.CorrectedOffset;
 import de.lere.vaad.utils.NodeHelper;
 import de.lere.vaad.utils.StrUtils;
 import edu.umd.cs.findbugs.annotations.Nullable;
 
-public class BinarySerachTreeAnimation {
+public class BinarySearchTreeAnimation {
 
 	private static final Point GRAPHROOT_COORDINATES = new Point(400, 300);
 	public static final String DIRECTOR_HEADER = "de.lere.vaad.headerdirector";
@@ -44,11 +60,13 @@ public class BinarySerachTreeAnimation {
 	public static final String DIRECTOR_MACROSTEP = "de.lere.vaad.macrostepdirector";
 	public static final String DIRECTOR_MICROSTEP = "de.lere.vaad.microstepdirector";
 	public static final String DIRECTOR_GRAPHROOT = "de.lere.vaad.graphrootdirector";
+	public static final String DIRECTOR_SOURCECODE = "de.lere.vaad.sourcecode";
 
 	enum Location {
 		Header(DIRECTOR_HEADER), DescriptionBeginning(
 				DIRECTOR_DESCRIPTION_BEGINNING), Macrostep(DIRECTOR_MACROSTEP), Microstep(
-				DIRECTOR_MICROSTEP), Graphroot(DIRECTOR_GRAPHROOT);
+				DIRECTOR_MICROSTEP), Graphroot(DIRECTOR_GRAPHROOT), Sourcecode(
+				DIRECTOR_SOURCECODE);
 
 		public final String DIRECTOR_NAME;
 
@@ -64,7 +82,7 @@ public class BinarySerachTreeAnimation {
 	private final TreeAnimationProperties animationProperties;
 	private BinaryTreeLayout layout;
 
-	private BinarySerachTreeAnimation(Language l, TreeAnimationProperties tp) {
+	private BinarySearchTreeAnimation(Language l, TreeAnimationProperties tp) {
 		this.language = l;
 		this.animationProperties = tp;
 		l.setStepMode(true);
@@ -99,12 +117,12 @@ public class BinarySerachTreeAnimation {
 		AnimalScript animalScript = new AnimalScript(tps.authors, tps.title,
 				tps.screenResolution.width, tps.screenResolution.height);
 
-		BinarySerachTreeAnimation binarySerachTreeAnimation = new BinarySerachTreeAnimation(
+		BinarySearchTreeAnimation binarySerachTreeAnimation = new BinarySearchTreeAnimation(
 				animalScript, tps);
 		binarySerachTreeAnimation.buildAnimation();
 
 		String animationCode = animalScript.getAnimationCode();
-		System.out.println(animationCode);
+		// System.out.println(animationCode);
 		try {
 			FileUtils.writeStringToFile(new File("/tmp/animation.asu"),
 					animationCode);
@@ -117,11 +135,251 @@ public class BinarySerachTreeAnimation {
 	private void buildAnimation() {
 		initializeLocationDirectors();
 
-		BinaryTreeModel<String> model = BinaryTreeModel.createTreeByInsert("J",
-				"F", "P", "D", "G", "L", "V", "C", "N", "S", "X", "Q", "U");
+		SourceCodeProperties codeProperties = new SourceCodeProperties();
+		codeProperties.set(AnimationPropertiesKeys.HIGHLIGHTCOLOR_PROPERTY,
+				Color.GREEN);
+		final SourceCode sourceCode = language.newSourceCode(
+				lh.getDirector(DIRECTOR_SOURCECODE).getLocation(),
+				"insertionSource", new Hidden(), codeProperties);
+
+		getFilledSourceCode(getText("insertAlgo.txt"), sourceCode);
+		sourceCode.hide();
+
+		final BinaryTreeModel<String> model = BinaryTreeModel
+				.createTreeByInsert("J", "F", "P", "D", "G", "L", "V", "C",
+						"N", "S", "X", "Q", "U");
 		BinarySearchTreeAnimator<String> animator = new BinarySearchTreeAnimator<String>(
 				language);
 		animator.setLayout(this.layout);
+
+		//Code highlighting during insertion
+		model.addListener(new TreeEventListener<String>() {
+
+			private int[] previouslyHighlighted = {};
+			private de.lere.vaad.treebuilder.Node<String> previouslyHighlightedNode;
+
+			@Override
+			public void update(TreeEvent<String> event) {
+				if (event instanceof TreeInsertSourceCodeTraversing<?>) {
+					TreeInsertSourceCodeTraversing<String> ie = (TreeInsertSourceCodeTraversing<String>) event;
+					InsertSourceCodePosition position = ie.position;
+					switch (position) {
+
+					case Init:
+						highlightLines(sourceCode, 2, 3);
+
+						break;
+					case WhileNoInsertionPossible:
+						highlightLines(sourceCode, 4);
+						highlightNode(ie.currentPosition);
+
+						break;
+					case TestingIfWhereToFromCurrent:
+						highlightLines(sourceCode, 6);
+
+						break;
+					case LookingAlongLeftChild:
+						highlightLines(sourceCode, 7);
+						highlightNode(ie.currentPosition);
+
+						break;
+					case LookingAlongRightChild:
+						highlightLines(sourceCode, 9);
+						highlightNode(ie.currentPosition);
+
+						break;
+					case SettingParentForNewCurrentNode:
+						highlightLines(sourceCode, 10);
+
+						break;
+					case CheckingIfNewIsRoot:
+						highlightLines(sourceCode, 11);
+
+						break;
+					case FinalIsSettingToRoot:
+						highlightLines(sourceCode, 12);
+
+						break;
+					case FinalIsSettingAsLeftChildFrom:
+						highlightLines(sourceCode, 14);
+
+						break;
+					case FinalIsSettingAsRightChildFrom:
+						highlightLines(sourceCode, 16);
+
+						break;
+					case CheckingIfToSetLeftInFinalStep:
+						highlightLines(sourceCode, 13);
+
+						break;
+
+					default:
+						throw new EndOfTheWorldException();
+					}
+				}
+			}
+
+			private void highlightNode(
+					de.lere.vaad.treebuilder.Node<String> currentPosition) {
+				System.out.println("highlighting " + currentPosition);
+			}
+
+			private void highlightLines(final SourceCode sourceCode,
+					int... lines) {
+				lines = makeZeroBased(lines);
+				for (int i : previouslyHighlighted) {
+					sourceCode.unhighlight(i);
+				}
+				this.previouslyHighlighted = lines;
+				for (int j : lines) {
+					sourceCode.highlight(j);
+				}
+			}
+
+			private int[] makeZeroBased(int[] lines) {
+				for (int i = 0; i < lines.length; i++) {
+					int j = lines[i] - 1;
+					if (j < 0)
+						throw new IllegalArgumentException(
+								"expected only args greater 0 but was " + j);
+					lines[i] = j;
+				}
+				return lines;
+			}
+		});
+
+		// text description during insertion
+		model.addListener(new TreeEventListener<String>() {
+
+			@Override
+			public void update(TreeEvent<String> event) {
+				if (event instanceof TreeInsertSourceCodeTraversing<?>) {
+					TreeInsertSourceCodeTraversing<String> ie = (TreeInsertSourceCodeTraversing<String>) event;
+					InsertSourceCodePosition position = ie.position;
+					de.lere.vaad.treebuilder.Node<String> curPos = ie.currentPosition;
+					String val = ie.insertionValue;
+					switch (position) {
+
+					case Init:
+						nextStateOnLocation("Einfügen von " + val, Location.Macrostep);
+						describe("Initialisierung: die Suche wird an der Wurzel "+ curPos.getValue() +" begonnen ");
+						break;
+					case WhileNoInsertionPossible:
+						describe(
+								"Solange kein Platz zum Einfügen gefunden wurde suche weiter um " + val + " einzufügen. " + "Prüfe als nächstes " + curPos.getValue());
+						break;
+					case TestingIfWhereToFromCurrent:
+						describe(
+								"Teste ob Knoten " + val
+										+ " kleiner gleich "
+										+ curPos.getValue() + " ist");
+						break;
+					case LookingAlongLeftChild:
+						describe(val + " war kleiner deswegen suche links weiter nach Ort zum Einfügen");
+
+						break;
+					case LookingAlongRightChild:
+						describe(val + " war größer deswegen suche rechts weiter nach Ort zum Einfügen");
+						break;
+					case SettingParentForNewCurrentNode:
+						if (curPos == null)
+							describe("Der Ort zur Ersetzung hatte keinen Parent also wird für " + val + " null als parent gesetzt");
+						else
+							describe(val + " bekommt einen neuen Parent: " + curPos.getValue());
+							
+						break;
+					case CheckingIfNewIsRoot:
+						describe("Prüfe ob " + val + " neuer root ist.");
+						break;
+					case FinalIsSettingToRoot:
+						describe(val
+								+ " wird neue Wurzel.");
+						break;
+					case FinalIsSettingAsLeftChildFrom:
+						describe("Knoten " + val
+								+ " als linkes Kind eingfügt");
+						break;
+					case FinalIsSettingAsRightChildFrom:
+						describe("Knoten " + curPos.getValue() +
+								" als rechtes Kind eingfügt");
+						break;
+					case CheckingIfToSetLeftInFinalStep:
+						describe("Prüfe ob Knoten " + val +
+								" links oder rechts von " + curPos.getValue() + " eingefügt werden soll");
+						break;
+
+					default:
+						throw new EndOfTheWorldException();
+					}
+				}
+			}
+
+			private void describe(String string) {
+				nextStateOnLocation(string, Location.Microstep);
+			}
+		});
+
+		// activate steps while traversing insertion algorithm
+		model.addListener(new TreeEventListener<String>() {
+
+			@Override
+			public void update(TreeEvent<String> event) {
+				if (event instanceof TreeInsertSourceCodeTraversing<?>) {
+					TreeInsertSourceCodeTraversing<String> ie = (TreeInsertSourceCodeTraversing<String>) event;
+					InsertSourceCodePosition position = ie.position;
+					switch (position) {
+
+					case Init:
+
+						step();
+						break;
+					case WhileNoInsertionPossible:
+
+						step();
+						break;
+					case TestingIfWhereToFromCurrent:
+
+						step();
+						break;
+					case LookingAlongLeftChild:
+
+						step();
+						break;
+					case LookingAlongRightChild:
+
+						step();
+						break;
+					case SettingParentForNewCurrentNode:
+
+						step();
+						break;
+					case CheckingIfNewIsRoot:
+
+						step();
+						break;
+					case FinalIsSettingToRoot:
+
+						step();
+						break;
+					case FinalIsSettingAsLeftChildFrom:
+
+						step();
+						break;
+					case FinalIsSettingAsRightChildFrom:
+
+						step();
+						break;
+					case CheckingIfToSetLeftInFinalStep:
+
+						step();
+						break;
+
+					default:
+						throw new EndOfTheWorldException();
+					}
+				}
+			}
+		});
 
 		nextStateOnLocation("Der Binäre Suchbaum", Location.Header);
 
@@ -199,6 +457,7 @@ public class BinarySerachTreeAnimation {
 						+ "erreicht wird der Knoten dort wo erwartet worden wäre ihn zu finden eingefügt.",
 				Location.Macrostep);
 		animator.setModel(model);
+		sourceCode.show();
 
 		step();
 
@@ -252,7 +511,6 @@ public class BinarySerachTreeAnimation {
 
 		step();
 
-		
 		nextStateOnLocation(
 				"Beispielhafte Darstellung des Löschens eines Knotens.",
 				Location.DescriptionBeginning);
@@ -290,30 +548,26 @@ public class BinarySerachTreeAnimation {
 
 		model.delete("J");
 		step();
-		
-		nextStateOnLocation(
-				"Analog für F ...",
-				Location.Microstep);
+
+		nextStateOnLocation("Analog für F ...", Location.Microstep);
 		step();
-		
+
 		model.delete("F");
-		
+
 		step();
-		
-		nextStateOnLocation(
-				"... und für P",
-				Location.Microstep);
+
+		nextStateOnLocation("... und für P", Location.Microstep);
 		step();
-		
+
 		model.delete("P");
-		
+
 		step();
 
 		hideAll(animator);
 		nextStateOnLocation("Ende", Location.Macrostep);
 		step();
 	}
- 
+
 	private void hideAll(BinarySearchTreeAnimator<String> animator) {
 		nextStateOnLocation("", Location.DescriptionBeginning);
 		nextStateOnLocation("", Location.Macrostep);
@@ -400,6 +654,14 @@ public class BinarySerachTreeAnimation {
 						CorrectedOffset.getOffsetForCoordinate(NodeHelper
 								.convertAWTPointToCoordinates(GRAPHROOT_COORDINATES))));
 
+		Point ne_graph_edge = new Point(layout.rootLocation.x
+				+ (int) layout.firstLevelWidth * 2, layout.rootLocation.y);
+		addDirector(
+				DIRECTOR_SOURCECODE,
+				new AnimationLocationDirector(CorrectedOffset
+						.getOffsetForCoordinate(Node
+								.convertToNode(ne_graph_edge))));
+
 	}
 
 	private SourceCode getSourceCodeDummy(Offset node) {
@@ -455,7 +717,7 @@ public class BinarySerachTreeAnimation {
 	}
 
 	private static String getText(String name) {
-		InputStream resourceAsStream = BinarySerachTreeAnimation.class
+		InputStream resourceAsStream = BinarySearchTreeAnimation.class
 				.getResourceAsStream("resources/" + name);
 		InputStreamReader reader = new InputStreamReader(resourceAsStream);
 		String result;

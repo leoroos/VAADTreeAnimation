@@ -164,7 +164,6 @@ public class NodeTest {
 	@Test
 	public void shouldInsertLargerValueRight() throws Exception {
 		iroot.insert(20);
-		System.out.println(iroot);
 		assertTillLevelOne(iroot, null, 10, 20);
 	}
 

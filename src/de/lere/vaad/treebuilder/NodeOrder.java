@@ -8,7 +8,7 @@ package de.lere.vaad.treebuilder;
  */
 public class NodeOrder {
 
-	public static <T extends Comparable<T>> boolean isLeftChild(T current, T child) {
+	public static <T extends Comparable<T>> boolean isChildConsideredLeft(T current, T child) {
 		return current.compareTo(child) >= 0;
 	}
 	

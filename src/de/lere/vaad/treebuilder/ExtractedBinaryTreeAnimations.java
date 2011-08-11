@@ -16,9 +16,9 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 		this.writer = writer;
 	}
 
-	public void animate(Language lang, TreeRightRotateEvent<T> event,
-			BinaryTreeLayout layout) {
-		if(event.beforeChange.equals(event.afterChange)){
+	public void animateRotateRight(Language lang,
+			TreeRightRotateEvent<T> event, BinaryTreeLayout layout) {
+		if (event.beforeChange.equals(event.afterChange)) {
 			return;
 		}
 		writer.buildGraph(lang, event.beforeChange, layout, Timings.NOW);
@@ -29,16 +29,18 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 		Node<T> nodeInOriginal = BinaryTreeModel.lookupNodeByID(
 				event.beforeChange, rotateAround);
 		Node<T> parentOfRotate = nodeInOriginal.getParent();
-		Node<T> grandParentOfRotate = parentOfRotate != null ? parentOfRotate.getParent() : null;
+		Node<T> grandParentOfRotate = parentOfRotate != null ? parentOfRotate
+				.getParent() : null;
 		Node<T> parentOfDetach = nodeInOriginal;
 		Node<T> nodeToDetach = parentOfDetach.getRight();
 		writer.highlightEdge(event.beforeChange, parentOfDetach, nodeToDetach,
 				stepTiming.now(), new TicksTiming(25));
-		writer.highlightEdge(event.beforeChange, grandParentOfRotate, parentOfRotate, stepTiming.now(), stepTiming.newInterval(25));
+		writer.highlightEdge(event.beforeChange, grandParentOfRotate,
+				parentOfRotate, stepTiming.now(), stepTiming.newInterval(25));
 		writer.hideEdge(event.beforeChange, parentOfDetach, nodeToDetach,
 				stepTiming.now(), new TicksTiming(25));
-		writer.hideEdge(event.beforeChange, grandParentOfRotate, parentOfRotate,
-				stepTiming.now(), stepTiming.newInterval(25));
+		writer.hideEdge(event.beforeChange, grandParentOfRotate,
+				parentOfRotate, stepTiming.now(), stepTiming.newInterval(25));
 		writer.translateNodes(event.beforeChange, event.afterChange, layout,
 				stepTiming.now(), stepTiming.newInterval(100));
 		writer.buildGraph(lang, event.afterChange, layout, stepTiming.now());
@@ -51,9 +53,9 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 		lang.nextStep();
 	}
 
-	public void animate(Language lang, TreeLeftRotateEvent<T> event,
+	public void animateRotateLeft(Language lang, TreeLeftRotateEvent<T> event,
 			BinaryTreeLayout layout) {
-		if(event.beforeChange.equals(event.afterChange)){
+		if (event.beforeChange.equals(event.afterChange)) {
 			return;
 		}
 		writer.buildGraph(lang, event.beforeChange, layout, Timings.NOW);
@@ -64,29 +66,31 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 		Node<T> nodeInOriginal = BinaryTreeModel.lookupNodeByID(
 				event.beforeChange, rotateAround);
 		Node<T> parentOfRotate = nodeInOriginal.getParent();
-		Node<T> grandParentOfRotate = parentOfRotate != null ? parentOfRotate.getParent() : null;
+		Node<T> grandParentOfRotate = parentOfRotate != null ? parentOfRotate
+				.getParent() : null;
 		Node<T> parentOfDetach = nodeInOriginal;
 		Node<T> nodeToDetach = parentOfDetach.getLeft();
 		writer.highlightEdge(event.beforeChange, parentOfDetach, nodeToDetach,
 				stepTiming.now(), stepTiming.newInterval(25));
-		writer.highlightEdge(event.beforeChange, grandParentOfRotate, parentOfRotate, stepTiming.now(), stepTiming.newInterval(25));
+		writer.highlightEdge(event.beforeChange, grandParentOfRotate,
+				parentOfRotate, stepTiming.now(), stepTiming.newInterval(25));
 		writer.hideEdge(event.beforeChange, parentOfDetach, nodeToDetach,
 				stepTiming.now(), stepTiming.newInterval(25));
-		writer.hideEdge(event.beforeChange, grandParentOfRotate, parentOfRotate,
-				stepTiming.now(), stepTiming.newInterval(25));
+		writer.hideEdge(event.beforeChange, grandParentOfRotate,
+				parentOfRotate, stepTiming.now(), stepTiming.newInterval(25));
 		writer.translateNodes(event.beforeChange, event.afterChange, layout,
 				stepTiming.now(), stepTiming.newInterval(100));
 		writer.buildGraph(lang, event.afterChange, layout, stepTiming.now());
 		Node<T> left = event.nodeOfModification.getLeft();
 		Node<T> leftRight = left != null ? left.getLeft() : null;
-		writer.highlightEdge(event.afterChange,left, leftRight,
+		writer.highlightEdge(event.afterChange, left, leftRight,
 				stepTiming.now(), Timings._25_TICKS);
 		writer.unhighlightEdge(event.afterChange, left, leftRight,
 				stepTiming.now(), stepTiming.newInterval(25));
 		lang.nextStep();
 	}
 
-	public void animate(Language lang, TreeInsertEvent<T> event,
+	public void animateInsert(Language lang, TreeInsertEvent<T> event,
 			BinaryTreeLayout layout) {
 		if (event.nodeOfModification == null)
 			return;
@@ -111,7 +115,7 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 		lang.nextStep();
 	}
 
-	public void animate(Language lang, TreeDeleteEvent<T> event,
+	public void animateDelete(Language lang, TreeDeleteEvent<T> event,
 			BinaryTreeLayout layout) {
 		if (event.nodeOfModification == null)
 			return;
@@ -138,7 +142,7 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 		lang.nextStep();
 	}
 
-	public void animate(Language lang, BinaryTreeModel<T> model,
+	public void animateNew(Language lang, BinaryTreeModel<T> model,
 			BinaryTreeLayout layout) {
 		writer.buildGraph(lang, model, layout, Timings.NOW);
 		lang.nextStep();
@@ -147,19 +151,17 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 	@Override
 	public void animate(Language lang, TreeEvent<T> event,
 			BinaryTreeLayout layout) {
-		if(event instanceof TreeInsertEvent<?>){
-			animate(lang, (TreeInsertEvent<T>)event, layout);
-		}else if (event instanceof TreeDeleteEvent<?>){
-			animate(lang, (TreeDeleteEvent<T>) event, layout);
-		}else if (event instanceof TreeLeftRotateEvent<?>){
-			animate(lang, (TreeLeftRotateEvent<T>) event, layout);
-		}else if (event instanceof TreeRightRotateEvent<?>){
-			animate(lang, (TreeRightRotateEvent<T>) event, layout);
-		}else if (event instanceof TreeDeleteEvent<?>){
-			animate(lang, (TreeDeleteEvent<T>) event, layout);
-		}else if (event instanceof TreeNewEvent<?>){
-			animate(lang, (TreeNewEvent<T>) event, layout);
+		if (event instanceof TreeInsertEvent<?>) {
+			animateInsert(lang, (TreeInsertEvent<T>) event, layout);
+		} else if (event instanceof TreeDeleteEvent<?>) {
+			animateDelete(lang, (TreeDeleteEvent<T>) event, layout);
+		} else if (event instanceof TreeLeftRotateEvent<?>) {
+			animateRotateLeft(lang, (TreeLeftRotateEvent<T>) event, layout);
+		} else if (event instanceof TreeRightRotateEvent<?>) {
+			animateRotateRight(lang, (TreeRightRotateEvent<T>) event, layout);
+		} else if (event instanceof TreeNewEvent<?>) {
+			animateNew(lang, ((TreeNewEvent<T>) event).beforeChange, layout);
 		}
-		
+
 	}
 }

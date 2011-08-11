@@ -85,8 +85,6 @@ public class NullGraphGen implements GraphGenerator {
 
 	@Override
 	public void hideNode(Graph graph, int i, Timing timing, Timing timing1) {
-		//
-
 	}
 
 	@Override

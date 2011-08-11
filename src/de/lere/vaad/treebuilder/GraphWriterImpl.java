@@ -122,9 +122,9 @@ public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> 
 		}
 	}
 
-	private Integer getNodeIndex(BinaryTreeModel<T> model, Node<T> endNode) {
+	private Integer getNodeIndex(BinaryTreeModel<T> model, Node<T> node) {
 		OrderedGraphInformation<T> graphInfos = graphInfos(model);
-		Integer index = graphInfos.indexedNodes.get(endNode);
+		Integer index = graphInfos.indexedNodes.get(node);
 		return index;
 	}
 
