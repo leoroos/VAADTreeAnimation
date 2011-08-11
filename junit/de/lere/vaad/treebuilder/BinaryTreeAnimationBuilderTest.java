@@ -1,13 +1,9 @@
 package de.lere.vaad.treebuilder;
 
-import static de.lere.vaad.treebuilder.BuilderTestUtils.createNIntegerTree;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.both;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
@@ -15,17 +11,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.verify;
 
-import generators.compression.Huffman.NodeH;
-
 import java.awt.Point;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
-import java.util.List;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.comparator.LastModifiedFileComparator;
-import org.apache.commons.lang.UnhandledException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -33,10 +21,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
 import algoanim.animalscript.AnimalScript;
-import algoanim.util.Coordinates;
 import de.lere.vaad.utils.GraphObject;
-import de.lere.vaad.utils.ListMap;
-import de.lere.vaad.utils.NodeHelper;
 import de.lere.vaad.utils.StrUtils;
 
 public class BinaryTreeAnimationBuilderTest {
@@ -73,11 +58,10 @@ public class BinaryTreeAnimationBuilderTest {
 		return layout;
 	}
 
-	
-
 	@Test
 	public void performNoAnimationOnEmptyInsert() throws Exception {
-		testee.update(new TreeInsertEvent<Integer>(emptyModel, emptyModel, null,null));
+		testee.update(new TreeInsertEvent<Integer>(emptyModel, emptyModel,
+				null, null));
 		assertNoGraphLine(lastLine());
 	}
 
@@ -172,12 +156,11 @@ public class BinaryTreeAnimationBuilderTest {
 		int nthLast = 2;
 		String nthLastLine = nthLastLine(nthLast);
 		assertThat(Arrays.asList(nthLastLine.split(" ")), not(hasItem("hide")));
-		assertLineIsGraphOfExpectedDimensions(
-				lastLine(), 1, 0);
+		assertLineIsGraphOfExpectedDimensions(lastLine(), 1, 0);
 	}
 
 	private String nthLastLine(int nthLast) {
-		return StrUtils.getNthLastLine(language.getAnimationCode(), nthLast );
+		return StrUtils.getNthLastLine(language.getAnimationCode(), nthLast);
 	}
 
 	@Test
