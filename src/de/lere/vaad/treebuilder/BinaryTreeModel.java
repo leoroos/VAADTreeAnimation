@@ -140,7 +140,7 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 	}
 
 	private void fireTreeInsertSource(InsertSourceCodePosition pos, Node<T> x, T value) {
-		fireChange(new TreeInsertSourceCodeTraversing<T>(pos, x, value));
+		fireChange(new TreeInsertSourceCodeTraversing<T>(pos, this.copy(), x, value));
 	}
 
 	void fireChange(TreeEvent<T> event) {

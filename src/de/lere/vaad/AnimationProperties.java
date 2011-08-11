@@ -11,7 +11,7 @@ import java.awt.Point;
  * @author Leo Roos, Rene Hertling
  * 
  */
-public class TreeAnimationProperties {
+public class AnimationProperties {
 
 	public int sourceCodeSize = 12;
 

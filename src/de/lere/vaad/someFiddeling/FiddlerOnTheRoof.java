@@ -24,16 +24,16 @@ import algoanim.properties.SourceCodeProperties;
 import algoanim.properties.TextProperties;
 import algoanim.util.Coordinates;
 import algoanim.util.Offset;
-import de.lere.vaad.TreeAnimationProperties;
+import de.lere.vaad.AnimationProperties;
 import de.lere.vaad.locationhandler.Action;
 import de.lere.vaad.locationhandler.ActionAdapter;
-import de.lere.vaad.locationhandler.AnimationLocationDirector;
+import de.lere.vaad.locationhandler.NextStateOnLocationDirector;
 import de.lere.vaad.locationhandler.LocationDirector;
 import de.lere.vaad.locationhandler.LocationDirectorProvider;
-import de.lere.vaad.locationhandler.LocationDirectorProviderImpl;
+import de.lere.vaad.locationhandler.LocationHandler;
 import de.lere.vaad.locationhandler.LocationProvider;
 import de.lere.vaad.splaytree.resources.descriptions.SplayTreeResourceAccessor;
-import de.lere.vaad.treebuilder.BinaryTreeAnimationBuilder;
+import de.lere.vaad.treebuilder.TreeEventListenerAggregator;
 import de.lere.vaad.treebuilder.BinaryTreeLayout;
 import de.lere.vaad.treebuilder.BinaryTreeModel;
 import de.lere.vaad.treebuilder.Node;
@@ -47,36 +47,18 @@ public class FiddlerOnTheRoof {
 
 	private static final Coordinates GRAPHROOT_COORDINATES = new Coordinates(
 			800, 300);
-	public static final String DIRECTOR_HEADER = "de.lere.vaad.headerdirector";
-	public static final String DIRECTOR_DESCRIPTION_BEGINNING = "de.lere.vaad.descriptionbeginningdirector";
-	public static final String DIRECTOR_MACROSTEP = "de.lere.vaad.macrostepdirector";
-	public static final String DIRECTOR_MICROSTEP = "de.lere.vaad.microstepdirector";
-	public static final String DIRECTOR_GRAPHROOT = "de.lere.vaad.graphrootdirector";
-
-	enum Location {
-		Header(DIRECTOR_HEADER), DescriptionBeginning(
-				DIRECTOR_DESCRIPTION_BEGINNING), Macrostep(DIRECTOR_MACROSTEP), Microstep(
-				DIRECTOR_MICROSTEP), Graphroot(DIRECTOR_GRAPHROOT);
-
-		public final String DIRECTOR_NAME;
-
-		private Location(String director) {
-			this.DIRECTOR_NAME = director;
-		}
-	}
 
 	private final Language language;
 
 	private SourceCode sourceCode;
 	private int runninggroupidentifier = 0;
-	private final TreeAnimationProperties animationProperties;
+	private final AnimationProperties animationProperties;
 	private final BinaryTreeLayout layout;
 
-	private FiddlerOnTheRoof(Language l, TreeAnimationProperties tp) {
+	private FiddlerOnTheRoof(Language l, AnimationProperties tp) {
 		this.language = l;
 		this.animationProperties = tp;
 		l.setStepMode(true);
-		this.lh = new LocationDirectorProviderImpl();
 		this.layout = new BinaryTreeLayout(
 				NodeHelper.convertCoordinatesToAWTPoint(GRAPHROOT_COORDINATES),
 				400, 60);
@@ -85,26 +67,13 @@ public class FiddlerOnTheRoof {
 	/**
 	 * Container Object for properties of this Animation
 	 */
-	private TreeAnimationProperties splayProps = new TreeAnimationProperties();
-
-	private final LocationDirectorProvider lh;
-
-	/**
-	 * Add a director for a specific location.
-	 * 
-	 * @param key
-	 *            the unique key to identify a director.
-	 * @param director
-	 */
-	public void addDirector(String key, LocationDirector director) {
-		lh.addDirector(key, director);
-	}
+	private AnimationProperties splayProps = new AnimationProperties();
 
 	public static void main(String[] args) {
 		// Create a new animation
 		// name, author, screen width, screen height
 
-		TreeAnimationProperties tp = new TreeAnimationProperties();
+		AnimationProperties tp = new AnimationProperties();
 
 		tp.authors = "Rene Hertling, Leo Roos";
 
@@ -132,11 +101,9 @@ public class FiddlerOnTheRoof {
 		}
 	}
 
-	private void buildAnimation(TreeAnimationProperties props)
+	private void buildAnimation(AnimationProperties props)
 			throws IOException {
-		init();
-
-		BinaryTreeAnimationBuilder<Integer> animator = new BinaryTreeAnimationBuilder<Integer>(
+		TreeEventListenerAggregator<Integer> animator = new TreeEventListenerAggregator<Integer>(
 				language);
 		animator.setLayout(this.layout);
 		List<Integer> ints = createSomeInts(8);
@@ -206,10 +173,6 @@ public class FiddlerOnTheRoof {
 		return introGroup;
 	}
 
-	private void init() throws IOException {
-		initializeLocationDirectors();
-	}
-
 	void setSourceCodeGroup(SourceCode sc) {
 		this.sourceCode = sc;
 	}
@@ -231,41 +194,6 @@ public class FiddlerOnTheRoof {
 			sc.addCodeLine(split.get(i), "", 0, null);
 		}
 		return sc;
-	}
-
-	private void initializeLocationDirectors() {
-		Coordinates headerPosCoord = new Coordinates(10, 10);
-		Text headerDummyPrimitive = language.newText(headerPosCoord,
-				"12345678890", "headerDummyText", null);
-		headerDummyPrimitive.hide();
-		addDirector(DIRECTOR_HEADER, new AnimationLocationDirector(new Offset(
-				0, 0, headerDummyPrimitive, AnimalScript.DIRECTION_NW)));
-
-		Offset beginDescriptionLoc = new Offset(30,
-				2 * splayProps.textVerticalHeight, headerDummyPrimitive,
-				AnimalScript.DIRECTION_SE);
-		addDirector(DIRECTOR_DESCRIPTION_BEGINNING,
-				new AnimationLocationDirector(beginDescriptionLoc));
-		SourceCode code = this.getSourceCodeDummy(beginDescriptionLoc);
-
-		Offset macroStepLocation = new Offset(0, 10, code,
-				AnimalScript.DIRECTION_SW);
-
-		addDirector(DIRECTOR_MACROSTEP, new AnimationLocationDirector(
-				macroStepLocation));
-
-		Group macroStepGroup = createTextGroup(" \n \n \n \n",
-				macroStepLocation);
-
-		Offset microStepLocation = new Offset(0, 5, macroStepGroup,
-				AnimalScript.DIRECTION_SW);
-
-		addDirector(DIRECTOR_MICROSTEP, new AnimationLocationDirector(
-				microStepLocation));
-
-		addDirector(DIRECTOR_GRAPHROOT, new AnimationLocationDirector(
-				CorrectedOffset.getOffsetForCoordinate(GRAPHROOT_COORDINATES)));
-
 	}
 
 	private @Nullable

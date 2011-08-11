@@ -1,5 +1,7 @@
 package de.lere.vaad.treebuilder;
 
+import static de.lere.vaad.treebuilder.Timings.NOW;
+
 import java.awt.Color;
 import java.awt.Point;
 import java.util.ArrayList;
@@ -11,33 +13,37 @@ import algoanim.primitives.Polyline;
 import algoanim.primitives.generators.Language;
 import algoanim.properties.GraphProperties;
 import algoanim.util.Coordinates;
-import algoanim.util.DisplayOptions;
 import algoanim.util.Hidden;
+import algoanim.util.TicksTiming;
 import algoanim.util.Timing;
 import de.lere.vaad.utils.MathHelper;
 
 public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> {
 
 	private Graph lastCreatedGraph;
-	private Language lang;
+	private Language language;
 	private int polylineId;
+	private BinaryTreeLayout layout;
 
-	public GraphWriterImpl(Language lang) {
-		this(lang, new NullGraph());
+	public GraphWriterImpl(Language lang, BinaryTreeLayout layout) {
+		this(lang, new NullGraph(), layout);
 	}
-	
-	public GraphWriterImpl(Language lang, Graph lastCreatedGraph) {
-		this.lang = lang;
+
+	public GraphWriterImpl(Language lang, Graph lastCreatedGraph,
+			BinaryTreeLayout layout) {
+		this.language = lang;
 		this.lastCreatedGraph = lastCreatedGraph;
 		polylineId = 0;
+		if (layout == null)
+			this.layout = BinaryTreeLayout.DEFAULT;
+		else
+			this.layout = layout;
 	}
-	
+
 	@Override
-	public void buildGraph(Language language, BinaryTreeModel<T> model,
-			BinaryTreeLayout layout, Timing delay) {
+	public void buildGraph(BinaryTreeModel<T> model, Timing delay) {
 		OrderedGraphInformation<T> infos = graphInfos(model);
-		this.lang = language;
-		writeGraph(language, infos, model, layout, delay);
+		writeGraph(infos, model, layout, delay);
 	}
 
 	public OrderedGraphInformation<T> graphInfos(BinaryTreeModel<T> model) {
@@ -45,7 +51,7 @@ public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> 
 				model.getNodesInOrder());
 		return infos;
 	}
-	
+
 	public void setLastGraph(Graph graph) {
 		if (graph == null) {
 			this.lastCreatedGraph = new NullGraph();
@@ -53,7 +59,7 @@ public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> 
 			this.lastCreatedGraph = graph;
 	}
 
-	public void writeGraph(Language language, OrderedGraphInformation<T> infos,
+	public void writeGraph(OrderedGraphInformation<T> infos,
 			BinaryTreeModel<T> model, BinaryTreeLayout layout, Timing delay) {
 		if (lastCreatedGraph != null) {
 			lastCreatedGraph.hide(delay);
@@ -93,7 +99,7 @@ public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> 
 			Timing startWhen, Timing howLong) {
 		Integer index = getNodeIndex(model, endNode);
 		if (index != null) {
-			lastCreatedGraph.highlightNode(index, startWhen, howLong);
+			lastCreatedGraph.unhighlightNode(index, startWhen, howLong);
 		}
 	}
 
@@ -134,7 +140,7 @@ public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> 
 		for (de.lere.vaad.treebuilder.Node<T> node : list) {
 			int position = node.getPosition();
 			Point location = MathHelper.getLocation(layout.rootLocation,
-					position, layout.firstLevelWidth, layout.verticalGaps);
+					position, layout.firstLevelWidth, layout.verticalGap);
 			lst.add(algoanim.util.Node.convertToNode(location));
 		}
 		return lst;
@@ -158,24 +164,24 @@ public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> 
 
 	@Override
 	public void translateNodes(BinaryTreeModel<T> initialPosition,
-			BinaryTreeModel<T> positionToMoveTo, BinaryTreeLayout layout,
-			Timing when, Timing howLong) {
+			BinaryTreeModel<T> positionToMoveTo, Timing when,
+			Timing howLong) {
 		OrderedGraphInformation<T> origInfos = graphInfos(initialPosition);
 		for (Node<T> original : origInfos.nodes) {
 			Node<T> moved = BinaryTreeModel.lookupNodeByID(positionToMoveTo,
 					original);
-			if(moved == null)
+			if (moved == null)
 				continue;
-			
+
 			int oldPosition = original.getPosition();
 			int newPosition = moved.getPosition();
 			Point oldLocation = MathHelper.getLocation(layout.rootLocation,
-					oldPosition, layout.firstLevelWidth, layout.verticalGaps);
+					oldPosition, layout.firstLevelWidth, layout.verticalGap);
 			Point newLocation = MathHelper.getLocation(layout.rootLocation,
-					newPosition, layout.firstLevelWidth, layout.verticalGaps);
+					newPosition, layout.firstLevelWidth, layout.verticalGap);
 
 			Integer oldIndex = origInfos.indexedNodes.get(original);
-			Polyline polyline = lang.newPolyline(new Coordinates[] {
+			Polyline polyline = language.newPolyline(new Coordinates[] {
 					algoanim.util.Node.convertToNode(oldLocation),
 					algoanim.util.Node.convertToNode(newLocation) }, "vec"
 					+ polylineId, new Hidden());
@@ -188,5 +194,56 @@ public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> 
 			}
 			polylineId++;
 		}
+	}
+
+	@Override
+	public void buildGraph(BinaryTreeModel<T> model) {
+		this.buildGraph(model, NOW);
+	}
+
+	@Override
+	public void highlightNode(BinaryTreeModel<T> model, Node<T> node) {
+		this.highlightNode(model, node, NOW, NOW);
+	}
+
+	@Override
+	public void unhighlightNode(BinaryTreeModel<T> model, Node<T> node) {
+		this.unhighlightNode(model, node, NOW, NOW);
+		
+	}
+
+	@Override
+	public void highlightEdge(BinaryTreeModel<T> model, Node<T> startNode,
+			Node<T> endNode) {
+		this.highlightEdge(model, startNode, endNode, NOW, NOW);
+		
+	}
+
+	@Override
+	public void unhighlightEdge(BinaryTreeModel<T> model, Node<T> startNode,
+			Node<T> endNode) {
+		this.unhighlightEdge(model, startNode, endNode, NOW, NOW);		
+	}
+
+	@Override
+	public void hideEdge(BinaryTreeModel<T> model, Node<T> startNode,
+			Node<T> endNode) {
+		this.hideEdge(model, startNode, endNode, NOW, NOW);
+	}
+
+	@Override
+	public void translateNodes(BinaryTreeModel<T> initialPosition,
+			BinaryTreeModel<T> positionToMoveTo) {
+		this.translateNodes(initialPosition, positionToMoveTo, NOW, NOW);
+	}
+
+	@Override
+	public void blinkNode(BinaryTreeModel<T> model, Node<T> node, Timing when,
+			Timing howLong) {
+		
+		int halfTheLongDelay = (int )(((double) howLong.getDelay()) / 2);
+		Timing halfTheLong = new TicksTiming(halfTheLongDelay);
+		this.highlightNode(model, node, when, halfTheLong );
+		this.unhighlightNode(model, node, new TicksTiming(halfTheLong.getDelay() + when.getDelay()), halfTheLong );
 	}
 }

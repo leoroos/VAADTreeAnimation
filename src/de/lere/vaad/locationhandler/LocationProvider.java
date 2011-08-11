@@ -1,9 +1,9 @@
 package de.lere.vaad.locationhandler;
 
-import algoanim.util.Offset;
+import algoanim.util.Node;
 
-public interface LocationProvider {
+public interface LocationProvider<T extends Node> {
 	
-	Offset getLocation();
+	T getLocation();
 
 }

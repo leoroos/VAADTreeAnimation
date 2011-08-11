@@ -1,28 +1,55 @@
 package de.lere.vaad.treebuilder;
 
-import algoanim.primitives.generators.Language;
 import algoanim.util.Timing;
 
+/**
+ * Supports graph writing methods. When a method is provided with and without timings,
+ * the default behavior is to use immediate change.
+ * 
+ * @author Leo Roos, Rene Hertling
+ *
+ * @param <T>
+ */
 public interface GraphWriter<T extends Comparable<T>> {
-	void buildGraph(Language language, BinaryTreeModel<T> model,
-			BinaryTreeLayout layout, Timing delay);
+	void buildGraph(BinaryTreeModel<T> model, Timing delay);
+	
+	void buildGraph(BinaryTreeModel<T> model);
 
-	void highlightNode(BinaryTreeModel<T> model, Node<T> endNode, Timing now,
+	void highlightNode(BinaryTreeModel<T> model, Node<T> node, Timing now,
 			Timing howLong);
+	
+	void highlightNode(BinaryTreeModel<T> model, Node<T> node);
 
-	void unhighlightNode(BinaryTreeModel<T> model, Node<T> endNode,
+	void unhighlightNode(BinaryTreeModel<T> model, Node<T> node,
 			Timing when, Timing howLong);
 
+	void unhighlightNode(BinaryTreeModel<T> model, Node<T> node);
+	
+	
 	void highlightEdge(BinaryTreeModel<T> model, Node<T> startNode,
 			Node<T> endNode, Timing now, Timing howLong);
+	
+	void highlightEdge(BinaryTreeModel<T> model, Node<T> startNode,
+			Node<T> endNode);
 
 	void unhighlightEdge(BinaryTreeModel<T> model, Node<T> startNode,
 			Node<T> endNode, Timing when, Timing howLong);
+	
+	void unhighlightEdge(BinaryTreeModel<T> model, Node<T> startNode,
+			Node<T> endNode);
 
 	void hideEdge(BinaryTreeModel<T> model, Node<T> startNode, Node<T> endNode,
 			Timing when, Timing howLong);
+	
+	void hideEdge(BinaryTreeModel<T> model, Node<T> startNode, Node<T> endNode);
 
 	void translateNodes(BinaryTreeModel<T> initialPosition,
-			BinaryTreeModel<T> positionToMoveTo, BinaryTreeLayout layout,
-			Timing when, Timing howLong);
+			BinaryTreeModel<T> positionToMoveTo, Timing when,
+			Timing howLong);
+	
+	void translateNodes(BinaryTreeModel<T> initialPosition,
+			BinaryTreeModel<T> positionToMoveTo);
+	
+	void blinkNode(BinaryTreeModel<T> model,
+			Node<T> node, Timing when, Timing howLong);
 }

@@ -18,8 +18,7 @@ public class DefaultBinaryTreeAnimations<T extends Comparable<T>> implements
 	public void animate(Language lang, TreeEvent<T> event,
 			BinaryTreeLayout layout) {
 		if (event instanceof TreeModelChangeEvent<?>) {
-			writer.buildGraph(lang,
-					((TreeModelChangeEvent<T>) event).afterChange, layout,
+			writer.buildGraph(((TreeModelChangeEvent<T>) event).afterChange,
 					Timings.NOW);
 		}
 	}

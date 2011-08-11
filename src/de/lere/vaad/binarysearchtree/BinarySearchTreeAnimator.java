@@ -184,7 +184,7 @@ public class BinarySearchTreeAnimator<T extends Comparable<T>> implements
 		for (de.lere.vaad.treebuilder.Node<T> node : list) {
 			int position = node.getPosition();
 			Point location = MathHelper.getLocation(layout.rootLocation,
-					position, layout.firstLevelWidth, layout.verticalGaps);
+					position, layout.firstLevelWidth, layout.verticalGap);
 			lst.add(Node.convertToNode(location));
 		}
 		return lst;
@@ -253,7 +253,7 @@ public class BinarySearchTreeAnimator<T extends Comparable<T>> implements
 		language.nextStep();
 
 		GraphWriterImpl<T> impl = new GraphWriterImpl<T>(language,
-				lastCreatedGraph);
+				lastCreatedGraph, layout);
 
 		if (successorNode != null) {
 			Integer successor = oldinfos.indexedNodes.get(successorNode);
@@ -272,7 +272,7 @@ public class BinarySearchTreeAnimator<T extends Comparable<T>> implements
 				language.nextStep();
 			}
 			impl.translateNodes(event.beforeChange, event.afterChange,
-					DEFAULT_LAYOUT, NOW, HIGHLIGHT_NODE_DURATION);
+					NOW, HIGHLIGHT_NODE_DURATION);
 			language.nextStep();
 		}
 

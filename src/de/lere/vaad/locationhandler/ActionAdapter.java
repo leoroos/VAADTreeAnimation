@@ -6,6 +6,7 @@ import java.util.Set;
 import edu.umd.cs.findbugs.annotations.Nullable;
 
 import algoanim.primitives.Primitive;
+import algoanim.util.Node;
 
 /**
  * Provides a default implementation for {@link #deactivate()} and a method to
@@ -14,7 +15,7 @@ import algoanim.primitives.Primitive;
  * @author Leo Roos, Rene Hertling
  * 
  */
-public abstract class ActionAdapter implements Action {
+public abstract class ActionAdapter<T extends Node> implements Action<T> {
 
 	/**
 	 * This implementation iterates over the objects accumulated with

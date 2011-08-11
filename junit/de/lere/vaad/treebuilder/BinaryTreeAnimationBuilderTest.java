@@ -56,12 +56,12 @@ public class BinaryTreeAnimationBuilderTest {
 	@Mock
 	BinaryTreeModel<Integer> btmock2;
 
-	private BinaryTreeAnimationBuilder<Integer> testee;
+	private TreeEventListenerAggregator<Integer> testee;
 
 	@Before
 	public void setUp() {
 		MockitoAnnotations.initMocks(this);
-		testee = new BinaryTreeAnimationBuilder<Integer>(language);
+		testee = new TreeEventListenerAggregator<Integer>(language);
 		BinaryTreeLayout layout = createTestLayout();
 		testee.setLayout(layout);
 		emptyModel = new BinaryTreeModel<Integer>();

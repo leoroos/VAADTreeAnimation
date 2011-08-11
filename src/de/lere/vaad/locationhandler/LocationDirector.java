@@ -1,7 +1,9 @@
 package de.lere.vaad.locationhandler;
 
-public interface LocationDirector extends LocationProvider{
+import algoanim.util.Node;
 
-	public void nextState(Action s);
+public interface LocationDirector<T extends Node> extends LocationProvider<T>{
+
+	public void nextState(Action<T> s);
 	
 }

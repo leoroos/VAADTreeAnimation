@@ -6,6 +6,7 @@ import de.lere.vaad.treebuilder.TreeEvent;
 import de.lere.vaad.treebuilder.TreeModelChangeEvent;
 import de.lere.vaad.treebuilder.TreeEventListener;
 import de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class TreeInsertSourceCodeTraversing<T extends Comparable<T>> extends
 		TreeEvent<T> {
@@ -55,15 +56,24 @@ public class TreeInsertSourceCodeTraversing<T extends Comparable<T>> extends
 	 * Depending on context additional node, maybe null
 	 */
 	public final T insertionValue;
+	public final BinaryTreeModel<T> currentModel;
 
-	public TreeInsertSourceCodeTraversing(InsertSourceCodePosition pos,
-			Node<T> curPos, T insertionValue) {
+	public TreeInsertSourceCodeTraversing(
+			@NonNull InsertSourceCodePosition pos,
+			@NonNull BinaryTreeModel<T> currentModel, Node<T> curPos,
+			@NonNull T insertionValue) {
+		if (pos == null)
+			throw new IllegalArgumentException("null not allowed");
+		if (currentModel == null)
+			throw new IllegalArgumentException("null not allowed");
+
 		this.position = pos;
-		if(insertionValue == null)
+		this.currentModel = currentModel;
+		if (insertionValue == null)
 			throw new IllegalArgumentException("null not allowed");
 		this.insertionValue = insertionValue;
 		if (curPos != null)
-			this.currentPosition = curPos.copy();		
+			this.currentPosition = curPos.copy();
 		else
 			this.currentPosition = null;
 	}
