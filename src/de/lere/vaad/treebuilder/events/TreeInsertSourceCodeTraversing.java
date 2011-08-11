@@ -13,7 +13,11 @@ public class TreeInsertSourceCodeTraversing<T extends Comparable<T>> extends
 
 	public enum InsertSourceCodePosition {
 		Init, //
-		WhileNoInsertionPossible, //
+		/**
+		 * Insertion is possible when node becomes null<br>
+		 * checks for null -> node maybe null
+		 */
+		CheckingIfInsertionPossible, //
 		TestingIfWhereToFromCurrent, //
 		/**
 		 * node is new node to look in next step along

@@ -33,6 +33,7 @@ import de.lere.vaad.treebuilder.GraphWriterImpl;
 import de.lere.vaad.treebuilder.TreeEvent;
 import de.lere.vaad.treebuilder.TreeEventListener;
 import de.lere.vaad.treebuilder.TreeEventListenerAggregator;
+import de.lere.vaad.treebuilder.TreeInsertEvent;
 import de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing;
 import de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition;
 import de.lere.vaad.utils.NodeHelper;
@@ -198,7 +199,7 @@ public class BinarySearchTreeAnimation {
 						highlightLines(sourceCode, 2, 3);
 
 						break;
-					case WhileNoInsertionPossible:
+					case CheckingIfInsertionPossible:
 						highlightLines(sourceCode, 4);
 
 						break;
@@ -262,12 +263,16 @@ public class BinarySearchTreeAnimation {
 						describe("Initialisierung: die Suche wird an der Wurzel "
 								+ curPos.getValue() + " begonnen ");
 						break;
-					case WhileNoInsertionPossible:
-						describe("Solange kein Platz zum Einfügen gefunden wurde suche weiter um "
-								+ val
-								+ " einzufügen. "
-								+ "Prüfe als nächstes "
-								+ curPos.getValue());
+					case CheckingIfInsertionPossible:
+						if(curPos == null) {
+							describe("Nächste zu prüfende Position ist Null also wurde Platz zum Einfügen gefunden.");
+						} else {
+							describe("Solange kein Platz zum Einfügen gefunden wurde suche weiter um "
+									+ val
+									+ " einzufügen. "
+									+ "Prüfe als nächstes "
+									+ curPos.getValue());
+						}
 						break;
 					case TestingIfWhereToFromCurrent:
 						describe("Teste ob Knoten " + val
@@ -327,6 +332,20 @@ public class BinarySearchTreeAnimation {
 				if (event instanceof TreeInsertSourceCodeTraversing<?>) {
 					step();
 				}
+			}
+		});
+		
+		model.addListener(new TreeEventListener<String>() {
+
+			@Override
+			public void update(TreeEvent<String> event) {
+				if(event instanceof TreeInsertEvent<?>){
+					TreeInsertEvent<String> e = (TreeInsertEvent<String>) event;
+					int compStats = ((TreeInsertEvent<String>) event).insertionResult.numOfComparisons;
+					step();
+					nextStateOnLocation("Das Einfügen des Knotens " + e.nodeOfModification.getValue() + " hat " + compStats + " Vergleiche benötigt.", DIRECTOR_MICROSTEP);
+				}
+				
 			}
 		});
 

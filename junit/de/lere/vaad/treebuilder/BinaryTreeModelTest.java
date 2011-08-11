@@ -186,7 +186,7 @@ public class BinaryTreeModelTest {
 		BinaryTreeModel<Integer> after = model.copy();
 		verify(btmlMock, atLeastOnce()).update(captor.capture());
 		TreeInsertEvent expectedEvent = new TreeInsertEvent<Integer>(
-				before, after, insert);
+				before, after, insert, null);
 		TreeModelChangeEvent actual = captor.getValue();
 		assertThat(actual, instanceOf(TreeInsertEvent.class));
 		assertThat((TreeInsertEvent)actual, equalTo(expectedEvent));

@@ -19,6 +19,8 @@ import de.lere.vaad.utils.NodeHelper;
  */
 public class BinaryTreeModel<T extends Comparable<T>> {
 
+
+
 	private Node<T> root;
 
 	private List<TreeEventListener<T>> listeners;
@@ -96,16 +98,29 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 		}
 		return -1;
 	}
+	
+	/**
+	 * carries information of interest about the insertion algorithm 
+	 * 
+	 * @author Leo Roos, Rene Hertling
+	 *
+	 */
+	public class InsertionResult {
+		
+		public int numOfComparisons = 0;
+
+	}
 
 	public Node<T> insert(T value) {
+		InsertionResult insertionResult = new InsertionResult();
 		BinaryTreeModel<T> before = this.copy();
 		Node<T> y = null;
 		Node<T> x = getRoot();
 		fireTreeInsertSource(Init,x, value);
-		while(x != null){
-			fireTreeInsertSource(WhileNoInsertionPossible,x, value);
+		while(!ifIsNullIncrCompsFireEvent(x,insertionResult,value,CheckingIfInsertionPossible)){			
 			y = x;
 			fireTreeInsertSource(TestingIfWhereToFromCurrent,x,value);
+			insertionResult.numOfComparisons++;
 			if(NodeOrder.isChildConsideredLeft(x.getValue(), value)){
 				x = x.getLeft();
 				fireTreeInsertSource(LookingAlongLeftChild,x, value);
@@ -117,11 +132,10 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 		fireTreeInsertSource(SettingParentForNewCurrentNode,y, value);
 		Node<T> finalToInsert = new Node<T>(value);		
 		finalToInsert.setParent(y);
-		fireTreeInsertSource(CheckingIfNewIsRoot,finalToInsert,value);
-		if(y == null){
+		if(ifIsNullIncrCompsFireEvent(y, insertionResult, value,CheckingIfNewIsRoot)){
 			this.root = finalToInsert;
 			fireTreeInsertSource(FinalIsSettingToRoot,finalToInsert, value);
-		} else if (checkWhetherLeftChildAndFireAccording(CheckingIfToSetLeftInFinalStep, y, value) ) {
+		} else if (checkWhetherLeftChildAndFireAccording(CheckingIfToSetLeftInFinalStep, y, value, insertionResult) ) {			
 			fireTreeInsertSource(FinalIsSettingAsLeftChildFrom,y, value);
 			y.setLeft(finalToInsert);
 		} else {
@@ -129,12 +143,20 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 			y.setRight(finalToInsert);
 		}
 				
-		fireChange(new TreeInsertEvent<T>(before, this.copy(), finalToInsert));
+		fireChange(new TreeInsertEvent<T>(before, this.copy(), finalToInsert, insertionResult));
 		return finalToInsert;
 	}
 
-	private boolean checkWhetherLeftChildAndFireAccording(InsertSourceCodePosition pos, Node<T> current, T value) {
-		boolean leftChild = NodeOrder.isChildConsideredLeft(current.getValue(), value);		
+	private boolean ifIsNullIncrCompsFireEvent(Node<T> nullCheckOn,
+			InsertionResult insertionResult, T value, InsertSourceCodePosition eventToFire) {
+		insertionResult.numOfComparisons++;
+		fireTreeInsertSource(eventToFire,nullCheckOn, value);
+		return nullCheckOn == null;
+	}
+
+	private boolean checkWhetherLeftChildAndFireAccording(InsertSourceCodePosition pos, Node<T> current, T value, InsertionResult insertionResult) {
+		boolean leftChild = NodeOrder.isChildConsideredLeft(current.getValue(), value);
+		insertionResult.numOfComparisons++;
 		fireTreeInsertSource(pos, current, value);
 		return leftChild;
 	}

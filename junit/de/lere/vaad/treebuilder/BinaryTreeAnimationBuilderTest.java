@@ -77,7 +77,7 @@ public class BinaryTreeAnimationBuilderTest {
 
 	@Test
 	public void performNoAnimationOnEmptyInsert() throws Exception {
-		testee.update(new TreeInsertEvent<Integer>(emptyModel, emptyModel, null));
+		testee.update(new TreeInsertEvent<Integer>(emptyModel, emptyModel, null,null));
 		assertNoGraphLine(lastLine());
 	}
 
