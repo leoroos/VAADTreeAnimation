@@ -18,17 +18,15 @@ public class SplayTreeModelTest {
 	 * 						   A   B 						 B   C
 	 */
 	public void findLeftNodeOfRootDoesZigOperation() {
+		// p,x,C,A,B
 		BinaryTreeModel<Integer> binaryTree = BinaryTreeModel
 				.createTreeByInsert(10, 5, 15, 1, 7);
 		SplayTreeModel<Integer> model = SplayTreeModel.from(binaryTree);
 		Node<Integer> found = model.search(5);
 		assertThat(model.getRoot(), equalTo(found));
-		assertThat(model.getRoot().getValue(), equalTo(5));
-		assertThat(model.getRoot().getLeft().getValue(), equalTo(1));
-		assertThat(model.getRoot().getRight().getValue(), equalTo(10));
-		assertThat(model.getRoot().getRight().getLeft().getValue(), equalTo(7));
-		assertThat(model.getRoot().getRight().getRight().getValue(),
-				equalTo(15));
+		BinaryTreeModel<Integer> expected = BinaryTreeModel.createTreeByInsert(
+				5, 1, 10, 7, 15);
+		assertThat(model, equalTo(expected));
 	}
 
 	@Test
@@ -40,16 +38,16 @@ public class SplayTreeModelTest {
 	 * 						         B   C 			   A   B	 
 	 */
 	public void findRightNodeOfRootDoesZigOperation() {
+		// p,A,x,B,C
 		BinaryTreeModel<Integer> binaryTree = BinaryTreeModel
 				.createTreeByInsert(10, 5, 15, 12, 17);
 		SplayTreeModel<Integer> model = SplayTreeModel.from(binaryTree);
 		Node<Integer> found = model.search(15);
 		assertThat(model.getRoot(), equalTo(found));
+		BinaryTreeModel<Integer> expected = BinaryTreeModel.createTreeByInsert(
+				15, 10, 17, 5, 12);
 		assertThat(model.getRoot().getValue(), equalTo(15));
-		assertThat(model.getRoot().getRight().getValue(), equalTo(17));
-		assertThat(model.getRoot().getLeft().getValue(), equalTo(10));
-		assertThat(model.getRoot().getLeft().getLeft().getValue(), equalTo(5));
-		assertThat(model.getRoot().getLeft().getRight().getValue(), equalTo(12));
+		assertThat(model, equalTo(expected));
 	}
 
 	@Test
@@ -63,20 +61,15 @@ public class SplayTreeModelTest {
 	 * 			 A   B							   C   D
 	 */
 	public void doesZigZigWhenXisLeftChildOfPandPisLeftChildOfG() {
+		// g,p,D,x,C,A,B
 		BinaryTreeModel<Integer> binaryTree = BinaryTreeModel
 				.createTreeByInsert(20, 10, 30, 5, 8, 1, 7);
 		SplayTreeModel<Integer> model = SplayTreeModel.from(binaryTree);
 		Node<Integer> found = model.search(5);
 		assertThat(model.getRoot(), equalTo(found));
-		assertThat(model.getRoot().getLeft().getValue(), equalTo(1));
-		assertThat(model.getRoot().getRight().getValue(), equalTo(10));
-		assertThat(model.getRoot().getRight().getLeft().getValue(), equalTo(7));
-		assertThat(model.getRoot().getRight().getRight().getValue(),
-				equalTo(20));
-		assertThat(model.getRoot().getRight().getRight().getLeft().getValue(),
-				equalTo(8));
-		assertThat(model.getRoot().getRight().getRight().getRight().getValue(),
-				equalTo(30));
+		BinaryTreeModel<Integer> expected = BinaryTreeModel.createTreeByInsert(
+				5, 1, 10, 7, 20, 8, 30);
+		assertThat(model, equalTo(expected));
 	}
 
 	@Test
@@ -90,26 +83,21 @@ public class SplayTreeModelTest {
 	 * 					  B   A			  D   C 
 	 */
 	public void doesZigZigWhenXisRightChildOfPandPisRightChildOfG() {
+		// g,D,p,C,x,B,A
 		BinaryTreeModel<Integer> binaryTree = BinaryTreeModel
 				.createTreeByInsert(20, 10, 30, 25, 35, 32, 40);
 		SplayTreeModel<Integer> model = SplayTreeModel.from(binaryTree);
 		Node<Integer> found = model.search(35);
 		assertThat(model.getRoot(), equalTo(found));
-		assertThat(model.getRoot().getValue(), equalTo(35));
-		assertThat(model.getRoot().getRight().getValue(), equalTo(40));
-		assertThat(model.getRoot().getLeft().getValue(), equalTo(10));
-		assertThat(model.getRoot().getLeft().getRight().getValue(), equalTo(32));
-		assertThat(model.getRoot().getLeft().getLeft().getValue(), equalTo(20));
-		assertThat(model.getRoot().getLeft().getLeft().getLeft().getValue(),
-				equalTo(20));
-		assertThat(model.getRoot().getLeft().getLeft().getRight().getValue(),
-				equalTo(25));
+		BinaryTreeModel<Integer> expected = BinaryTreeModel.createTreeByInsert(
+				35, 30, 40, 20, 32, 10, 25);
+		assertThat(model, equalTo(expected));
 	}
 
 	@Test
 	/**
 	 * 				  g								 x 
-	 * 		   		/   \						   /   \
+	 *		   		/   \						   /   \
 	 * 			   p     D						  p	    g
 	 * 			  / \				==>			 / \   / \
 	 * 			 A   x							A	B C   D
@@ -117,21 +105,37 @@ public class SplayTreeModelTest {
 	 * 			   B   C
 	 */
 	public void doesZigZagIfXisRightChildOfPAndPIsLeftChildOfG() {
-
+		// g,p,D,A,x,B,C
+		BinaryTreeModel<Integer> binaryTree = BinaryTreeModel
+				.createTreeByInsert(30, 20, 40, 10, 15, 12, 18);
+		SplayTreeModel<Integer> model = SplayTreeModel.from(binaryTree);
+		Node<Integer> found = model.search(15);
+		assertThat(model.getRoot(), equalTo(found));
+		BinaryTreeModel<Integer> expected = BinaryTreeModel.createTreeByInsert(
+				15, 20, 30, 10, 12, 18, 40);
+		assertThat(model, equalTo(expected));
 	}
 
 	@Test
 	/**
 	 * 				g								
 	 * 			  /   \								 x
-	 * 			 D     p						   /   \
+	 * 		 	 D     p						   /   \
 	 * 				  / \			==>			  g     p
-	 * 				 x   A						 / \   / \
-	 * 				/ \							D   C B   A
-	 * 			   C   B
+	 * 		 	     x   A						 / \   / \
+	 * 			    / \							D   C B   A
+	 * 		  	   C   B
 	 *  		
 	 */
 	public void doesZigZagIfXisLeftChildOfPAndPIsRightChildOfG() {
-
+		// g,D,p,x,A,C,B
+		BinaryTreeModel<Integer> binaryTree = BinaryTreeModel
+				.createTreeByInsert(20, 10, 30, 25, 35, 23, 27);
+		SplayTreeModel<Integer> model = SplayTreeModel.from(binaryTree);
+		Node<Integer> found = model.search(25);
+		assertThat(model.getRoot(), equalTo(found));
+		BinaryTreeModel<Integer> expected = SplayTreeModel.createTreeByInsert(
+				25, 20, 30, 10, 23, 27, 35);
+		assertThat(model, equalTo(expected));
 	}
 }
