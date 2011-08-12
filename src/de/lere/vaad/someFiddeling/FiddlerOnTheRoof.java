@@ -1,7 +1,5 @@
 package de.lere.vaad.someFiddeling;
 
-import java.awt.Color;
-import java.awt.Font;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,26 +17,18 @@ import algoanim.primitives.Primitive;
 import algoanim.primitives.SourceCode;
 import algoanim.primitives.Text;
 import algoanim.primitives.generators.Language;
-import algoanim.properties.AnimationPropertiesKeys;
 import algoanim.properties.SourceCodeProperties;
-import algoanim.properties.TextProperties;
 import algoanim.util.Coordinates;
 import algoanim.util.Offset;
 import de.lere.vaad.BinaryTreeProperties;
-import de.lere.vaad.locationhandler.Action;
-import de.lere.vaad.locationhandler.ActionAdapter;
-import de.lere.vaad.locationhandler.NextStateOnLocationDirector;
-import de.lere.vaad.locationhandler.LocationDirector;
-import de.lere.vaad.locationhandler.LocationDirectorProvider;
-import de.lere.vaad.locationhandler.LocationHandler;
-import de.lere.vaad.locationhandler.LocationProvider;
-import de.lere.vaad.splaytree.resources.descriptions.SplayTreeResourceAccessor;
-import de.lere.vaad.treebuilder.TreeEventListenerAggregator;
+import de.lere.vaad.splaytree.SplayTreeModel;
 import de.lere.vaad.treebuilder.BinaryTreeLayout;
 import de.lere.vaad.treebuilder.BinaryTreeModel;
+import de.lere.vaad.treebuilder.ExtractedBinaryTreeAnimations;
+import de.lere.vaad.treebuilder.GraphWriterImpl;
 import de.lere.vaad.treebuilder.Node;
 import de.lere.vaad.treebuilder.Timings;
-import de.lere.vaad.utils.CorrectedOffset;
+import de.lere.vaad.treebuilder.TreeEventListenerAggregator;
 import de.lere.vaad.utils.NodeHelper;
 import de.lere.vaad.utils.StrUtils;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -103,33 +93,30 @@ public class FiddlerOnTheRoof {
 
 	private void buildAnimation(BinaryTreeProperties props)
 			throws IOException {
+		final GraphWriterImpl<Integer> writer = new GraphWriterImpl<Integer>(language,
+				layout);
 		TreeEventListenerAggregator<Integer> animator = new TreeEventListenerAggregator<Integer>(
 				language);
-		animator.setLayout(this.layout);
-		List<Integer> ints = createSomeInts(8);
+		animator.addAnimatior(new ExtractedBinaryTreeAnimations<Integer>(writer));
+		animator.setLayout(this.layout);		
+		List<Integer> ints = createSomeInts(20);
 		BinaryTreeModel<Integer> model = BinaryTreeModel
 				.createTreeByInsert(ints);
-		animator.setModel(model);
+		SplayTreeModel<Integer> splayTreeModel = SplayTreeModel.from(model);		
+		animator.setModel(splayTreeModel);
 
 		Collections.shuffle(ints);
 		Iterator<Integer> iterator = ints.iterator();
-		Random r = new Random(123);
-		Text newText = null;
-		for(int i = 0; i < 400; ++i) {
-			Node<Integer> search = model.getNodesInOrder().get(r.nextInt(model.getNodesInOrder().size()));
-
-			String t = "";
-			if (r.nextBoolean() == false) {
-				t = "rechts";
-				newText = printText(newText, search, t);
-				model.rightRotate(search);
-			} else {
-				t = "links";
-				newText = printText(newText, search, t);
-				model.leftRotate(search);
-			}
+		Text text = null;
+		while(iterator.hasNext()){
+			Integer next = iterator.next();
+			if(text!=null){
+				text.hide(Timings.NOW);
+			}			
+			text = language.newText(new Coordinates(0, 0), "Suche Wert: " + next, "text", null);
+			splayTreeModel.search(next);
 		}
-
+		
 		step();
 	}
 
