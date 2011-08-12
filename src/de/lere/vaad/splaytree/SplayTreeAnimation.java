@@ -26,7 +26,7 @@ import algoanim.util.Coordinates;
 import algoanim.util.Hidden;
 import algoanim.util.Node;
 import algoanim.util.Offset;
-import de.lere.vaad.AnimationProperties;
+import de.lere.vaad.BinaryTreeProperties;
 import de.lere.vaad.locationhandler.Action;
 import de.lere.vaad.locationhandler.ActionAdapter;
 import de.lere.vaad.locationhandler.NextStateOnLocationDirector;
@@ -50,10 +50,10 @@ public class SplayTreeAnimation {
 	private final Language language;
 
 	private SourceCode sourceCode;
-	private final AnimationProperties animationProperties;
+	private final BinaryTreeProperties animationProperties;
 	private final BinaryTreeLayout layout;
 
-	private SplayTreeAnimation(Language l, AnimationProperties tp) {
+	private SplayTreeAnimation(Language l, BinaryTreeProperties tp) {
 		this.language = l;
 		this.animationProperties = tp;
 		l.setStepMode(true);
@@ -80,7 +80,7 @@ public class SplayTreeAnimation {
 	/**
 	 * Container Object for properties of this Animation
 	 */
-	private AnimationProperties splayProps = new AnimationProperties();
+	private BinaryTreeProperties splayProps = new BinaryTreeProperties();
 
 	private final LocationHandler lh;
 
@@ -88,7 +88,7 @@ public class SplayTreeAnimation {
 		// Create a new animation
 		// name, author, screen width, screen height
 
-		AnimationProperties tp = new AnimationProperties();
+		BinaryTreeProperties tp = new BinaryTreeProperties();
 
 		tp.authors = "Rene Hertling, Leo Roos";
 
@@ -116,7 +116,7 @@ public class SplayTreeAnimation {
 		}
 	}
 
-	private void buildAnimation(AnimationProperties props) throws IOException {
+	private void buildAnimation(BinaryTreeProperties props) throws IOException {
 		//
 		// Intro
 		//

@@ -24,7 +24,7 @@ import algoanim.properties.SourceCodeProperties;
 import algoanim.properties.TextProperties;
 import algoanim.util.Coordinates;
 import algoanim.util.Offset;
-import de.lere.vaad.AnimationProperties;
+import de.lere.vaad.BinaryTreeProperties;
 import de.lere.vaad.locationhandler.Action;
 import de.lere.vaad.locationhandler.ActionAdapter;
 import de.lere.vaad.locationhandler.NextStateOnLocationDirector;
@@ -52,10 +52,10 @@ public class FiddlerOnTheRoof {
 
 	private SourceCode sourceCode;
 	private int runninggroupidentifier = 0;
-	private final AnimationProperties animationProperties;
+	private final BinaryTreeProperties animationProperties;
 	private final BinaryTreeLayout layout;
 
-	private FiddlerOnTheRoof(Language l, AnimationProperties tp) {
+	private FiddlerOnTheRoof(Language l, BinaryTreeProperties tp) {
 		this.language = l;
 		this.animationProperties = tp;
 		l.setStepMode(true);
@@ -67,13 +67,13 @@ public class FiddlerOnTheRoof {
 	/**
 	 * Container Object for properties of this Animation
 	 */
-	private AnimationProperties splayProps = new AnimationProperties();
+	private BinaryTreeProperties splayProps = new BinaryTreeProperties();
 
 	public static void main(String[] args) {
 		// Create a new animation
 		// name, author, screen width, screen height
 
-		AnimationProperties tp = new AnimationProperties();
+		BinaryTreeProperties tp = new BinaryTreeProperties();
 
 		tp.authors = "Rene Hertling, Leo Roos";
 
@@ -101,7 +101,7 @@ public class FiddlerOnTheRoof {
 		}
 	}
 
-	private void buildAnimation(AnimationProperties props)
+	private void buildAnimation(BinaryTreeProperties props)
 			throws IOException {
 		TreeEventListenerAggregator<Integer> animator = new TreeEventListenerAggregator<Integer>(
 				language);

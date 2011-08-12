@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -21,7 +22,7 @@ import algoanim.util.Coordinates;
 import algoanim.util.Hidden;
 import algoanim.util.Node;
 import algoanim.util.Offset;
-import de.lere.vaad.AnimationProperties;
+import de.lere.vaad.BinaryTreeProperties;
 import de.lere.vaad.EndOfTheWorldException;
 import de.lere.vaad.locationhandler.LocationDirector;
 import de.lere.vaad.locationhandler.LocationHandler;
@@ -37,29 +38,17 @@ import de.lere.vaad.treebuilder.TreeInsertEvent;
 import de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing;
 import de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition;
 import de.lere.vaad.utils.NodeHelper;
+import de.lere.vaad.utils.TextLoaderUtil;
 
 public class BinarySearchTreeAnimation {
 
 	private static final Point GRAPHROOT_COORDINATES = new Point(400, 300);
 
-	private static String INITIAL_DESCRIPTION = getText("initialDescription.txt");
-
-	private static String getText(String name) {
-		InputStream resourceAsStream = BinarySearchTreeAnimation.class
-				.getResourceAsStream("resources/" + name);
-		InputStreamReader reader = new InputStreamReader(resourceAsStream);
-		String result;
-		try {
-			result = IOUtils.toString(reader);
-		} catch (IOException e) {
-			result = e.toString();
-		}
-		return result;
-	}
+	private final String INITIAL_DESCRIPTION;
 
 	public static void main(String[] args) {
 
-		AnimationProperties tps = new AnimationProperties();
+		BinaryTreeProperties tps = new BinaryTreeProperties();
 		tps.authors = "Leo Roos, Rene Hertling";
 		tps.title = "Binary Search Tree";
 
@@ -81,7 +70,7 @@ public class BinarySearchTreeAnimation {
 
 	}
 
-	private final AnimationProperties animationProperties;
+	private final BinaryTreeProperties animationProperties;
 
 	public final LocationDirector<Offset> DIRECTOR_DESCRIPTION_BEGINNING;
 	public final NextStateOnLocationDirector<Coordinates> DIRECTOR_GRAPHROOT;
@@ -98,16 +87,20 @@ public class BinarySearchTreeAnimation {
 	/**
 	 * Container Object for properties of this Animation
 	 */
-	private AnimationProperties splayProps = new AnimationProperties();
+	private BinaryTreeProperties splayProps = new BinaryTreeProperties();
 
 	private LocationHandler lh;
 
-	private BinarySearchTreeAnimation(Language l, AnimationProperties tp) {
+	private TextLoaderUtil textLoader;
+
+	private BinarySearchTreeAnimation(Language l, BinaryTreeProperties tp) {
 		this.language = l;
 		this.animationProperties = tp;
 		l.setStepMode(true);
 		this.layout = new BinaryTreeLayout(GRAPHROOT_COORDINATES, 160, 60);
 		lh = new LocationHandler(this.language, this.layout);
+		this.textLoader = new TextLoaderUtil(getClass(), "resources");
+		this.INITIAL_DESCRIPTION = textLoader.getText("initialDescription.txt");
 
 		DIRECTOR_HEADER = createHeaderLocDir();
 		DIRECTOR_DESCRIPTION_BEGINNING = createDescriptionBeginningLocDir(DIRECTOR_HEADER);
@@ -127,7 +120,7 @@ public class BinarySearchTreeAnimation {
 				DIRECTOR_SOURCECODE.getLocation(), "insertionSource",
 				new Hidden(), codeProperties);
 
-		getFilledSourceCode(getText("insertAlgo.txt"), sourceCode);
+		getFilledSourceCode(this.textLoader.getText("insertAlgo.txt"), sourceCode);
 		sourceCode.hide();
 
 		final BinaryTreeModel<String> model = BinaryTreeModel

@@ -1,6 +1,5 @@
 package de.lere.vaad;
 
-import java.awt.Point;
 
 
 /**
@@ -11,7 +10,7 @@ import java.awt.Point;
  * @author Leo Roos, Rene Hertling
  * 
  */
-public class AnimationProperties {
+public class BinaryTreeProperties {
 
 	public int sourceCodeSize = 12;
 

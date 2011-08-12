@@ -3,7 +3,7 @@ package de.lere.vaad.treebuilder;
 import java.awt.Color;
 import java.awt.Point;
 
-import de.lere.vaad.AnimationProperties;
+import de.lere.vaad.BinaryTreeProperties;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 
@@ -30,7 +30,7 @@ public class BinaryTreeLayout {
 	public double verticalGap;
 	public Color bgColor;
 	public String graphName;
-	public AnimationProperties aps;
+	public BinaryTreeProperties aps;
 
 	/**
 	 * Constructor to initialize a Layout for the
@@ -57,7 +57,7 @@ public class BinaryTreeLayout {
 		this.verticalGap = verticalGap;
 		this.bgColor = bgColor;
 		this.graphName = graphName;
-		this.aps = new AnimationProperties();
+		this.aps = new BinaryTreeProperties();
 	}
 
 	private static BinaryTreeLayout createDefaultLayout() {
@@ -72,7 +72,7 @@ public class BinaryTreeLayout {
 				DEFAULT_BG_COLOR, "DefaultGraphName");
 	}
 
-	public void setAnimationProperties(AnimationProperties aps) {
+	public void setAnimationProperties(BinaryTreeProperties aps) {
 		if (aps != null)
 			this.aps = aps;
 	}
