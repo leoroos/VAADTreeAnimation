@@ -5,12 +5,8 @@ import generators.framework.GeneratorType;
 import generators.framework.properties.AnimationPropertiesContainer;
 import generators.framework.properties.tree.PropertiesTreeModel;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Locale;
-
-import org.apache.commons.io.FileUtils;
 
 import algoanim.animalscript.AnimalScript;
 import algoanim.primitives.generators.Language;
@@ -52,14 +48,7 @@ public class BinarySearchTreeGenerator implements Generator {
         treeAnimation.setShowIntro(true);
         treeAnimation.buildAnimation();
         
-        String string = lang.toString();
-        try {
-			FileUtils.writeStringToFile(new File("/tmp/generatedbst.asu"), string);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-        
-		return string;
+        return lang.toString();
     }
 
     private Integer[] toIntegerArray(int[] knotenzahl) {
@@ -117,7 +106,11 @@ public class BinarySearchTreeGenerator implements Generator {
 //	    primitives.put(arrayName, array);?	
 		String generate = generator.generate(propertiesContainer, primitives);
 		System.out.println(generate);
-		
+//        try {
+//			FileUtils.writeStringToFile(new File("/tmp/generatedbst.asu"), generate);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}        
 	}
 
 }

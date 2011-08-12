@@ -1,3 +1,8 @@
+<!--Code Highlighting can be turned on via { .java }
+after the code initializing tildes e.g. ~~~ { .java }
+however, the produced style information can not be handled by
+animal's HTML renderer so that it ends up being printed 
+as text before the description-->
 
 ## Code Example
 
@@ -6,7 +11,7 @@
 Es gibt zwei typische Ansätze.
 Einmal direkt über die Knoten:
 
-~~~ { .java }
+~~~
 TreeSearch(x,k)
 if x== NIL or k == x.key
     return x
@@ -18,10 +23,10 @@ else
 
 Alternativ kann iterativ vorgegangen werden.
 
-Da insbesondere das löschen iterativ gehandhabt werden muss
+Da insbesondere das Löschen iterativ gehandhabt werden muss
 wird um die Konsistenz zu waren die iterative vorgehensweise animiert. 
 
-~~~ { .java }
+~~~ 
 IterativeTreeSearch(x,k)
 while x != NIL and k != x.key
     if k < x.key
@@ -33,7 +38,7 @@ return x
 
 ### Einfügen
 
-~~~ { .java }
+~~~ 
 TreeInsert(T,z)
 y = NIL
 x = T.root
@@ -56,7 +61,7 @@ else
 
 Beim Entfernen werden zwei Methoden in Kombination verwendet.
 
-~~~ { .java }
+~~~ 
 Transplant(T,u,v)
 if u.p == NIL
     T.root = v
@@ -68,7 +73,7 @@ if v != NIL
     v.p = u.p
 ~~~~
 
-~~~ { .java }
+~~~ 
 TreeDelete(T,z)
 if z.left == NIL
     Transplant(T,z,z.right)

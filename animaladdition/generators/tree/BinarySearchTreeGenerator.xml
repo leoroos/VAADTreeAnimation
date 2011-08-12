@@ -30,7 +30,7 @@
 				<name>highlightColor</name>
 				<isEditable value="true" />
 				<label></label>
-				<value><Color>(0, 0, 0)</Color></value>
+				<value><Color>(255, 0, 0)</Color></value>
 			</AnimationPropertyItem>
 			<AnimationPropertyItem type="ColorPropertyItem">
 				<name>elementColor</name>
