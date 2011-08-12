@@ -168,9 +168,15 @@ public class NodeTest {
 	}
 
 	@Test
-	public void shouldInsertEqualValueToTheLeft() throws Exception {
-		iroot.insert(10);
-		assertTillLevelOne(iroot, 10, 10, null);
+	public void shouldInsertEqualAccordingToNodeOrder() throws Exception {
+		int v = 10;
+		Node<Integer> root = new Node<Integer>(v);
+		root.insert(10);
+		if(NodeOrder.isEqualChildConsideredLeft(root.getValue(), v)) {
+			assertTillLevelOne(root, 10, 10, null);
+		} else {
+			assertTillLevelOne(root, null, 10, 10);
+		}
 	}
 
 	@Test

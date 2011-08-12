@@ -137,13 +137,12 @@ public class BinaryTreeModelTest {
 		Node<Integer> root = model.getRoot();
 		model.leftRotate(root);
 		verify(btmlMock, atLeastOnce()).update(argument.capture());
-		assertThat(argument.getValue(),
-				instanceOf(TreeLeftRotateEvent.class));
+		assertThat(argument.getValue(), instanceOf(TreeLeftRotateEvent.class));
 	}
 
 	private ArgumentCaptor<TreeModelChangeEvent> getCaptorTE() {
 		ArgumentCaptor<TreeModelChangeEvent> argument = ArgumentCaptor
-		.forClass(TreeModelChangeEvent.class);
+				.forClass(TreeModelChangeEvent.class);
 		return argument;
 	}
 
@@ -158,10 +157,9 @@ public class BinaryTreeModelTest {
 	public void shouldNotFireRightRotateEventOnOtherEvent() throws Exception {
 		ArgumentCaptor<TreeModelChangeEvent> captor = getCaptorTE();
 		TreeEventListener<Integer> btmlMock = createLinkBtmlMock(model);
-		model.insert(10);		
+		model.insert(10);
 		model.delete(10);
-		verify(btmlMock, atLeastOnce()).update(
-				captor.capture());
+		verify(btmlMock, atLeastOnce()).update(captor.capture());
 		assertThat(captor.getValue(), instanceOf(TreeDeleteEvent.class));
 	}
 
@@ -185,11 +183,11 @@ public class BinaryTreeModelTest {
 		Node<Integer> insert = model.insert(10);
 		BinaryTreeModel<Integer> after = model.copy();
 		verify(btmlMock, atLeastOnce()).update(captor.capture());
-		TreeInsertEvent expectedEvent = new TreeInsertEvent<Integer>(
-				before, after, insert, null);
+		TreeInsertEvent expectedEvent = new TreeInsertEvent<Integer>(before,
+				after, insert, null);
 		TreeModelChangeEvent actual = captor.getValue();
 		assertThat(actual, instanceOf(TreeInsertEvent.class));
-		assertThat((TreeInsertEvent)actual, equalTo(expectedEvent));
+		assertThat((TreeInsertEvent) actual, equalTo(expectedEvent));
 	}
 
 	@Test
@@ -222,11 +220,18 @@ public class BinaryTreeModelTest {
 	}
 
 	@Test
-	public void shouldInsertEqualValueToTheLeft() throws Exception {
+	public void shouldInsertEqualValueAccordingToNodeOrder() throws Exception {
 		BinaryTreeModel<Integer> model = BinaryTreeModel.createTreeByInsert(3,
 				2, 4);
 		model.insert(2);
-		assertThat(model.getRoot().getLeft().getLeft().getValue(), equalTo(2));
+		if (NodeOrder.isEqualChildConsideredLeft(model.getRoot().getLeft()
+				.getValue(), 2)) {
+			assertThat(model.getRoot().getLeft().getLeft().getValue(),
+					equalTo(2));
+		} else {
+			assertThat(model.getRoot().getLeft().getRight().getValue(),
+					equalTo(2));
+		}
 	}
 
 	@Test

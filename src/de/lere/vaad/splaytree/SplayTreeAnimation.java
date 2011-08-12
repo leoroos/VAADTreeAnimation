@@ -58,7 +58,7 @@ public class SplayTreeAnimation {
 		this.animationProperties = tp;
 		l.setStepMode(true);
 		this.layout = new BinaryTreeLayout(GRAPHROOT_COORDINATES, 200, 60);
-		this.lh = new LocationHandler(language, layout);
+		this.lh = new LocationHandler(language, tp);
 
 		DIRECTOR_HEADER = createHeaderLocDir();
 		DIRECTOR_DESCRIPTION_BEGINNING = createDescriptionBeginningLocDir(DIRECTOR_HEADER);

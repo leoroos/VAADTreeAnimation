@@ -5,18 +5,20 @@ import generators.framework.GeneratorType;
 import generators.framework.properties.AnimationPropertiesContainer;
 import generators.framework.properties.tree.PropertiesTreeModel;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Locale;
-import java.util.Set;
 
-import de.lere.vaad.BinaryTreeProperties;
-import de.lere.vaad.utils.TextLoaderUtil;
+import org.apache.commons.io.FileUtils;
 
 import algoanim.animalscript.AnimalScript;
 import algoanim.primitives.generators.Language;
 import algoanim.properties.GraphProperties;
 import algoanim.properties.SourceCodeProperties;
 import algoanim.properties.TextProperties;
+import de.lere.vaad.BinaryTreeProperties;
+import de.lere.vaad.utils.TextLoaderUtil;
 
 public class BinarySearchTreeGenerator implements Generator {
     private Language lang;
@@ -35,21 +37,39 @@ public class BinarySearchTreeGenerator implements Generator {
         SourceCodeProperties sourceCode = (SourceCodeProperties)props.getPropertiesByName("sourceCode");
         GraphProperties graphProps = (GraphProperties)props.getPropertiesByName("graphProperties");
         int[] knotenzahl = (int[])primitives.get("Knotenzahl");
-        
+        Integer[] initialTree = {20,2,14,6,1,4,23,345,34,90,12};
         
         BinaryTreeProperties btprops = new BinaryTreeProperties();
-        btprops.textProperties = TextProps;
-        btprops.sourceCodeProperties = sourceCode;
-        btprops.graphProperties = graphProps;
+        btprops.setTextProperties(TextProps);
+        btprops.setSourceCodeProperties(sourceCode);
+        btprops.setGraphProperties(graphProps);
         btprops.authors = getAnimationAuthor();
         btprops.title = getAlgorithmName();
         
-        new BinarySearchTreeAnimation(lang, btprops);
+        BinarySearchTreeAnimation<Integer> treeAnimation = new BinarySearchTreeAnimation<Integer>(lang, btprops, initialTree);
+        treeAnimation.setInsertionAnimation(toIntegerArray(knotenzahl));
+        treeAnimation.setShowIntro(true);
+        treeAnimation.buildAnimation();
         
-        return lang.toString();
+        String string = lang.toString();
+        try {
+			FileUtils.writeStringToFile(new File("/tmp/generatedbst.asu"), string);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+        
+		return string;
     }
 
-    public String getName() {
+    private Integer[] toIntegerArray(int[] knotenzahl) {
+		Integer[] result = new Integer[knotenzahl.length];
+		for (int i = 0; i < knotenzahl.length; i++) {
+			result[i] = knotenzahl[i];
+		}
+		return result;
+	}
+
+	public String getName() {
         return "Animation eines binären Suchbaumes";
     }
 

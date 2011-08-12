@@ -119,7 +119,7 @@ public class Node<T extends Comparable<T>> {
 	}
 
 	public Node<T> insert(T value) {
-		if (NodeOrder.isChildConsideredLeft(this.value, value)) {
+		if (NodeOrder.isEqualChildConsideredLeft(this.value, value)) {
 			if (this.hasLeftChild()) {
 				return this.getLeft().insert(value);
 			} else {

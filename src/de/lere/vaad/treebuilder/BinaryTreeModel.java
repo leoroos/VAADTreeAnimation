@@ -51,9 +51,14 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 	}
 
 	public int size() {
-		if (root == null)
+		if (root == null) {
 			return 0;
+		}
 		return root.size();
+	}
+
+	public boolean isEmpty() {
+		return size() == 0;
 	}
 
 	/**
@@ -131,7 +136,7 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 			y = x;
 			fireTreeInsertSource(TestingIfWhereToFromCurrent, x, value);
 			insertionResult.numOfComparisons++;
-			if (NodeOrder.isChildConsideredLeft(x.getValue(), value)) {
+			if (NodeOrder.isEqualChildConsideredLeft(x.getValue(), value)) {
 				x = x.getLeft();
 				fireTreeInsertSource(LookingAlongLeftChild, x, value);
 			} else {
@@ -172,8 +177,8 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 	private boolean checkWhetherLeftChildAndFireAccording(
 			InsertSourceCodePosition pos, Node<T> current, T value,
 			InsertionResult insertionResult) {
-		boolean leftChild = NodeOrder.isChildConsideredLeft(current.getValue(),
-				value);
+		boolean leftChild = NodeOrder.isEqualChildConsideredLeft(
+				current.getValue(), value);
 		insertionResult.numOfComparisons++;
 		fireTreeInsertSource(pos, current, value);
 		return leftChild;
@@ -269,22 +274,25 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == null)
+		if (obj == null) {
 			return false;
-		if (obj == this)
+		}
+		if (obj == this) {
 			return true;
-		if (obj instanceof BinaryTreeModel) {
+		}
+		if (obj.getClass() == this.getClass()) {
 			BinaryTreeModel<?> other = (BinaryTreeModel<?>) obj;
 			Node<T> root = this.root;
 			boolean rootsEqual = false;
-			if (root == null)
+			if (root == null) {
 				rootsEqual = other.root == null;
-			else {
+			} else {
 				rootsEqual = this.root.compareStructure(other.root);
 			}
 			return rootsEqual;
-		} else
+		} else {
 			return false;
+		}
 	}
 
 	@Override
@@ -293,8 +301,9 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 	}
 
 	private boolean hasEqualListener(BinaryTreeModel<?> other) {
-		if (this.listeners.size() != other.listeners.size())
+		if (this.listeners.size() != other.listeners.size()) {
 			return false;
+		}
 
 		boolean thiscontainsAll = this.listeners.containsAll(other.listeners);
 		if (thiscontainsAll) {
@@ -343,14 +352,16 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 	private void transplant(Node<T> old, Node<T> newnode) {
 		if (!old.hasParent()) {
 			root = newnode;
-			if (newnode != null)
+			if (newnode != null) {
 				newnode.setParent(null);
+			}
 		} else if (old.isLeftChild()) {
 			old.getParent().setLeft(newnode);
 		} else if (old.isRightChild()) {
 			old.getParent().setRight(newnode);
-		} else
+		} else {
 			throw new IllegalStateException();
+		}
 	}
 
 	/**
@@ -470,8 +481,9 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 			BinaryTreeModel<T> model, Node<T> node) {
 		List<Node<T>> nodes = model.getNodesInOrder();
 		int index = nodes.indexOf(node);
-		if (index < 0)
+		if (index < 0) {
 			return null;
+		}
 		return nodes.get(index);
 	}
 }
