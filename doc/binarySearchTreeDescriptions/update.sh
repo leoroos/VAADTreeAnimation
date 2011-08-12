@@ -1,12 +1,26 @@
 #!/bin/bash
 
-target="../../src/de/lere/vaad/binarysearchtree/resources/generatorDescription.html"
-codebeispiele="../../src/de/lere/vaad/binarysearchtree/resources/codeBeispiele.html"
+#Erzeugt die Algrithmus Beschreibung und die Code Beispiele
+
+mdDescription="AlgorithmDescription.md"
+mdCode="CodeBeispiele.md"
+
+pathToRoot="../.."
+relPath="animaladdition/generators/tree/resources"
+pathToTargetFolder="${pathToRoot}/${relPath}"
+
+target="${pathToTargetFolder}/generatorDescription.html"
+codebeispiele="${pathToTargetFolder}/codeBeispiele.html"
 
 cmd="pandoc -t html  -s --bibliography=biblio.bib"
 
-${cmd} AlgorithmDescription.md > ${target} 
+#${cmd} AlgorithmDescription.md > ${target} 
+#echo "written to ${target}"
+
+#Da animal keine einzelnen abgeschlossenen html Dateien unterscheiden kann hier alles in einer ... 
+${cmd} ${mdDescription} ${mdCode} > ${target}
 echo "written to ${target}"
 
-${cmd} CodeBeispiele.md > ${codebeispiele} 
+#Und damit trotzdem über getCodeExample was zurückkommt nochmal separat
+${cmd} ${mdCode} > ${codebeispiele} 
 echo "written to ${codebeispiele}"

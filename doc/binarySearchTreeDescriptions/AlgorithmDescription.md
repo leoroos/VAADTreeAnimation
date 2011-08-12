@@ -1,4 +1,4 @@
-# Der Binäre Suchbaum
+## Der Binäre Suchbaum
 
 Die Suchbaum Datenstruktur ermöglicht viele dynamische Operationen.
 Unter anderem werden *Suche*, *Minimum*, *Maximum*, *Vorgänger* und
@@ -15,12 +15,10 @@ Im Durchschnitt benötigen die Operation aber tatsächlich $\Theta(lg~n)$ Zeit.
 
 Alle Beschreibungen und Codebeispiele orientieren sich an Cormen [@cormen09, pp 286-298].
 
-## Animationen
+### Unterstützte Animationen
 
 Die Animation unterstützt drei Operationen:
 
 * Suchen
 * Einfügen
 * Löschen
-
-# Referenzen

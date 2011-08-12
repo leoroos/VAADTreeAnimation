@@ -83,7 +83,7 @@ public class FiddlerOnTheRoof {
 
 		System.out.println(animationCode);
 
-		File file = new File("/tmp/animationCode.asu");
+		File file = new File("/tmp/fiddlerOnTheRoof.asu");
 		try {
 			FileUtils.writeStringToFile(file, animationCode);
 		} catch (IOException e) {

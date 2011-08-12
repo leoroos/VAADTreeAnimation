@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode, table.sourceCode pre 
+   { margin: 0; padding: 0; border: 0; vertical-align: baseline; border: none; }
+td.lineNumbers { border-right: 1px solid #AAAAAA; text-align: right; color: #AAAAAA; padding-right: 5px; padding-left: 5px; }
+td.sourceCode { padding-left: 5px; }
+code.sourceCode span.kw { color: #007020; font-weight: bold; } 
+code.sourceCode span.dt { color: #902000; }
+code.sourceCode span.dv { color: #40a070; }
+code.sourceCode span.bn { color: #40a070; }
+code.sourceCode span.fl { color: #40a070; }
+code.sourceCode span.ch { color: #4070a0; }
+code.sourceCode span.st { color: #4070a0; }
+code.sourceCode span.co { color: #60a0b0; font-style: italic; }
+code.sourceCode span.ot { color: #007020; }
+code.sourceCode span.al { color: red; font-weight: bold; }
+code.sourceCode span.fu { color: #06287e; }
+code.sourceCode span.re { }
+code.sourceCode span.er { color: red; font-weight: bold; }
+  </style>
+</head>
+<body>
+<h2 id="code-example">Code Example</h2>
+<h3 id="suchen">Suchen</h3>
+<p>Es gibt zwei typische Ansätze. Einmal direkt über die Knoten:</p>
+<pre class="sourceCode"><code class="sourceCode java"><span class="fu">TreeSearch</span>(x,k)<br /><span class="kw">if</span> x== NIL or k == x.<span class="fu">key</span><br />    <span class="kw">return</span> x<br /><span class="kw">if</span> k &lt; x.<span class="fu">key</span><br />    <span class="kw">return</span> <span class="fu">TreeSearch</span>(x.<span class="fu">left</span>,k)<br /><span class="kw">else</span><br />    <span class="kw">return</span> <span class="fu">TreeSearch</span>(x.<span class="fu">right</span>,k)</code></pre>
+<p>Alternativ kann iterativ vorgegangen werden.</p>
+<p>Da insbesondere das löschen iterativ gehandhabt werden muss wird um die Konsistenz zu waren die iterative vorgehensweise animiert.</p>
+<pre class="sourceCode"><code class="sourceCode java"><span class="fu">IterativeTreeSearch</span>(x,k)<br /><span class="kw">while</span> x != NIL and k != x.<span class="fu">key</span><br />    <span class="kw">if</span> k &lt; x.<span class="fu">key</span><br />        x = x.<span class="fu">left</span><br />    <span class="kw">else</span><br />        x = x.<span class="fu">right</span><br /><span class="kw">return</span> x</code></pre>
+<h3 id="einf&#252;gen">Einfügen</h3>
+<pre class="sourceCode"><code class="sourceCode java"><span class="fu">TreeInsert</span>(T,z)<br />y = NIL<br />x = T.<span class="fu">root</span><br /><span class="kw">while</span> x != NIL<br />     y = x<br />     <span class="kw">if</span> z.<span class="fu">key</span> &lt; x.<span class="fu">key</span><br />          x = x.<span class="fu">left</span><br />     <span class="kw">else</span><br />        x = x.<span class="fu">right</span><br />z.<span class="fu">p</span> = y<br /><span class="kw">if</span> y == NIL<br />     T.<span class="fu">root</span> = z<br />elseif z.<span class="fu">key</span> &lt; y.<span class="fu">key</span><br />     y.<span class="fu">left</span> = z<br /><span class="kw">else</span><br />     y.<span class="fu">right</span> = z</code></pre>
+<h3 id="entfernen">Entfernen</h3>
+<p>Beim Entfernen werden zwei Methoden in Kombination verwendet.</p>
+<pre class="sourceCode"><code class="sourceCode java"><span class="fu">Transplant</span>(T,u,v)<br /><span class="kw">if</span> u.<span class="fu">p</span> == NIL<br />    T.<span class="fu">root</span> = v<br />elseif u == u.<span class="fu">p</span>.<span class="fu">left</span><br />    u.<span class="fu">p</span>.<span class="fu">left</span> = v<br /><span class="kw">else</span><br />    u.<span class="fu">p</span>.<span class="fu">right</span> = v<br /><span class="kw">if</span> v != NIL<br />    v.<span class="fu">p</span> = u.<span class="fu">p</span></code></pre>
+<pre class="sourceCode"><code class="sourceCode java"><span class="fu">TreeDelete</span>(T,z)<br /><span class="kw">if</span> z.<span class="fu">left</span> == NIL<br />    <span class="fu">Transplant</span>(T,z,z.<span class="fu">right</span>)<br />elseif z.<span class="fu">right</span> == NIL<br />    <span class="fu">Transplant</span>(T,z,z.<span class="fu">left</span>)<br /><span class="kw">else</span><br />    y = <span class="fu">TreeMinimum</span>(z.<span class="fu">right</span>)<br />    <span class="kw">if</span> y.<span class="fu">p</span> != z<br />        <span class="fu">Transplant</span>(T,y,y.<span class="fu">right</span>)<br />        y.<span class="fu">right</span> = z.<span class="fu">right</span><br />        y.<span class="fu">right</span>.<span class="fu">p</span> = y<br />    <span class="fu">Transplant</span>(T,z,y)<br />    y.<span class="fu">left</span> = z.<span class="fu">left</span><br />    y.<span class="fu">left</span>.<span class="fu">p</span> = y</code></pre>
+</body>
+</html>

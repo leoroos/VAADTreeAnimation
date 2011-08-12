@@ -1,4 +1,10 @@
-##Suchen
+
+## Code Example
+
+### Suchen
+
+Es gibt zwei typische Ansätze.
+Einmal direkt über die Knoten:
 
 ~~~ { .java }
 TreeSearch(x,k)
@@ -10,7 +16,10 @@ else
     return TreeSearch(x.right,k)
 ~~~~~~~~~~
 
-Alternativ kann Iterativ vorgegangen werden.
+Alternativ kann iterativ vorgegangen werden.
+
+Da insbesondere das löschen iterativ gehandhabt werden muss
+wird um die Konsistenz zu waren die iterative vorgehensweise animiert. 
 
 ~~~ { .java }
 IterativeTreeSearch(x,k)
@@ -22,7 +31,7 @@ while x != NIL and k != x.key
 return x
 ~~~~~
 
-##Einfügen
+### Einfügen
 
 ~~~ { .java }
 TreeInsert(T,z)
@@ -43,7 +52,7 @@ else
      y.right = z
 ~~~~~~~~~~~~~
 
-##Entfernen
+### Entfernen
 
 Beim Entfernen werden zwei Methoden in Kombination verwendet.
 
