@@ -4,9 +4,9 @@
 	<AnimationProperties type="GraphProperties">
 			<AnimationPropertyItem type="StringPropertyItem">
 				<name>name</name>
-				<isEditable value="true" />
+				<isEditable value="false" />
 				<label></label>
-				<value><String>graphProperties</String></value>
+				<value><String>GraphProperties</String></value>
 			</AnimationPropertyItem>
 			<AnimationPropertyItem type="ColorPropertyItem">
 				<name>elemHighlight</name>
@@ -71,14 +71,8 @@
 			<AnimationPropertyItem type="IntegerPropertyItem">
 				<name>depth</name>
 				<isEditable value="true" />
-				<label>IdoNotKnowWhatFor</label>
-				<value><int>1</int></value>
-			</AnimationPropertyItem>
-			<AnimationPropertyItem type="StringPropertyItem">
-				<name>name</name>
-				<isEditable value="true" />
 				<label></label>
-				<value><String>graphProperties</String></value>
+				<value><int>1</int></value>
 			</AnimationPropertyItem>
 		</AnimationProperties>
 		<AnimationProperties type="TextProperties">
@@ -110,12 +104,12 @@
 				<name>name</name>
 				<isEditable value="true" />
 				<label></label>
-				<value><String>TextProps</String></value>
+				<value><String>TextProperties</String></value>
 			</AnimationPropertyItem>
 			<AnimationPropertyItem type="IntegerPropertyItem">
 				<name>depth</name>
 				<isEditable value="true" />
-				<label>IdoNotKnowWhatFor</label>
+				<label></label>
 				<value><int>1</int></value>
 			</AnimationPropertyItem>
 		</AnimationProperties>
@@ -154,7 +148,7 @@
 				<name>name</name>
 				<isEditable value="true" />
 				<label></label>
-				<value><String>sourceCode</String></value>
+				<value><String>SourceCodeProperties</String></value>
 			</AnimationPropertyItem>
 			<AnimationPropertyItem type="ColorPropertyItem">
 				<name>contextColor</name>
@@ -194,8 +188,8 @@
 			</AnimationPropertyItem>
 		</AnimationProperties>				
 		<Primitive type="intArray">
-			<name>Knotenzahl</name>
-			<value><intArray>1, 2, 3, 4</intArray></value>
+			<name>InsertionKnoten</name>
+			<value><intArray>1, 15, 30, 5</intArray></value>
 		</Primitive>
 		<Primitive type="intArray">
 			<name>InitialBaumViaInsertion</name>
