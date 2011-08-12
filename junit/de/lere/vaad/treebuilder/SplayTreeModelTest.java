@@ -56,19 +56,19 @@ public class SplayTreeModelTest {
 	 * 				  /   \					   / \
 	 * 				 p 	   D				  A    p
 	 * 				/ \							  / \
-	 * 			   x   C			==>			 B   g
+	 * 			   x   C				==>		 B   g
 	 * 			  / \								/ \
 	 * 			 A   B							   C   D
 	 */
 	public void doesZigZigWhenXisLeftChildOfPandPisLeftChildOfG() {
 		// g,p,D,x,C,A,B
 		BinaryTreeModel<Integer> binaryTree = BinaryTreeModel
-				.createTreeByInsert(20, 10, 30, 5, 8, 1, 7);
+				.createTreeByInsert(20, 10, 30, 15, 8, 1, 9);
 		SplayTreeModel<Integer> model = SplayTreeModel.from(binaryTree);
-		Node<Integer> found = model.search(5);
+		Node<Integer> found = model.search(8);
 		assertThat(model.getRoot(), equalTo(found));
 		BinaryTreeModel<Integer> expected = BinaryTreeModel.createTreeByInsert(
-				5, 1, 10, 7, 20, 8, 30);
+				8, 1, 10, 9, 20, 15, 30);
 		assertThat(model, equalTo(expected));
 	}
 
@@ -96,23 +96,23 @@ public class SplayTreeModelTest {
 
 	@Test
 	/**
-	 * 				  g								 x 
-	 *		   		/   \						   /   \
-	 * 			   p     D						  p	    g
-	 * 			  / \				==>			 / \   / \
-	 * 			 A   x							A	B C   D
-	 * 				/ \
-	 * 			   B   C
+	 * 			  g								 x 
+	 *	  		/   \						   /   \
+	 * 		   p     D						  p	    g
+	 * 		  / \				==>			 / \   / \
+	 * 		 A   x							A	B C   D
+	 * 			/ \
+	 * 	  	   B   C
 	 */
 	public void doesZigZagIfXisRightChildOfPAndPIsLeftChildOfG() {
 		// g,p,D,A,x,B,C
 		BinaryTreeModel<Integer> binaryTree = BinaryTreeModel
-				.createTreeByInsert(30, 20, 40, 10, 15, 12, 18);
+				.createTreeByInsert(30, 20, 40, 10, 25, 22, 28);
 		SplayTreeModel<Integer> model = SplayTreeModel.from(binaryTree);
-		Node<Integer> found = model.search(15);
+		Node<Integer> found = model.search(25);
 		assertThat(model.getRoot(), equalTo(found));
 		BinaryTreeModel<Integer> expected = BinaryTreeModel.createTreeByInsert(
-				15, 20, 30, 10, 12, 18, 40);
+				25, 20, 30, 10, 22, 28, 40);
 		assertThat(model, equalTo(expected));
 	}
 

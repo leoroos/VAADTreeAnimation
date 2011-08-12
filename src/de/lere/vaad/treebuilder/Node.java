@@ -165,14 +165,14 @@ public class Node<T extends Comparable<T>> {
 		}
 	}
 
-	boolean isRightChild() {
+	public boolean isRightChild() {
 		if (!hasParent())
 			return false;
 		return this.getParent().hasRightChild()
 				&& this.getParent().getRight().equals(this);
 	}
 
-	boolean isLeftChild() {
+	public boolean isLeftChild() {
 		if (!hasParent())
 			return false;
 		return this.getParent().hasLeftChild()
@@ -243,9 +243,9 @@ public class Node<T extends Comparable<T>> {
 		} else
 			return false;
 	}
-	
+
 	@Override
-	public int hashCode() {		
+	public int hashCode() {
 		return 11 * getUid().hashCode();
 	}
 

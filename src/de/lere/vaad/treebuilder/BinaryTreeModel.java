@@ -1,5 +1,17 @@
 package de.lere.vaad.treebuilder;
-import static de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition.*;
+
+import static de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition.CheckingIfInsertionPossible;
+import static de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition.CheckingIfNewIsRoot;
+import static de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition.CheckingIfToSetLeftInFinalStep;
+import static de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition.FinalIsSettingAsLeftChildFrom;
+import static de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition.FinalIsSettingAsRightChildFrom;
+import static de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition.FinalIsSettingToRoot;
+import static de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition.Init;
+import static de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition.LookingAlongLeftChild;
+import static de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition.LookingAlongRightChild;
+import static de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition.SettingParentForNewCurrentNode;
+import static de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition.TestingIfWhereToFromCurrent;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -11,15 +23,12 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing;
 import de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition;
-import de.lere.vaad.utils.NodeHelper;
 
 /**
  * @author Leo Roos, Rene Hertling Represents the logical structure of a binary
  *         tree. Contains the root and convience-method for child-node access.
  */
 public class BinaryTreeModel<T extends Comparable<T>> {
-
-
 
 	private Node<T> root;
 
@@ -98,15 +107,15 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 		}
 		return -1;
 	}
-	
+
 	/**
-	 * carries information of interest about the insertion algorithm 
+	 * carries information of interest about the insertion algorithm
 	 * 
 	 * @author Leo Roos, Rene Hertling
-	 *
+	 * 
 	 */
 	public class InsertionResult {
-		
+
 		public int numOfComparisons = 0;
 
 	}
@@ -116,53 +125,64 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 		BinaryTreeModel<T> before = this.copy();
 		Node<T> y = null;
 		Node<T> x = getRoot();
-		fireTreeInsertSource(Init,x, value);
-		while(!ifIsNullIncrCompsFireEvent(x,insertionResult,value,CheckingIfInsertionPossible)){			
+		fireTreeInsertSource(Init, x, value);
+		while (!ifIsNullIncrCompsFireEvent(x, insertionResult, value,
+				CheckingIfInsertionPossible)) {
 			y = x;
-			fireTreeInsertSource(TestingIfWhereToFromCurrent,x,value);
+			fireTreeInsertSource(TestingIfWhereToFromCurrent, x, value);
 			insertionResult.numOfComparisons++;
-			if(NodeOrder.isChildConsideredLeft(x.getValue(), value)){
+			if (NodeOrder.isChildConsideredLeft(x.getValue(), value)) {
 				x = x.getLeft();
-				fireTreeInsertSource(LookingAlongLeftChild,x, value);
+				fireTreeInsertSource(LookingAlongLeftChild, x, value);
 			} else {
 				x = x.getRight();
-				fireTreeInsertSource(LookingAlongRightChild,x, value);
+				fireTreeInsertSource(LookingAlongRightChild, x, value);
 			}
 		}
-		fireTreeInsertSource(SettingParentForNewCurrentNode,y, value);
-		Node<T> finalToInsert = new Node<T>(value);		
+		fireTreeInsertSource(SettingParentForNewCurrentNode, y, value);
+		Node<T> finalToInsert = new Node<T>(value);
 		finalToInsert.setParent(y);
-		if(ifIsNullIncrCompsFireEvent(y, insertionResult, value,CheckingIfNewIsRoot)){
+		if (ifIsNullIncrCompsFireEvent(y, insertionResult, value,
+				CheckingIfNewIsRoot)) {
 			this.root = finalToInsert;
-			fireTreeInsertSource(FinalIsSettingToRoot,finalToInsert, value);
-		} else if (checkWhetherLeftChildAndFireAccording(CheckingIfToSetLeftInFinalStep, y, value, insertionResult) ) {			
-			fireTreeInsertSource(FinalIsSettingAsLeftChildFrom,y, value);
+			fireTreeInsertSource(FinalIsSettingToRoot, finalToInsert, value);
+		} else if (checkWhetherLeftChildAndFireAccording(
+				CheckingIfToSetLeftInFinalStep, y, value, insertionResult)) {
+			fireTreeInsertSource(FinalIsSettingAsLeftChildFrom, y, value);
 			y.setLeft(finalToInsert);
 		} else {
-			fireTreeInsertSource(FinalIsSettingAsRightChildFrom,finalToInsert,value);
+			fireTreeInsertSource(FinalIsSettingAsRightChildFrom, finalToInsert,
+					value);
 			y.setRight(finalToInsert);
 		}
-				
-		fireChange(new TreeInsertEvent<T>(before, this.copy(), finalToInsert, insertionResult));
+
+		fireChange(new TreeInsertEvent<T>(before, this.copy(), finalToInsert,
+				insertionResult));
 		return finalToInsert;
 	}
 
 	private boolean ifIsNullIncrCompsFireEvent(Node<T> nullCheckOn,
-			InsertionResult insertionResult, T value, InsertSourceCodePosition eventToFire) {
+			InsertionResult insertionResult, T value,
+			InsertSourceCodePosition eventToFire) {
 		insertionResult.numOfComparisons++;
-		fireTreeInsertSource(eventToFire,nullCheckOn, value);
+		fireTreeInsertSource(eventToFire, nullCheckOn, value);
 		return nullCheckOn == null;
 	}
 
-	private boolean checkWhetherLeftChildAndFireAccording(InsertSourceCodePosition pos, Node<T> current, T value, InsertionResult insertionResult) {
-		boolean leftChild = NodeOrder.isChildConsideredLeft(current.getValue(), value);
+	private boolean checkWhetherLeftChildAndFireAccording(
+			InsertSourceCodePosition pos, Node<T> current, T value,
+			InsertionResult insertionResult) {
+		boolean leftChild = NodeOrder.isChildConsideredLeft(current.getValue(),
+				value);
 		insertionResult.numOfComparisons++;
 		fireTreeInsertSource(pos, current, value);
 		return leftChild;
 	}
 
-	private void fireTreeInsertSource(InsertSourceCodePosition pos, Node<T> x, T value) {
-		fireChange(new TreeInsertSourceCodeTraversing<T>(pos, this.copy(), x, value));
+	private void fireTreeInsertSource(InsertSourceCodePosition pos, Node<T> x,
+			T value) {
+		fireChange(new TreeInsertSourceCodeTraversing<T>(pos, this.copy(), x,
+				value));
 	}
 
 	void fireChange(TreeEvent<T> event) {
@@ -253,7 +273,7 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 			return false;
 		if (obj == this)
 			return true;
-		if (obj.getClass() == this.getClass()) {
+		if (obj instanceof BinaryTreeModel) {
 			BinaryTreeModel<?> other = (BinaryTreeModel<?>) obj;
 			Node<T> root = this.root;
 			boolean rootsEqual = false;
@@ -334,8 +354,10 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 	}
 
 	/**
-	 * @param deletee node to delete
-	 * @return the node with which the deleted node has been replaced. Maybe <code>null</code> for root or leaf.
+	 * @param deletee
+	 *            node to delete
+	 * @return the node with which the deleted node has been replaced. Maybe
+	 *         <code>null</code> for root or leaf.
 	 */
 	Node<T> delete(Node<T> deletee) {
 		if (!deletee.hasLeftChild()) {
@@ -358,7 +380,7 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 
 	public Node<T> search(T v) {
 		Node<T> found = internalSearch(v);
-		fireChange(new TreeSearchEvent<T>(this.copy(),this.copy(),found));
+		fireChange(new TreeSearchEvent<T>(this.copy(), this.copy(), found));
 		return found;
 	}
 
@@ -381,15 +403,16 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 	 *            the node to rotate around
 	 * @return the root of the rotated subtree which is defined by x.
 	 */
-	public Node<T> leftRotate(Node<T> x) {		
+	public Node<T> leftRotate(Node<T> x) {
 		BinaryTreeModel<T> before = this.copy();
 		Node<T> nodeOfInterest;
 		if (x.hasRightChild()) {
 			nodeOfInterest = doLeftRotate(x);
 		} else {
-			nodeOfInterest = x;			
+			nodeOfInterest = x;
 		}
-		fireChange(new TreeLeftRotateEvent<T>(before, this.copy(), nodeOfInterest));
+		fireChange(new TreeLeftRotateEvent<T>(before, this.copy(),
+				nodeOfInterest));
 		return nodeOfInterest;
 	}
 
@@ -419,7 +442,8 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 		} else {
 			nodeOfInterest = x;
 		}
-		fireChange(new TreeRightRotateEvent<T>(before, this.copy(), nodeOfInterest));
+		fireChange(new TreeRightRotateEvent<T>(before, this.copy(),
+				nodeOfInterest));
 		return nodeOfInterest;
 	}
 
@@ -440,13 +464,13 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 		y.setRight(x);
 		return y;
 	}
-	
-	//FIXME is this still relevant?
+
+	// FIXME is this still relevant?
 	public static <T extends Comparable<T>> Node<T> lookupNodeByID(
-			BinaryTreeModel<T> model, Node<T> node){
+			BinaryTreeModel<T> model, Node<T> node) {
 		List<Node<T>> nodes = model.getNodesInOrder();
 		int index = nodes.indexOf(node);
-		if(index < 0)
+		if (index < 0)
 			return null;
 		return nodes.get(index);
 	}

@@ -40,7 +40,35 @@ public class SplayTreeModel<T extends Comparable<T>> extends BinaryTreeModel<T> 
 		return found;
 	}
 
-	private void splay(Node<T> insertedNode) {
-
+	private void splay(Node<T> x) {
+		if (x == null) {
+			return;
+		}
+		Node<T> p = x.getParent();
+		if (x.equals(this.getRoot())) {
+			return;
+		} else if (p.equals(this.getRoot())) {
+			if (x.isLeftChild()) {
+				rightRotate(this.getRoot());
+			} else {
+				leftRotate(this.getRoot());
+			}
+		} else {
+			Node<T> g = p.getParent();
+			if (x.equals(p.getLeft()) && p.equals(g.getLeft())) {
+				rightRotate(g);
+				rightRotate(p);
+			} else if (x.equals(p.getRight()) && p.equals(g.getRight())) {
+				leftRotate(g);
+				leftRotate(p);
+			} else if (x.equals(p.getRight()) && p.equals(g.getLeft())) {
+				leftRotate(p);
+				rightRotate(g);
+			} else if (x.equals(p.getLeft()) && p.equals(g.getRight())) {
+				rightRotate(p);
+				leftRotate(g);
+			}
+		}
+		splay(x);
 	}
 }
