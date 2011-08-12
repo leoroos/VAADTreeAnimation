@@ -71,27 +71,5 @@ public class SplayTreeModel<T extends Comparable<T>> extends BinaryTreeModel<T> 
 		}
 		splay(x);
 	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == null) {
-			return false;
-		}
-		if (obj == this) {
-			return true;
-		}
-		if (obj.getClass() == this.getClass()) {
-			SplayTreeModel<?> other = (SplayTreeModel<?>) obj;
-			Node<T> root = this.getRoot();
-			boolean rootsEqual = false;
-			if (root == null) {
-				rootsEqual = other.getRoot() == null;
-			} else {
-				rootsEqual = this.getRoot().compareStructure(other.getRoot());
-			}
-			return rootsEqual;
-		} else {
-			return false;
-		}
-	}
+
 }
