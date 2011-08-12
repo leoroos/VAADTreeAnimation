@@ -9,6 +9,7 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Set;
 
+import de.lere.vaad.BinaryTreeProperties;
 import de.lere.vaad.utils.TextLoaderUtil;
 
 import algoanim.animalscript.AnimalScript;
@@ -36,9 +37,14 @@ public class BinarySearchTreeGenerator implements Generator {
         int[] knotenzahl = (int[])primitives.get("Knotenzahl");
         
         
+        BinaryTreeProperties btprops = new BinaryTreeProperties();
+        btprops.textProperties = TextProps;
+        btprops.sourceCodeProperties = sourceCode;
+        btprops.graphProperties = graphProps;
+        btprops.authors = getAnimationAuthor();
+        btprops.title = getAlgorithmName();
         
-        
-//        new BinarySearchTreeAnimation(lang, null);
+        new BinarySearchTreeAnimation(lang, btprops);
         
         return lang.toString();
     }

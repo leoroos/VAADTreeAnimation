@@ -25,7 +25,7 @@ public class TextLoaderUtil {
 		} else
 			relPath = new File(name);
 
-		InputStream resourceAsStream = relLoader.getClass()
+		InputStream resourceAsStream = relLoader
 				.getResourceAsStream(relPath.getPath());
 		InputStreamReader reader;
 		try {

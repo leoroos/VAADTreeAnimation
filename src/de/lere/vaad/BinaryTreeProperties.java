@@ -1,5 +1,11 @@
 package de.lere.vaad;
 
+import algoanim.properties.AnimationPropertiesKeys;
+import algoanim.properties.GraphProperties;
+import algoanim.properties.SourceCodeProperties;
+import algoanim.properties.TextProperties;
+import algoanim.properties.items.FontPropertyItem;
+
 
 
 /**
@@ -36,7 +42,13 @@ public class BinaryTreeProperties {
 	/**
 	 * Screen resolution in pixel
 	 */
-	public ScreenResolution screenResolution = new ScreenResolution(640, 480);
+	public ScreenResolution screenResolution = new ScreenResolution(800, 600);
+
+	public GraphProperties graphProperties;
+
+	public SourceCodeProperties sourceCodeProperties;
+
+	public TextProperties textProperties;
 
 	
 	public static class ScreenResolution{
@@ -47,5 +59,5 @@ public class BinaryTreeProperties {
 		public final int width;
 		public final int height;
 	}
-	
+
 }

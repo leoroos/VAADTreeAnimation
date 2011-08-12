@@ -87,18 +87,19 @@ public class BinarySearchTreeAnimation {
 	/**
 	 * Container Object for properties of this Animation
 	 */
-	private BinaryTreeProperties splayProps = new BinaryTreeProperties();
 
 	private LocationHandler lh;
 
 	private TextLoaderUtil textLoader;
 
-	private BinarySearchTreeAnimation(Language l, BinaryTreeProperties tp) {
+	public BinarySearchTreeAnimation(Language l, BinaryTreeProperties tp) {
+		if(l == null || tp == null)
+			throw new IllegalArgumentException("no null values allowed");
 		this.language = l;
 		this.animationProperties = tp;
 		l.setStepMode(true);
 		this.layout = new BinaryTreeLayout(GRAPHROOT_COORDINATES, 160, 60);
-		lh = new LocationHandler(this.language, this.layout);
+		this.lh = new LocationHandler(this.language, this.layout);
 		this.textLoader = new TextLoaderUtil(getClass(), "resources");
 		this.INITIAL_DESCRIPTION = textLoader.getText("initialDescription.txt");
 
@@ -534,8 +535,9 @@ public class BinarySearchTreeAnimation {
 			LocationDirector<Coordinates> headerPos) {
 		Text headerDummyPrimitive = language.newText(headerPos.getLocation(),
 				"12345678890", "headerDummyText", new Hidden());
+		int textVerticalHeight = this.animationProperties.textVerticalHeight;
 		Offset beginDescriptionLoc = new Offset(30,
-				2 * splayProps.textVerticalHeight, headerDummyPrimitive,
+				2 * textVerticalHeight, headerDummyPrimitive,
 				AnimalScript.DIRECTION_SE);
 		NextStateOnLocationDirector<Offset> director = new NextStateOnLocationDirector<Offset>(
 				beginDescriptionLoc);
