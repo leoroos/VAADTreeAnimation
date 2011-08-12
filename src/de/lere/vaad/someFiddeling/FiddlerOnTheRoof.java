@@ -99,7 +99,7 @@ public class FiddlerOnTheRoof {
 				language);
 		animator.addAnimatior(new ExtractedBinaryTreeAnimations<Integer>(writer));
 		animator.setLayout(this.layout);		
-		List<Integer> ints = createSomeInts(15);
+		List<Integer> ints = createSomeInts(12);
 		BinaryTreeModel<Integer> model = BinaryTreeModel
 				.createTreeByInsert(ints);
 		SplayTreeModel<Integer> splayTreeModel = SplayTreeModel.from(model);		
