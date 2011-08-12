@@ -1,5 +1,7 @@
-package de.lere.vaad.treebuilder;
+package de.lere.vaad.animation;
 
+import de.lere.vaad.treebuilder.BinaryTreeModel;
+import de.lere.vaad.treebuilder.Node;
 import algoanim.util.Timing;
 
 /**

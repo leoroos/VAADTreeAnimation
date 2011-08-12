@@ -13,8 +13,6 @@ import junit.framework.AssertionFailedError;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.lere.vaad.OffsetFactory;
-import de.lere.vaad.OffsetFactoryImpl;
 import de.lere.vaad.utils.CorrectedOffset;
 import de.lere.vaad.utils.NodeHelper;
 
@@ -117,7 +115,7 @@ public class CorrectedOffsetTest {
 		assertNotNull(aTextBasedOnCoordinate);
 	}
 
-	class OffsetMock extends Offset {
+	static class OffsetMock extends Offset {
 
 		private Node mynode;
 		private int ref;

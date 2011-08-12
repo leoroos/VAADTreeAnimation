@@ -1,36 +1,42 @@
-package de.lere.vaad.treebuilder;
+package de.lere.vaad.treebuilder.events;
 
-import static de.lere.vaad.treebuilder.Timings.NOW;
-import static de.lere.vaad.treebuilder.Timings.SHORT_ANIMATION;
+import static de.lere.vaad.animation.Timings.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import de.lere.vaad.animation.GraphWriter;
+import de.lere.vaad.animation.ProgressTiming;
+import de.lere.vaad.animation.Timings;
+import de.lere.vaad.animation.TreeAnimator;
+import de.lere.vaad.treebuilder.BinaryTreeModel;
+import de.lere.vaad.treebuilder.Node;
+
 import algoanim.primitives.generators.Language;
 import algoanim.util.TicksTiming;
 
-public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
-		TreeAnimator<T> {
+public class TreeModelChangeEventListener<T extends Comparable<T>> implements
+		TreeAnimator<T>, TreeEventListener<T> {
 
 	private GraphWriter<T> writer;
+	private final Language lang;
 
-	public ExtractedBinaryTreeAnimations(GraphWriter<T> writer) {
+	public TreeModelChangeEventListener(Language language, GraphWriter<T> writer) {
+		this.lang = language;
 		if (writer == null) {
 			throw new IllegalArgumentException("Writer must not be null");
 		}
 		this.writer = writer;
 	}
 
-	public void animateRotateRight(Language lang,
-			TreeRightRotateEvent<T> event, BinaryTreeLayout layout) {
+	public void animateRotateRight(TreeRightRotateEvent<T> event) {
 		if (event.beforeChange.equals(event.afterChange)) {
 			return;
 		}
-		writer.buildGraph(event.beforeChange, Timings.NOW);
+		writer.buildGraph(event.beforeChange);
 
-		StepTiming stepTiming = new StepTiming(Timings.NOW,
-				Timings.SHORT_ANIMATION);
+		ProgressTiming stepTiming = createRotateTimings();
 
 		Node<T> rotateAround = event.nodeOfModification;
 		Node<T> nodeInOriginal = BinaryTreeModel.lookupNodeByID(
@@ -41,34 +47,37 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 		Node<T> parentOfDetach = nodeInOriginal;
 		Node<T> nodeToDetach = parentOfDetach.getRight();
 		writer.highlightEdge(event.beforeChange, parentOfDetach, nodeToDetach,
-				stepTiming.now(), new TicksTiming(25));
+				stepTiming.now(), stepTiming.getInterval());
 		writer.highlightEdge(event.beforeChange, grandParentOfRotate,
-				parentOfRotate, stepTiming.now(), stepTiming.newInterval(25));
+				parentOfRotate, stepTiming.now(), stepTiming.progress());
 		writer.hideEdge(event.beforeChange, parentOfDetach, nodeToDetach,
-				stepTiming.now(), new TicksTiming(25));
+				stepTiming.now(), stepTiming.getInterval());
 		writer.hideEdge(event.beforeChange, grandParentOfRotate,
-				parentOfRotate, stepTiming.now(), stepTiming.newInterval(25));
+				parentOfRotate, stepTiming.now(), stepTiming.progress());
 		writer.translateNodes(event.beforeChange, event.afterChange,
-				stepTiming.now(), stepTiming.newInterval(100));
+				stepTiming.now(), stepTiming.progress(LONG_ANIMATION));
 		writer.buildGraph(event.afterChange, stepTiming.now());
 		Node<T> right = event.nodeOfModification.getRight();
 		Node<T> rightLeft = right != null ? right.getLeft() : null;
 		writer.highlightEdge(event.afterChange, right, rightLeft,
-				stepTiming.now(), Timings.SHORT_ANIMATION);
+				stepTiming.now(), stepTiming.getInterval());
 		writer.unhighlightEdge(event.afterChange, right, rightLeft,
-				stepTiming.now(), stepTiming.newInterval(25));
+				stepTiming.now(), stepTiming.progress());
 		lang.nextStep();
 	}
 
-	public void animateRotateLeft(Language lang, TreeLeftRotateEvent<T> event,
-			BinaryTreeLayout layout) {
+	private ProgressTiming createRotateTimings() {
+		return new ProgressTiming(Timings.NOW,
+				Timings.DEFAULT_ANIMATION);
+	}
+
+	public void animateRotateLeft(TreeLeftRotateEvent<T> event) {
 		if (event.beforeChange.equals(event.afterChange)) {
 			return;
 		}
-		writer.buildGraph(event.beforeChange, Timings.NOW);
+		writer.buildGraph(event.beforeChange);
 
-		StepTiming stepTiming = new StepTiming(Timings.NOW,
-				Timings.SHORT_ANIMATION);
+		ProgressTiming stepTiming = createRotateTimings();
 
 		Node<T> rotateAround = event.nodeOfModification;
 		Node<T> nodeInOriginal = BinaryTreeModel.lookupNodeByID(
@@ -79,31 +88,30 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 		Node<T> parentOfDetach = nodeInOriginal;
 		Node<T> nodeToDetach = parentOfDetach.getLeft();
 		writer.highlightEdge(event.beforeChange, parentOfDetach, nodeToDetach,
-				stepTiming.now(), stepTiming.newInterval(25));
+				stepTiming.now(), stepTiming.getInterval());
 		writer.highlightEdge(event.beforeChange, grandParentOfRotate,
-				parentOfRotate, stepTiming.now(), stepTiming.newInterval(25));
+				parentOfRotate, stepTiming.now(), stepTiming.progress());
 		writer.hideEdge(event.beforeChange, parentOfDetach, nodeToDetach,
-				stepTiming.now(), stepTiming.newInterval(25));
+				stepTiming.now(), stepTiming.getInterval());
 		writer.hideEdge(event.beforeChange, grandParentOfRotate,
-				parentOfRotate, stepTiming.now(), stepTiming.newInterval(25));
+				parentOfRotate, stepTiming.now(), stepTiming.progress());
 		writer.translateNodes(event.beforeChange, event.afterChange,
-				stepTiming.now(), stepTiming.newInterval(100));
+				stepTiming.now(), stepTiming.progress(LONG_ANIMATION.getDelay()));
 		writer.buildGraph(event.afterChange, stepTiming.now());
 		Node<T> left = event.nodeOfModification.getLeft();
 		Node<T> leftRight = left != null ? left.getLeft() : null;
 		writer.highlightEdge(event.afterChange, left, leftRight,
-				stepTiming.now(), Timings.SHORT_ANIMATION);
+				stepTiming.now(), stepTiming.getInterval());
 		writer.unhighlightEdge(event.afterChange, left, leftRight,
-				stepTiming.now(), stepTiming.newInterval(25));
+				stepTiming.now(), stepTiming.progress());
 		lang.nextStep();
 	}
 
-	public void animateInsert(Language lang, TreeInsertEvent<T> event,
-			BinaryTreeLayout layout) {
+	public void animateInsert(TreeInsertEvent<T> event) {
 		if (event.nodeOfModification == null)
 			return;
 
-		writer.buildGraph(event.afterChange, Timings.NOW);
+		writer.buildGraph(event.afterChange);
 
 		de.lere.vaad.treebuilder.Node<T> nodeOfModification = event.nodeOfModification;
 		Node<T> parentNode = nodeOfModification.getParent();
@@ -119,41 +127,31 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 				Timings.SHORT_ANIMATION);
 		lang.nextStep();
 
-		writer.buildGraph(event.afterChange, Timings.NOW);
+		writer.buildGraph(event.afterChange);
 
 		lang.nextStep();
 	}
 
-	public void animateDelete(Language lang, TreeDeleteEvent<T> event,
-			BinaryTreeLayout layout) {
+	public void animateDelete(TreeDeleteEvent<T> event) {
 		if (event.nodeOfModification == null)
 			return;
 
 		writer.highlightNode(event.beforeChange, event.nodeOfModification,
-				Timings.NOW, Timings.DELETE_NODE_HIGHLIGHT_DURATION);
+				Timings.NOW, Timings.SHORT_ANIMATION);
 
 		writer.highlightNode(event.beforeChange, event.successor,
-				Timings.DELETE_NODE_HIGHLIGHT_DURATION,
-				Timings.DELETE_NODE_HIGHLIGHT_DURATION);
+				Timings.SHORT_ANIMATION,
+				Timings.SHORT_ANIMATION);
 
 		lang.nextStep();
 
-		//
-		// lastCreatedGraph.unhighlightNode(
-		// indexedNodes, DELETE_NODE_HIGHLIGHT_DURATION,
-		// DELETE_NODE_HIGHLIGHT_DURATION);
-		// infos.graph.highlightNode(endNode, NOW, HIGHLIGHT_EDGE_DURATION);
-		// infos.graph.highlightEdge(startNode, endNode, NOW,
-		// HIGHLIGHT_EDGE_DURATION);
-		//
-		writer.buildGraph(event.afterChange, Timings.NOW);
+		writer.buildGraph(event.afterChange);
 
 		lang.nextStep();
 	}
 
-	public void animateNew(Language lang, BinaryTreeModel<T> model,
-			BinaryTreeLayout layout) {
-		writer.buildGraph(model, Timings.NOW);
+	public void animateNew(Language lang, BinaryTreeModel<T> model) {
+		writer.buildGraph(model);
 		lang.nextStep();
 	}
 
@@ -182,21 +180,27 @@ public class ExtractedBinaryTreeAnimations<T extends Comparable<T>> implements
 	}
 
 	@Override
-	public void animate(Language lang, TreeEvent<T> event,
-			BinaryTreeLayout layout) {
-		if (event instanceof TreeInsertEvent<?>) {
-			animateInsert(lang, (TreeInsertEvent<T>) event, layout);
-		} else if (event instanceof TreeDeleteEvent<?>) {
-			animateDelete(lang, (TreeDeleteEvent<T>) event, layout);
-		} else if (event instanceof TreeLeftRotateEvent<?>) {
-			animateRotateLeft(lang, (TreeLeftRotateEvent<T>) event, layout);
-		} else if (event instanceof TreeRightRotateEvent<?>) {
-			animateRotateRight(lang, (TreeRightRotateEvent<T>) event, layout);
-		} else if (event instanceof TreeNewEvent<?>) {
-			animateNew(lang, ((TreeNewEvent<T>) event).beforeChange, layout);
-		} else if (event instanceof TreeSearchEvent<?>) {
-			update((TreeSearchEvent<T>) event);
+	public void animate(TreeEvent<T> event) {
+		if (event instanceof TreeModelChangeEvent<?>) {
+			if (event instanceof TreeInsertEvent<?>) {
+				animateInsert((TreeInsertEvent<T>) event);
+			} else if (event instanceof TreeDeleteEvent<?>) {
+				animateDelete((TreeDeleteEvent<T>) event);
+			} else if (event instanceof TreeLeftRotateEvent<?>) {
+				animateRotateLeft((TreeLeftRotateEvent<T>) event);
+			} else if (event instanceof TreeRightRotateEvent<?>) {
+				animateRotateRight((TreeRightRotateEvent<T>) event);
+			} else if (event instanceof TreeNewEvent<?>) {
+				animateNew(lang, ((TreeNewEvent<T>) event).beforeChange);
+			} else if (event instanceof TreeSearchEvent<?>) {
+				update((TreeSearchEvent<T>) event);
+			}
 		}
+		// only handling model change events
+	}
 
+	@Override
+	public void update(TreeEvent<T> event) {
+		animate(event);
 	}
 }

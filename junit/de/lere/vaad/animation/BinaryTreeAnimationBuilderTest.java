@@ -1,4 +1,4 @@
-package de.lere.vaad.treebuilder;
+package de.lere.vaad.animation;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.both;
@@ -21,6 +21,13 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
 import algoanim.animalscript.AnimalScript;
+import algoanim.properties.GraphProperties;
+import de.lere.vaad.treebuilder.BinaryTreeLayout;
+import de.lere.vaad.treebuilder.BinaryTreeModel;
+import de.lere.vaad.treebuilder.BuilderTestUtils;
+import de.lere.vaad.treebuilder.Node;
+import de.lere.vaad.treebuilder.events.TreeEventListenerAggregator;
+import de.lere.vaad.treebuilder.events.TreeInsertEvent;
 import de.lere.vaad.utils.GraphObject;
 import de.lere.vaad.utils.StrUtils;
 
@@ -54,7 +61,7 @@ public class BinaryTreeAnimationBuilderTest {
 
 	private BinaryTreeLayout createTestLayout() {
 		BinaryTreeLayout layout = new BinaryTreeLayout(
-				BUILDER_GRAPHROOT_COORDS, FIRST_LEVEL_WIDTH, VERTICAL_SPACING);
+				BUILDER_GRAPHROOT_COORDS, FIRST_LEVEL_WIDTH, VERTICAL_SPACING, new GraphProperties());
 		return layout;
 	}
 
@@ -144,7 +151,7 @@ public class BinaryTreeAnimationBuilderTest {
 		String animationCode = language.getAnimationCode();
 		String nthLastLine = StrUtils.getNthLastLine(animationCode, 2);
 		assertThat(Arrays.asList(nthLastLine.split(" ")), both(hasItem("hide"))
-				.and(hasItem("\"" + testee.getLayout().graphName + "\"")));
+				.and(hasItem("\"" + testee.getLayout().getGraphName() + "\"")));
 
 		assertNthLastAnimationLineIsGraphOfExpectedDimenstion(1, 5, 4);
 	}
@@ -173,7 +180,7 @@ public class BinaryTreeAnimationBuilderTest {
 		model.delete(2);
 		model.delete(2);
 		fail();
-		System.out.println(language.getAnimationCode());
+//		System.out.println(language.getAnimationCode());
 	}
 
 	@Test
@@ -191,6 +198,6 @@ public class BinaryTreeAnimationBuilderTest {
 		Node<Integer> delete2 = model.delete(root2);
 		assertThat(root2, equalTo(delete2));
 		fail();
-		System.out.println(language.getAnimationCode());
+//		System.out.println(language.getAnimationCode());
 	}
 }

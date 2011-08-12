@@ -1,14 +1,13 @@
 package de.lere.vaad.utils;
 
-import static org.junit.Assert.assertTrue;
-
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
@@ -24,13 +23,20 @@ public class GraphObject {
 		
 		@Override
 		public boolean equals(Object obj) {
-			if(obj == null)
+			if (obj == null)
 				return false;
-			if(obj.getClass() == this.getClass()){
+			else if (obj == this)
+				return true;
+			else if (obj.getClass() == this.getClass()) {
 				GraphEdge o = (GraphEdge) obj;
-				return o.from == this.from && o.to == this.to;
-			}
-			return false;
+				return new EqualsBuilder().append(this.from, o.from).append(this.to, o.to).isEquals();
+			} else
+				return false;
+		}
+		
+		@Override
+		public int hashCode() {
+			return HashCodeBuilder.reflectionHashCode(this);
 		}
 		
 		@Override
@@ -63,6 +69,11 @@ public class GraphObject {
 		@Override
 		public String toString() {
 			return ToStringBuilder.reflectionToString(this, ToStringStyle.SIMPLE_STYLE);
+		}
+		
+		@Override
+		public int hashCode() {
+			return HashCodeBuilder.reflectionHashCode(this);
 		}
 	}
 

@@ -35,9 +35,9 @@ import de.lere.vaad.locationhandler.LocationDirectorProvider;
 import de.lere.vaad.locationhandler.LocationHandler;
 import de.lere.vaad.locationhandler.LocationProvider;
 import de.lere.vaad.splaytree.resources.descriptions.SplayTreeResourceAccessor;
-import de.lere.vaad.treebuilder.TreeEventListenerAggregator;
 import de.lere.vaad.treebuilder.BinaryTreeLayout;
 import de.lere.vaad.treebuilder.BinaryTreeModel;
+import de.lere.vaad.treebuilder.events.TreeEventListenerAggregator;
 import de.lere.vaad.utils.CorrectedOffset;
 import de.lere.vaad.utils.NodeHelper;
 import de.lere.vaad.utils.StrUtils;
@@ -57,7 +57,7 @@ public class SplayTreeAnimation {
 		this.language = l;
 		this.animationProperties = tp;
 		l.setStepMode(true);
-		this.layout = new BinaryTreeLayout(GRAPHROOT_COORDINATES, 200, 60);
+		this.layout = new BinaryTreeLayout(GRAPHROOT_COORDINATES, 200, 60, tp.getGraphProperties());
 		this.lh = new LocationHandler(language, tp);
 
 		DIRECTOR_HEADER = createHeaderLocDir();

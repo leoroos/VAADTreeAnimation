@@ -1,4 +1,7 @@
-package de.lere.vaad.treebuilder;
+package de.lere.vaad.treebuilder.events;
+
+import de.lere.vaad.treebuilder.BinaryTreeModel;
+import de.lere.vaad.treebuilder.Node;
 
 public class TreeSearchEvent<T extends Comparable<T>> extends TreeModelChangeEvent<T> {
 

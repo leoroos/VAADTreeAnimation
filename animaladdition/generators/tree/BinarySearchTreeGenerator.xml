@@ -60,7 +60,7 @@
 				<name>directed</name>
 				<isEditable value="true" />
 				<label></label>
-				<value><boolean value="true" /></value>
+				<value><boolean value="false" /></value>
 			</AnimationPropertyItem>
 			<AnimationPropertyItem type="BooleanPropertyItem">
 				<name>weighted</name>

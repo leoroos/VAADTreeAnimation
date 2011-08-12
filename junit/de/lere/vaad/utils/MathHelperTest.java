@@ -1,6 +1,7 @@
 package de.lere.vaad.utils;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
@@ -129,6 +130,32 @@ public class MathHelperTest {
 			Point p = resls.get(i);
 			System.out.println((i+1) + " " + p);
 		}
+	}
+	
+	
+	@Test
+	public void numberOfNodesOnLevelSmallerZeroIsNull() throws Exception {
+		assertThat(MathHelper.getMaxNumberOfNodesForLevel(-1),equalTo(0));
+	}
+	
+	@Test
+	public void numberOfNodesOnLevelSmallerZeroIsNullGreaterNegNumber() throws Exception {
+		assertThat(MathHelper.getMaxNumberOfNodesForLevel(-2345),equalTo(0));
+	}
+	
+	@Test
+	public void numberOfNodesOnLevel0Is1() throws Exception {
+		assertThat(MathHelper.getMaxNumberOfNodesForLevel(0),equalTo(1));
+	}
+	
+	@Test
+	public void numberOfNodesOnLevel1Is2() throws Exception {
+		assertThat(MathHelper.getMaxNumberOfNodesForLevel(1),equalTo(2));
+	}
+	
+	@Test
+	public void numberOfNodesOnLevel10Is1024() throws Exception {
+		assertThat(MathHelper.getMaxNumberOfNodesForLevel(10),equalTo(1024));
 	}
 
 }

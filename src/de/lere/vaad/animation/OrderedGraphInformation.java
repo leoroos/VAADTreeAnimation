@@ -1,4 +1,4 @@
-package de.lere.vaad.treebuilder;
+package de.lere.vaad.animation;
 
 import java.awt.Color;
 import java.awt.Point;

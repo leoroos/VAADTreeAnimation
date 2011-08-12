@@ -2,9 +2,6 @@ package de.lere.vaad.treebuilder.events;
 
 import de.lere.vaad.treebuilder.BinaryTreeModel;
 import de.lere.vaad.treebuilder.Node;
-import de.lere.vaad.treebuilder.TreeEvent;
-import de.lere.vaad.treebuilder.TreeModelChangeEvent;
-import de.lere.vaad.treebuilder.TreeEventListener;
 import de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition;
 import edu.umd.cs.findbugs.annotations.NonNull;
 

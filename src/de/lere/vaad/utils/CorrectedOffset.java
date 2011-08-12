@@ -3,7 +3,6 @@ package de.lere.vaad.utils;
 import java.lang.reflect.Field;
 
 import de.lere.vaad.EndOfTheWorldException;
-import de.lere.vaad.OffsetFactory;
 
 import algoanim.util.Coordinates;
 import algoanim.util.Offset;

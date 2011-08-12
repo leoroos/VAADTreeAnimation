@@ -21,14 +21,14 @@ import algoanim.properties.SourceCodeProperties;
 import algoanim.util.Coordinates;
 import algoanim.util.Offset;
 import de.lere.vaad.BinaryTreeProperties;
+import de.lere.vaad.animation.GraphWriterImpl;
+import de.lere.vaad.animation.Timings;
 import de.lere.vaad.splaytree.SplayTreeModel;
 import de.lere.vaad.treebuilder.BinaryTreeLayout;
 import de.lere.vaad.treebuilder.BinaryTreeModel;
-import de.lere.vaad.treebuilder.ExtractedBinaryTreeAnimations;
-import de.lere.vaad.treebuilder.GraphWriterImpl;
 import de.lere.vaad.treebuilder.Node;
-import de.lere.vaad.treebuilder.Timings;
-import de.lere.vaad.treebuilder.TreeEventListenerAggregator;
+import de.lere.vaad.treebuilder.events.TreeEventListenerAggregator;
+import de.lere.vaad.treebuilder.events.TreeModelChangeEventListener;
 import de.lere.vaad.utils.NodeHelper;
 import de.lere.vaad.utils.StrUtils;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -51,7 +51,7 @@ public class FiddlerOnTheRoof {
 		l.setStepMode(true);
 		this.layout = new BinaryTreeLayout(
 				NodeHelper.convertCoordinatesToAWTPoint(GRAPHROOT_COORDINATES),
-				400, 60);
+				400, 60, BinaryTreeLayout.getDefaultGraphProperties());
 	}
 
 	/**
@@ -97,7 +97,7 @@ public class FiddlerOnTheRoof {
 				layout);
 		TreeEventListenerAggregator<Integer> animator = new TreeEventListenerAggregator<Integer>(
 				language);
-		animator.addAnimatior(new ExtractedBinaryTreeAnimations<Integer>(writer));
+		animator.addAnimatior(new TreeModelChangeEventListener<Integer>(language, writer));
 		animator.setLayout(this.layout);		
 		List<Integer> ints = createSomeInts(12);
 		BinaryTreeModel<Integer> model = BinaryTreeModel
@@ -169,33 +169,6 @@ public class FiddlerOnTheRoof {
 			throw new IllegalStateException("no source code has been set yet");
 		else
 			return sourceCode;
-	}
-
-	/**
-	 * Fills the {@link SourceCode} object {@code sc} with the lines provided by
-	 * {@code codeGroupText}.
-	 */
-	private SourceCode getFilledSourceCode(String codeGroupText, SourceCode sc) {
-		List<String> split = StrUtils.toLines(codeGroupText);
-		for (int i = 0; i < split.size(); i++) {
-			sc.addCodeLine(split.get(i), "", 0, null);
-		}
-		return sc;
-	}
-
-	private @Nullable
-	Group createTextGroup(String text, Offset location) {
-		List<String> stringToLinesAtDelimiter = StrUtils.toLines(text);
-		return createTextGroup(stringToLinesAtDelimiter, location);
-	}
-
-	private SourceCode getSourceCodeDummy(Offset node) {
-		SourceCodeProperties scProps = new SourceCodeProperties();
-		SourceCode sc = language.newSourceCode(node, "algorithmOperations",
-				null, scProps);
-		String codeGroupText = " \n \n \n";
-		sc = getFilledSourceCode(codeGroupText, sc);
-		return sc;
 	}
 
 }

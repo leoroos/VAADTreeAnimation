@@ -10,6 +10,7 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
@@ -30,7 +31,15 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import de.lere.vaad.animation.PositionEdge;
 import de.lere.vaad.treebuilder.BinaryTreeModel.Edge;
+import de.lere.vaad.treebuilder.events.TreeDeleteEvent;
+import de.lere.vaad.treebuilder.events.TreeEventListener;
+import de.lere.vaad.treebuilder.events.TreeInsertEvent;
+import de.lere.vaad.treebuilder.events.TreeLeftRotateEvent;
+import de.lere.vaad.treebuilder.events.TreeModelChangeEvent;
+import de.lere.vaad.treebuilder.events.TreeRightRotateEvent;
+import de.lere.vaad.treebuilder.events.TreeSearchEvent;
 import de.lere.vaad.utils.LMTransformer;
 import de.lere.vaad.utils.ListMap;
 
@@ -489,5 +498,37 @@ public class BinaryTreeModelTest {
 				.createTreeByInsert(1, 3, 4);
 		assertThat("Expected equal structure", expSubTree.getRoot()
 				.compareStructure(resultOfRightRotate));
+	}
+	
+	@Test
+	public void heightEmptyTreeIsMinus1() throws Exception {
+		int h = model.height();
+		assertThat(h, equalTo(-1));
+	}
+	
+	@Test
+	public void heightOfRootIsZero() throws Exception {
+		model.insert(0);
+		int h = model.height();
+		assertThat(h, equalTo(0));
+	}
+	
+	@Test
+	public void heightOfTreeWithOneChildIsOne() throws Exception {
+		model.insert(5);
+		model.insert(1);
+		assertThat(model.height(), equalTo(1));
+	}
+	
+	@Test
+	public void heightOfTreeDegeneratedTreeEqualsNodesMinusOne() throws Exception {
+		BinaryTreeModel<Integer> model = BinaryTreeModel.createTreeByInsert(1,2,3,4,5,6,7,8,9);
+		assertThat(model.height(), equalTo(8));
+	}
+	
+	@Test
+	public void heightOfTreeDegeneratedTreeEqualsLongestPath() throws Exception {
+		BinaryTreeModel<Integer> model = BinaryTreeModel.createTreeByInsert(20,3,2,4,5,6,7,8,9,34,21,46,60);
+		assertThat(model.height(), equalTo(7));
 	}
 }

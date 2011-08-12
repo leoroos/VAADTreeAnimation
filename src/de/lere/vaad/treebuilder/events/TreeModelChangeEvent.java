@@ -1,6 +1,9 @@
-package de.lere.vaad.treebuilder;
+package de.lere.vaad.treebuilder.events;
 
 import javax.swing.event.TreeModelListener;
+
+import de.lere.vaad.treebuilder.BinaryTreeModel;
+import de.lere.vaad.treebuilder.Node;
 
 
 public abstract class TreeModelChangeEvent<T extends Comparable<T>> extends TreeEvent<T> {

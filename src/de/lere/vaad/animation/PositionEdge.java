@@ -1,10 +1,12 @@
-package de.lere.vaad.treebuilder;
+package de.lere.vaad.animation;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import de.lere.vaad.treebuilder.BinaryTreeModel;
+import de.lere.vaad.treebuilder.Node;
 import de.lere.vaad.treebuilder.BinaryTreeModel.Edge;
 
 /**

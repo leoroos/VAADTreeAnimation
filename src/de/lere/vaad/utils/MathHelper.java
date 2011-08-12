@@ -4,6 +4,8 @@ import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
 
+import de.lere.vaad.treebuilder.BinaryTreeLayout;
+
 public class MathHelper {
 	/**
 	 * @param rootLocation
@@ -39,20 +41,15 @@ public class MathHelper {
 
 		double totalVerticalDistance = rootLocation.getY()
 				+ (level * absVerticalDistance);
-//		double levelHorizontalDist = firstLevelHorizontalDist / level;
-//
-//		int relNodeFromHalfPos = getRelNodeFromHalfPos(nodeIndex);
-//		double totalHorizontalDistance = rootLocation.getX()
-//				+ (2 * levelHorizontalDist * getRelNodeFromHalfPos(nodeIndex))
-//				- (Math.signum(relNodeFromHalfPos) * levelHorizontalDist);
-//
-//		return new Point2D.Double(totalHorizontalDistance,
-//				totalVerticalDistance);
-		double minXBoundary = (rootLocation.getX() - ( 2* firstLevelHorizontalDist));
-		double parentNodeHorizontalDistance =  ( firstLevelHorizontalDist / (Math.pow(2,(level-1))) );
-		double internodeDistance = 2*parentNodeHorizontalDistance;
-		double levelRelativeNodePosition = ( nodeIndex - ( Math.pow(2, level) - 1) );
-		double minBoundaryRelativeHDistance = parentNodeHorizontalDistance + ( ( levelRelativeNodePosition - 1 ) * internodeDistance );
+
+		double minXBoundary = (rootLocation.getX() - (2 * firstLevelHorizontalDist));
+		double parentNodeHorizontalDistance = (firstLevelHorizontalDist / (Math
+				.pow(2, (level - 1))));
+		double internodeDistance = 2 * parentNodeHorizontalDistance;
+		double accumulativeNodesOnPriorLevels = Math.pow(2, level) - 1;
+		double levelRelativeNodePosition = (nodeIndex - accumulativeNodesOnPriorLevels);
+		double minBoundaryRelativeHDistance = parentNodeHorizontalDistance
+				+ ((levelRelativeNodePosition - 1) * internodeDistance);
 		double positionX = minXBoundary + minBoundaryRelativeHDistance;
 		return new Point2D.Double(positionX, totalVerticalDistance);
 	}
@@ -73,6 +70,20 @@ public class MathHelper {
 		validateInIntegerRange(x, location.getX());
 		validateInIntegerRange(y, location.getY());
 		return new Point(x, y);
+	}
+
+	/**
+	 * A convenience method for callers that work on a {@link BinaryTreeLayout}
+	 * 
+	 * @param layout
+	 * @param position logical position in a tree for which to compute position
+	 * @return
+	 * 
+	 * @see MathHelper#getLocation(Point2D, int, double, double)
+	 */
+	public static Point getLocation(BinaryTreeLayout layout, int position) {
+		return MathHelper.getLocation(layout.getRootPoint(), position,
+				layout.getFirstLevelWidth(), layout.getVerticalGap());
 	}
 
 	private static void validateInIntegerRange(int x, double x2) {
@@ -111,6 +122,18 @@ public class MathHelper {
 	 */
 	public static double lg(double x) {
 		return Math.log10(x) / Math.log10(2.0d);
+	}
+
+	/**
+	 * @param height
+	 *            or level for which to calculate the amount of nodes
+	 * @return
+	 */
+	public static int getMaxNumberOfNodesForLevel(int height) {
+		double pow = Math.pow(2, height);
+		int powi = (int) pow;
+		validateInIntegerRange(powi, pow);
+		return powi;
 	}
 
 }

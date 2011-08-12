@@ -1,4 +1,4 @@
-package de.lere.vaad.treebuilder;
+package de.lere.vaad.treebuilder.events;
 
 public abstract class TreeEvent<T extends Comparable<T>> {
 

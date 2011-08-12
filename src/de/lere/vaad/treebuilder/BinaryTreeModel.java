@@ -21,7 +21,17 @@ import java.util.Queue;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+import de.lere.vaad.treebuilder.events.TreeDeleteEvent;
+import de.lere.vaad.treebuilder.events.TreeEvent;
+import de.lere.vaad.treebuilder.events.TreeEventListener;
+import de.lere.vaad.treebuilder.events.TreeHideEvent;
+import de.lere.vaad.treebuilder.events.TreeInsertEvent;
 import de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing;
+import de.lere.vaad.treebuilder.events.TreeLeftRotateEvent;
+import de.lere.vaad.treebuilder.events.TreeRightRotateEvent;
+import de.lere.vaad.treebuilder.events.TreeSearchEvent;
+import de.lere.vaad.treebuilder.events.TreeShowEvent;
+import de.lere.vaad.treebuilder.events.TreeVisibilityEvent;
 import de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition;
 
 /**
@@ -55,7 +65,7 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 			return 0;
 		}
 		return root.size();
-	}
+	}	
 
 	public boolean isEmpty() {
 		return size() == 0;
@@ -370,7 +380,7 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 	 * @return the node with which the deleted node has been replaced. Maybe
 	 *         <code>null</code> for root or leaf.
 	 */
-	Node<T> delete(Node<T> deletee) {
+	public Node<T> delete(Node<T> deletee) {
 		if (!deletee.hasLeftChild()) {
 			transplant(deletee, deletee.getRight());
 			return deletee.getRight();
@@ -485,5 +495,28 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 			return null;
 		}
 		return nodes.get(index);
+	}
+
+	public void hide() {
+		fireVisibilityChange(new TreeHideEvent<T>(this.copy()));
+	}
+	
+	private void fireVisibilityChange(TreeVisibilityEvent<T> event) {
+		fireChange(event);	
+	}
+
+	public void show() {
+		fireVisibilityChange(new TreeShowEvent<T>(this.copy()));
+	}
+
+	/**
+	 * @return height of the root or -1 if tree is empty
+	 */
+	public int height() {
+		if(root == null) {
+			return -1;
+		} else {	
+			return root.height();
+		}
 	}
 }

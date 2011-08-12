@@ -16,19 +16,20 @@ import algoanim.util.Coordinates;
 import algoanim.util.Node;
 import algoanim.util.TicksTiming;
 import algoanim.util.Timing;
+import de.lere.vaad.animation.GraphWriterImpl;
+import de.lere.vaad.animation.NullGraph;
+import de.lere.vaad.animation.Timings;
 import de.lere.vaad.treebuilder.BinaryTreeLayout;
 import de.lere.vaad.treebuilder.BinaryTreeModel;
-import de.lere.vaad.treebuilder.Timings;
-import de.lere.vaad.treebuilder.TreeEvent;
-import de.lere.vaad.treebuilder.TreeModelChangeEvent;
-import de.lere.vaad.treebuilder.TreeEventListener;
-import de.lere.vaad.treebuilder.GraphWriterImpl;
-import de.lere.vaad.treebuilder.TreeDeleteEvent;
-import de.lere.vaad.treebuilder.TreeInsertEvent;
-import de.lere.vaad.treebuilder.TreeLeftRotateEvent;
-import de.lere.vaad.treebuilder.TreeNewEvent;
-import de.lere.vaad.treebuilder.TreeRightRotateEvent;
-import de.lere.vaad.treebuilder.TreeSearchEvent;
+import de.lere.vaad.treebuilder.events.TreeDeleteEvent;
+import de.lere.vaad.treebuilder.events.TreeEvent;
+import de.lere.vaad.treebuilder.events.TreeEventListener;
+import de.lere.vaad.treebuilder.events.TreeInsertEvent;
+import de.lere.vaad.treebuilder.events.TreeLeftRotateEvent;
+import de.lere.vaad.treebuilder.events.TreeModelChangeEvent;
+import de.lere.vaad.treebuilder.events.TreeNewEvent;
+import de.lere.vaad.treebuilder.events.TreeRightRotateEvent;
+import de.lere.vaad.treebuilder.events.TreeSearchEvent;
 import de.lere.vaad.utils.MathHelper;
 import de.lere.vaad.utils.NodeHelper;
 
@@ -41,8 +42,7 @@ import de.lere.vaad.utils.NodeHelper;
  */
 public class BinarySearchTreeAnimator<T extends Comparable<T>> implements
 		TreeEventListener<T> {
-	public static final BinaryTreeLayout DEFAULT_LAYOUT = new BinaryTreeLayout(
-			new Point(240, 0), 120, 30, Color.WHITE, "DefaultGraphName");
+	public static final BinaryTreeLayout DEFAULT_LAYOUT = BinaryTreeLayout.DEFAULT;
 
 	private BinaryTreeModel<T> model;
 	private BinaryTreeLayout layout;
@@ -60,7 +60,7 @@ public class BinarySearchTreeAnimator<T extends Comparable<T>> implements
 		this.language = lang;
 		this.model = new BinaryTreeModel<T>();
 		this.layout = DEFAULT_LAYOUT;
-		this.lastCreatedGraph = null;
+		this.lastCreatedGraph = new NullGraph();
 	}
 
 	public void setModel(BinaryTreeModel<T> model) {
@@ -93,14 +93,12 @@ public class BinarySearchTreeAnimator<T extends Comparable<T>> implements
 	}
 
 	private void writeGraph(OrderedGraphInformation<T> infos) {
-		if (lastCreatedGraph != null) {
-			lastCreatedGraph.hide(NOW);
-		}
+		lastCreatedGraph.hide(NOW);
 		if (model.size() < 1) {
 			// don't draw empty graph
 			return;
 		}
-		lastCreatedGraph = language.newGraph(layout.graphName, infos.matrix,
+		lastCreatedGraph = language.newGraph(layout.getGraphName(), infos.matrix,
 				infos.animalNodes, infos.animalLabels, null,
 				infos.graphProperties);
 	}
@@ -117,10 +115,6 @@ public class BinarySearchTreeAnimator<T extends Comparable<T>> implements
 					new Coordinates[0]);
 			String labels[] = getLabelsFromModel(nodes).toArray(new String[0]);
 			animalLabels = labels;
-			GraphProperties gps = new GraphProperties();
-			gps.set("fillColor", layout.bgColor);
-			gps.set("highlightColor", Color.RED);
-			graphProperties = gps;
 		}
 
 		public GraphProperties graphProperties;
@@ -183,8 +177,7 @@ public class BinarySearchTreeAnimator<T extends Comparable<T>> implements
 		List<Coordinates> lst = new ArrayList<Coordinates>();
 		for (de.lere.vaad.treebuilder.Node<T> node : list) {
 			int position = node.getPosition();
-			Point location = MathHelper.getLocation(layout.rootLocation,
-					position, layout.firstLevelWidth, layout.verticalGap);
+			Point location = MathHelper.getLocation(layout, position);
 			lst.add(Node.convertToNode(location));
 		}
 		return lst;
@@ -271,8 +264,8 @@ public class BinarySearchTreeAnimator<T extends Comparable<T>> implements
 						DELETE_NODE_HIGHLIGHT_DURATION);
 				language.nextStep();
 			}
-			impl.translateNodes(event.beforeChange, event.afterChange,
-					NOW, HIGHLIGHT_NODE_DURATION);
+			impl.translateNodes(event.beforeChange, event.afterChange, NOW,
+					HIGHLIGHT_NODE_DURATION);
 			language.nextStep();
 		}
 

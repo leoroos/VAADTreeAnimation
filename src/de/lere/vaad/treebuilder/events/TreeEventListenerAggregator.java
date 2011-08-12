@@ -1,6 +1,12 @@
-package de.lere.vaad.treebuilder;
+package de.lere.vaad.treebuilder.events;
 
 import java.util.ArrayList;
+
+import de.lere.vaad.animation.DefaultBinaryTreeAnimations;
+import de.lere.vaad.animation.GraphWriterImpl;
+import de.lere.vaad.animation.TreeAnimator;
+import de.lere.vaad.treebuilder.BinaryTreeLayout;
+import de.lere.vaad.treebuilder.BinaryTreeModel;
 
 import algoanim.primitives.generators.Language;
 
@@ -53,7 +59,7 @@ public class TreeEventListenerAggregator<T extends Comparable<T>> implements
 	@Override
 	public void update(TreeEvent<T> event) {
 		for (TreeAnimator<T> animation : animations) {
-			animation.animate(language, event, layout);
+			animation.animate(event);
 		}
 	}
 

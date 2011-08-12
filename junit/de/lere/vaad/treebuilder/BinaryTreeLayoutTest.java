@@ -8,6 +8,8 @@ import java.awt.Point;
 import org.junit.Before;
 import org.junit.Test;
 
+import algoanim.properties.GraphProperties;
+
 
 public class BinaryTreeLayoutTest {
 
@@ -21,13 +23,13 @@ public class BinaryTreeLayoutTest {
 		graphRootPoint = new Point(300, 300);
 		firstLevelWidth = 120;
 		verticalSpacing = 30;
-		binaryTreeLayout = new BinaryTreeLayout(graphRootPoint, firstLevelWidth, verticalSpacing );
+		binaryTreeLayout = new BinaryTreeLayout(graphRootPoint, firstLevelWidth, verticalSpacing, new GraphProperties() );
 	}
 	
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void throwExceptionWhenRootNull() throws Exception {
-		new BinaryTreeLayout(null, firstLevelWidth, verticalSpacing );
+		new BinaryTreeLayout(null, firstLevelWidth, verticalSpacing, new GraphProperties() );
 	}
 	
 	
@@ -39,7 +41,7 @@ public class BinaryTreeLayoutTest {
 	
 	@Test
 	public void calculatesNWGraphBoundaryRespectsIngoresNoSmallerZeroPossible() throws Exception {
-		binaryTreeLayout = new BinaryTreeLayout(graphRootPoint, 300, verticalSpacing );
+		binaryTreeLayout = new BinaryTreeLayout(graphRootPoint, 300, verticalSpacing, new GraphProperties() );
 		Point p = binaryTreeLayout.getNWBoundary();
 		assertThat(p, equalTo(new Point(-300,300)));
 	}

@@ -302,4 +302,17 @@ public class Node<T extends Comparable<T>> {
 		}
 	}
 
+	public int height() {
+		int lh = 0;
+		if(hasLeftChild()) {
+			lh = getLeft().height() + 1 ;
+		}
+		int rh = 0;
+		if(hasRightChild()) {
+			rh = getRight().height() +1;
+		}
+		int max = Math.max(lh, rh);
+		return max;
+	}
+
 }

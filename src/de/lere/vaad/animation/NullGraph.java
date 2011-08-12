@@ -1,4 +1,4 @@
-package de.lere.vaad.treebuilder;
+package de.lere.vaad.animation;
 
 import algoanim.primitives.Graph;
 import algoanim.properties.GraphProperties;

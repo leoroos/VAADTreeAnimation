@@ -1,4 +1,4 @@
-package de.lere.vaad.treebuilder;
+package de.lere.vaad.animation;
 
 import static de.lere.vaad.treebuilder.BuilderTestUtils.createNIntegerTree;
 import static org.hamcrest.MatcherAssert.assertThat;
