@@ -26,7 +26,7 @@ public class SplayTreeModelTest {
 		assertThat(model.getRoot(), equalTo(found));
 		BinaryTreeModel<Integer> expected = BinaryTreeModel.createTreeByInsert(
 				5, 1, 10, 7, 15);
-		assertThat(model, equalTo(expected));
+		assertThat(model, equalTo(SplayTreeModel.from(expected)));
 	}
 
 	@Test
@@ -47,7 +47,7 @@ public class SplayTreeModelTest {
 		BinaryTreeModel<Integer> expected = BinaryTreeModel.createTreeByInsert(
 				15, 10, 17, 5, 12);
 		assertThat(model.getRoot().getValue(), equalTo(15));
-		assertThat(model, equalTo(expected));
+		assertThat(model, equalTo(SplayTreeModel.from(expected)));
 	}
 
 	@Test
@@ -69,7 +69,7 @@ public class SplayTreeModelTest {
 		assertThat(model.getRoot(), equalTo(found));
 		BinaryTreeModel<Integer> expected = BinaryTreeModel.createTreeByInsert(
 				8, 1, 10, 9, 20, 15, 30);
-		assertThat(model, equalTo(expected));
+		assertThat(model, equalTo(SplayTreeModel.from(expected)));
 	}
 
 	@Test
@@ -91,7 +91,7 @@ public class SplayTreeModelTest {
 		assertThat(model.getRoot(), equalTo(found));
 		BinaryTreeModel<Integer> expected = BinaryTreeModel.createTreeByInsert(
 				35, 30, 40, 20, 32, 10, 25);
-		assertThat(model, equalTo(expected));
+		assertThat(model, equalTo(SplayTreeModel.from(expected)));
 	}
 
 	@Test
@@ -113,7 +113,7 @@ public class SplayTreeModelTest {
 		assertThat(model.getRoot(), equalTo(found));
 		BinaryTreeModel<Integer> expected = BinaryTreeModel.createTreeByInsert(
 				25, 20, 30, 10, 22, 28, 40);
-		assertThat(model, equalTo(expected));
+		assertThat(model, equalTo(SplayTreeModel.from(expected)));
 	}
 
 	@Test
@@ -136,6 +136,6 @@ public class SplayTreeModelTest {
 		assertThat(model.getRoot(), equalTo(found));
 		BinaryTreeModel<Integer> expected = SplayTreeModel.createTreeByInsert(
 				25, 20, 30, 10, 23, 27, 35);
-		assertThat(model, equalTo(expected));
+		assertThat(model, equalTo(SplayTreeModel.from(expected)));
 	}
 }
