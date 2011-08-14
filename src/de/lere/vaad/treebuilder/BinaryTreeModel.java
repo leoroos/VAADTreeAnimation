@@ -357,13 +357,8 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 		Node<T> nodeToDelete = internalSearch(v);
 		Node<T> deleted = null;
 		Node<T> successor = null;
-		if (nodeToDelete != null) {
-			deleted = nodeToDelete;
-			successor = delete(nodeToDelete);
-			currentDeleteStatistics.successful = true;
-		} else {
-			currentDeleteStatistics.successful = false;
-		}
+		deleted = nodeToDelete;
+		successor = delete(nodeToDelete);
 		BinaryTreeModel<T> current = copy();
 		fireChange(new TreeDeleteEvent<T>(old, current, deleted, successor,
 				currentDeleteStatistics, v));
@@ -425,6 +420,12 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 	 */
 	public Node<T> delete(Node<T> deletee) {
 		currentDeleteStatistics = new DeleteStatisticResult();
+		if (deletee == null) {
+			currentDeleteStatistics.successful = false;
+			return null;
+		} else {
+			currentDeleteStatistics.successful = true;
+		}
 		currentDelVal = deletee.getValue();
 		fireDeleteTraversing(DeleteInit, deletee);
 		if (fireDeleteTraversing(TestIfLeftChildNull, deletee.getLeft(),
