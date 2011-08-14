@@ -16,8 +16,8 @@ import algoanim.util.Hidden;
 import algoanim.util.TicksTiming;
 import algoanim.util.Timing;
 import de.lere.vaad.BinaryTreeProperties;
+import de.lere.vaad.animation.binarysearchtree.BinaryTreeSetup;
 import de.lere.vaad.animation.nullstubs.NullGraph;
-import de.lere.vaad.binarysearchtree.BinaryTreeSetup;
 import de.lere.vaad.treebuilder.BinaryTreeLayout;
 import de.lere.vaad.treebuilder.BinaryTreeModel;
 import de.lere.vaad.treebuilder.Node;
@@ -140,7 +140,7 @@ public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> 
 					 * in a way that not all previous node are still where they
 					 * were or are even accessible
 					 */
-					e.printStackTrace();
+//					e.printStackTrace();
 				}
 			}
 		}

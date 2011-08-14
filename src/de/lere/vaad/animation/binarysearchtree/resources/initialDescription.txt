@@ -1,0 +1,6 @@
+In der Informatik ist ein binärer Suchbaum eine spezielle Implementierung
+der abstrakten Datenstruktur Suchbaum. Ein binärer Suchbaum ist ein binärer Baum,
+bei dem die Knoten des linken Teilbaums eines Knotens nur kleinere (oder gleiche)
+Schlüssel und die Knoten des rechten Teilbaums eines Knotens nur größere
+(oder gleiche) Schlüssel als der Knoten selbst besitzen.
+                           Quelle: www.wikipedia.com

@@ -3,11 +3,12 @@ package de.lere.vaad.animation;
 import javax.annotation.Nonnull;
 
 import de.lere.vaad.treebuilder.events.TreeEvent;
+import de.lere.vaad.treebuilder.events.TreeEventListener;
 import de.lere.vaad.treebuilder.events.TreeModelChangeEvent;
 
 
 public class DefaultBinaryTreeAnimations<T extends Comparable<T>> implements
-		TreeAnimator<T> {
+		TreeEventListener<T> {
 
 	private GraphWriter<T> writer;
 
@@ -19,7 +20,7 @@ public class DefaultBinaryTreeAnimations<T extends Comparable<T>> implements
 	}
 
 	@Override
-	public void animate(TreeEvent<T> event) {
+	public void update(TreeEvent<T> event) {
 		if (event instanceof TreeModelChangeEvent<?>) {
 			writer.buildGraph(((TreeModelChangeEvent<T>) event).afterChange);
 		}

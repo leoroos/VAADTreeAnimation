@@ -1,0 +1,4 @@
+Wenn p die Wurzel ist wird der Zig-Step ausgeführt.
+Dieser Schritt wird nur ausgeführt wenn der Baum eine
+ungerade Knotenanzahl hat und es sich um die letzte
+Splay-Operation einer Transformation handelt. 

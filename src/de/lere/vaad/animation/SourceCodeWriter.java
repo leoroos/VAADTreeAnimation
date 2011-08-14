@@ -8,8 +8,8 @@ import algoanim.primitives.SourceCode;
 import algoanim.primitives.generators.Language;
 import algoanim.properties.SourceCodeProperties;
 import algoanim.util.TicksTiming;
+import de.lere.vaad.animation.locationhandler.LocationProvider;
 import de.lere.vaad.animation.nullstubs.NullSourceCode;
-import de.lere.vaad.locationhandler.LocationProvider;
 import de.lere.vaad.utils.StrUtils;
 
 /**

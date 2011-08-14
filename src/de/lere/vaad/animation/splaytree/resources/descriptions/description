@@ -1,0 +1,18 @@
+Beschreibung des Algorithmus
+
+Wird auf einen Knoten x innerhalb des Splay-Baumes zugegriffen,
+wird auf diesen Knoten eine Splay-Operation ausgeführt um ihn
+näher an die Wurzel zu holen.
+Ist x danach noch nicht die Wurzel werden nacheinander so viele
+zusätzliche Splay-Operationen auf x ausgeführt bis dieser
+die Wurzel des Baumes darstellt.
+
+Auf diese Weise halten sich die zuletzt benutzten Knoten immer 
+in der Nähe der Wurzel auf.
+
+Die Wahl der konkreten Splay-Operation hängt von drei Faktoren ab:
+- ist x das linke oder rechte Kind seines Eltern-Knotens p
+- ist p die Wurzel, und wenn nicht
+- ist p der linke oder rechte Sohn seines Eltern-Knotens g
+
+Abhängig davon wird eine der folgenden drei Splay-Operationen ausgeführt:
