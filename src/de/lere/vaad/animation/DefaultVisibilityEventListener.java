@@ -8,9 +8,9 @@ import de.lere.vaad.treebuilder.events.TreeVisibilityEvent;
 
 public final class DefaultVisibilityEventListener<T extends Comparable<T>>
 		implements TreeEventListener<T> {
-	private final GraphWriterImpl<T> writer;
+	private final GraphWriter<T> writer;
 
-	public DefaultVisibilityEventListener(GraphWriterImpl<T> writer) {
+	public DefaultVisibilityEventListener(GraphWriter<T> writer) {
 		this.writer = writer;
 	}
 

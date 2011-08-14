@@ -54,4 +54,19 @@ public interface GraphWriter<T extends Comparable<T>> {
 	
 	void blinkNode(BinaryTreeModel<T> model,
 			Node<T> node, Timing when, Timing howLong);
+
+	public abstract void showCurrent(Timing t);
+
+	public abstract void showCurrent();
+
+	public abstract void hideCurrent(Timing t);
+
+	public abstract void hideCurrent();
+
+	public abstract void highlightNode(BinaryTreeModel<T> model, Timing startWhen,
+			Timing howLong, Node<T>... nodes);
+
+	void setAutomaticUnhighlightNodes(boolean unhighlight);
+
+	boolean isAutomaticUnhighlight();
 }

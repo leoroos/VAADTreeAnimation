@@ -380,16 +380,14 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 		} else if (fireDeleteTraversing(TestIfOldWasLeftChild, old,
 				old.isLeftChild())) {
 			fireDeleteTraversing(SettingNewNodeAsLeftToParentOfOldNode,
-					old.getParent());
+					old.getParent(), newnode);
 			old.getParent().setLeft(newnode);
-		} else if (fireDeleteTraversing(TestIfOldWasRightChild, old,
-				old.isRightChild())) {
-			fireDeleteTraversing(SettingNewNodeAsRightToParentOfOldNode,
-					old.getParent());
-			old.getParent().setRight(newnode);
 		} else {
-			throw new IllegalStateException();
+			fireDeleteTraversing(SettingNewNodeAsRightToParentOfOldNode,
+					old.getParent(), newnode);
+			old.getParent().setRight(newnode);
 		}
+		
 		fireDeleteTraversing(TransplantSetsParentOfOldToNew, old.getParent(),
 				newnode, true /* to conform the algorithm */);
 	}

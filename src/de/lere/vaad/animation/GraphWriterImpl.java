@@ -56,6 +56,7 @@ public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> 
 	@SuppressWarnings("unchecked")
 	// empty array without generics shouldn't be to harmful
 	private Node<T>[] previouslyHighlightedNodes = new Node[0];
+	private BinaryTreeModel<T> previousHighlightModel = new BinaryTreeModel();
 
 	public @Nonnull
 	GraphWriterImpl(Language language, BinaryTreeLayout layout, Timings timings) {
@@ -120,24 +121,31 @@ public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> 
 	@Override
 	public void highlightNode(BinaryTreeModel<T> model, Node<T> nodes,
 			Timing startWhen, Timing howLong) {
-		Integer index = getNodeIndex(model, nodes);
-		if (validateIndex(index)) {
-			lastCreatedGraph.highlightNode(index, startWhen, howLong);
-		} else
-			System.out
-					.println("GraphWriterImpl.highlightNode(): did not find index in model for node "
-							+ nodes);
+		highlightNode(model, startWhen, howLong, new Node[] { nodes });
 	}
 
+	@Override
 	public void highlightNode(BinaryTreeModel<T> model, Timing startWhen,
 			Timing howLong, Node<T>... nodes) {
 
 		if (autoUnhighlight) {
 			for (Node<T> node : previouslyHighlightedNodes) {
-				unhighlightNode(model, node, ts.NOW, startWhen);
+				Node<T> nodeByID = model.getNodeByID(node);
+				try {
+					unhighlightNode(previousHighlightModel, nodeByID, ts.NOW,
+							startWhen);
+				} catch (IllegalArgumentException e) {
+					/*
+					 * can probably happen because the current graph has changed
+					 * in a way that not all previous node are still where they
+					 * were or are even accessible
+					 */
+					e.printStackTrace();
+				}
 			}
 		}
 		previouslyHighlightedNodes = nodes;
+		previousHighlightModel = model;
 
 		for (Node<T> node : nodes) {
 			internalHighlight(model, startWhen, howLong, node);
@@ -155,10 +163,12 @@ public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> 
 							+ node);
 	}
 
+	@Override
 	public void setAutomaticUnhighlightNodes(boolean unhighlight) {
 		this.autoUnhighlight = unhighlight;
 	}
 
+	@Override
 	public boolean isAutomaticUnhighlight() {
 		return autoUnhighlight;
 	}
@@ -230,8 +240,9 @@ public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> 
 	}
 
 	private Integer getNodeIndex(BinaryTreeModel<T> model, Node<T> node) {
+		Node<T> byID = model.getNodeByID(node);
 		OrderedGraphInformation<T> graphInfos = graphInfos(model);
-		Integer index = graphInfos.indexedNodes.get(node);
+		Integer index = graphInfos.indexedNodes.get(byID);
 		return index;
 	}
 
@@ -357,18 +368,22 @@ public class GraphWriterImpl<T extends Comparable<T>> implements GraphWriter<T> 
 				halfTheLong);
 	}
 
+	@Override
 	public void hideCurrent() {
 		this.lastCreatedGraph.hide();
 	}
 
+	@Override
 	public void hideCurrent(Timing t) {
 		this.lastCreatedGraph.hide(t);
 	}
 
+	@Override
 	public void showCurrent() {
 		this.lastCreatedGraph.show();
 	}
 
+	@Override
 	public void showCurrent(Timing t) {
 		this.lastCreatedGraph.show(t);
 	}

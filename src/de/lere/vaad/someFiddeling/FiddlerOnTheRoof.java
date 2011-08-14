@@ -22,6 +22,7 @@ import algoanim.util.Coordinates;
 import algoanim.util.Offset;
 import de.lere.vaad.BinaryTreeProperties;
 import de.lere.vaad.animation.DefaultVisibilityEventListener;
+import de.lere.vaad.animation.GraphWriter;
 import de.lere.vaad.animation.GraphWriterImpl;
 import de.lere.vaad.animation.StepWriter;
 import de.lere.vaad.animation.Timings;
@@ -92,7 +93,7 @@ public class FiddlerOnTheRoof {
 
 	private void buildAnimation(BinaryTreeProperties props)
 			throws IOException {
-		final GraphWriterImpl<Integer> writer = new GraphWriterImpl<Integer>(language,
+		final GraphWriter<Integer> writer = new GraphWriterImpl<Integer>(language,
 				layout);
 		BinaryTreeSetup<Integer> setup = createSetup(writer);
 		List<Integer> ints = createSomeInts(12);
@@ -118,7 +119,7 @@ public class FiddlerOnTheRoof {
 		step();
 	}
 
-	private BinaryTreeSetup<Integer> createSetup(GraphWriterImpl<Integer> writer) {
+	private BinaryTreeSetup<Integer> createSetup(GraphWriter<Integer> writer) {
 		BinaryTreeSetup<Integer> setup = new BinaryTreeSetup<Integer>();
 		setup.setBinaryTreeProperties(animationProperties);
 		setup.setLang(language);

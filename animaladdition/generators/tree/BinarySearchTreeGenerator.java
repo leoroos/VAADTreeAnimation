@@ -30,7 +30,7 @@ public class BinarySearchTreeGenerator implements Generator {
 	}
     
     public void init(){
-        lang = new AnimalScript("Aufgabe 4 Generator", "Rene Hertling, Leo Roos", 800, 600);
+        lang = new AnimalScript("Der Binäre Suchbaum", "Rene Hertling, Leo Roos", 1024, 600);
     }
 
     public String generate(AnimationPropertiesContainer props,Hashtable<String, Object> primitives) {
@@ -68,11 +68,11 @@ public class BinarySearchTreeGenerator implements Generator {
 	}
 
 	public String getName() {
-        return "Animation eines binären Suchbaumes";
+        return "Binärer Suchbaum nach Cormen";
     }
 
     public String getAlgorithmName() {
-        return "Binary Search Tree";
+        return "Binärer Suchbaum";
     }
 
     public String getAnimationAuthor() {

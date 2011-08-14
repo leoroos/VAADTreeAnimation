@@ -102,25 +102,22 @@ public class TreeDeleteSourceTraversingEvent<T extends Comparable<T>> extends
 
 		/**
 		 * node is parent of old, not null, since old was not root
+		 * optional is replacement
 		 */
 		SettingNewNodeAsLeftToParentOfOldNode(18), //
 
 		/**
-		 * node is old node
-		 */
-		TestIfOldWasRightChild(19), //
-
-		/**
 		 * node is parent of old node, not null since old was not root when here
+		 * optional is replacement
 		 */
-		SettingNewNodeAsRightToParentOfOldNode(20), //
+		SettingNewNodeAsRightToParentOfOldNode(19), //
 
 		/**
 		 * node is parent of old node, may be null if old was root<br>
 		 * optional is successor node, may be null
 		 * 
 		 */
-		TransplantSetsParentOfOldToNew(2342), //
+		TransplantSetsParentOfOldToNew(20), //
 		;
 
 		private DeleteTraversingPosition(int i) {

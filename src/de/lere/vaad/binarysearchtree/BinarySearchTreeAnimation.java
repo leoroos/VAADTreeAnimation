@@ -1,5 +1,7 @@
 package de.lere.vaad.binarysearchtree;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +17,15 @@ import algoanim.primitives.Group;
 import algoanim.primitives.SourceCode;
 import algoanim.primitives.Text;
 import algoanim.primitives.generators.Language;
-import algoanim.properties.SourceCodeProperties;
+import algoanim.properties.AnimationPropertiesKeys;
+import algoanim.properties.RectProperties;
+import algoanim.properties.TextProperties;
+import algoanim.properties.items.AnimationPropertyItem;
+import algoanim.properties.items.BooleanPropertyItem;
+import algoanim.properties.items.ColorPropertyItem;
+import algoanim.properties.items.FontPropertyItem;
+import algoanim.properties.items.IntegerPropertyItem;
+import algoanim.properties.items.StringPropertyItem;
 import algoanim.util.Coordinates;
 import algoanim.util.Hidden;
 import algoanim.util.Node;
@@ -27,16 +37,13 @@ import de.lere.vaad.animation.GraphWriterImpl;
 import de.lere.vaad.animation.SourceCodeWriter;
 import de.lere.vaad.animation.StepWriter;
 import de.lere.vaad.animation.Timings;
-import de.lere.vaad.binarysearchtree.BinarySearchTreeAnimation.Mission;
 import de.lere.vaad.locationhandler.LocationDirector;
 import de.lere.vaad.locationhandler.LocationHandler;
 import de.lere.vaad.locationhandler.NextStateOnLocationDirector;
 import de.lere.vaad.treebuilder.BinaryTreeLayout;
 import de.lere.vaad.treebuilder.BinaryTreeModel;
 import de.lere.vaad.treebuilder.events.DefaultTreeModelChangeEventListener;
-import de.lere.vaad.treebuilder.events.TreeEvent;
 import de.lere.vaad.treebuilder.events.TreeEventListener;
-import de.lere.vaad.treebuilder.events.TreeModelChangeEvent;
 import de.lere.vaad.utils.MathHelper;
 import de.lere.vaad.utils.NodeHelper;
 import de.lere.vaad.utils.TextLoaderUtil;
@@ -195,7 +202,7 @@ public class BinarySearchTreeAnimation<T extends Comparable<T>> {
 		final BinaryTreeModel<T> model = BinaryTreeModel
 				.createTreeByInsert(initialTree);
 
-		GraphWriterImpl<T> writer = new GraphWriterImpl<T>(language, layout);
+		GraphWriter<T> writer = new GraphWriterImpl<T>(language, layout);
 		SourceCodeWriter sourceCodeWriter = new SourceCodeWriter(language,
 				this.btProps.getSourceCodeProperties(),
 				DIRECTOR_SMALLISH_SOURCECODE, timings);
@@ -206,8 +213,7 @@ public class BinarySearchTreeAnimation<T extends Comparable<T>> {
 		model.addListener(new DefaultVisibilityEventListener<T>(writer));
 
 		/* omnipotent Header */
-		nextStateOnLocation("Der Binäre Suchbaum\n" + "As designed by "
-				+ this.btProps.authors, DIRECTOR_HEADER);
+		createHeaderText(btProps.title, Color.GREEN, DIRECTOR_HEADER.getLocation());
 
 		/* Optional intro */
 		if (isShowIntro()) {
@@ -342,6 +348,54 @@ public class BinarySearchTreeAnimation<T extends Comparable<T>> {
 				"Eine Verfeinerung der Animationen analog zu Insertion folgt in 5.1",
 				DIRECTOR_MACROSTEP);
 		step();
+	}
+
+	private void createHeaderText(String title, Color green, Node location) {
+		TextProperties headerProps = getHeaderTextProperties(btProps
+				.getTextProperties());		
+		Text headerText = language.newText(location, title, "headerText", null, headerProps);
+		
+		Offset downright = new Offset(0, 0, headerText, "SE");
+		Offset upLeft = new Offset(0, 0, headerText, "NW");
+		RectProperties rectProperties = new RectProperties();
+		rectProperties.set("fillColor", green);
+		rectProperties.set("filled", true);
+		rectProperties.set("depth", 2);
+		language.newRect(upLeft, downright, "boxBehindHeader", null, rectProperties);
+	}
+
+	private TextProperties getHeaderTextProperties(TextProperties textProperties) {
+		TextProperties copyTps = copyOfTextProperties(textProperties);
+		Font afon = (Font) copyTps.get("font");
+		Font biggerFon = new Font(afon.getName(), afon.getStyle(),
+				afon.getSize() << 1);
+		copyTps.set("font", biggerFon);
+		return copyTps;
+	}
+
+	private TextProperties copyOfTextProperties(TextProperties textProperties) {
+		ColorPropertyItem color = (ColorPropertyItem) textProperties
+				.getItem("color");
+		BooleanPropertyItem centered = (BooleanPropertyItem) textProperties
+				.getItem("centered");
+		FontPropertyItem font = (FontPropertyItem) textProperties
+				.getItem("font");
+		IntegerPropertyItem depth = (IntegerPropertyItem) textProperties
+				.getItem("depth");
+		StringPropertyItem nameStr = (StringPropertyItem) textProperties
+				.getItem("name");
+
+		
+		
+		TextProperties copyTps = new TextProperties("CopyOf"
+				+ (String) nameStr.get());
+
+		copyTps.setDefault("color", color);
+		copyTps.setDefault("centered", centered);
+		copyTps.setDefault("font", font);
+		copyTps.setDefault("hidden", new BooleanPropertyItem(true));
+		copyTps.setDefault("depth", depth);
+		return copyTps;
 	}
 
 	private void equipModelAccomplishMissionReturnTraceless(

@@ -3,6 +3,7 @@ package de.lere.vaad.treebuilder.events;
 import java.util.ArrayList;
 
 import de.lere.vaad.animation.DefaultBinaryTreeAnimations;
+import de.lere.vaad.animation.GraphWriter;
 import de.lere.vaad.animation.GraphWriterImpl;
 import de.lere.vaad.animation.TreeAnimator;
 import de.lere.vaad.treebuilder.BinaryTreeLayout;
@@ -33,7 +34,7 @@ public class TreeEventListenerAggregator<T extends Comparable<T>> implements
 		this.language = lang;
 		this.model = new BinaryTreeModel<T>();
 		this.layout = DEFAULT_LAYOUT;
-		GraphWriterImpl<T> defaultWriter = new GraphWriterImpl<T>(language, layout);
+		GraphWriter<T> defaultWriter = new GraphWriterImpl<T>(language, layout);
 		this.defaultAnims = new DefaultBinaryTreeAnimations<T>(defaultWriter);
 		this.animations.add(defaultAnims);
 	}
