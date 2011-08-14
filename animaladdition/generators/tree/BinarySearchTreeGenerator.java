@@ -18,7 +18,7 @@ import algoanim.properties.GraphProperties;
 import algoanim.properties.SourceCodeProperties;
 import algoanim.properties.TextProperties;
 import de.lere.vaad.BinaryTreeProperties;
-import de.lere.vaad.binarysearchtree.BinarySearchTreeAnimation;
+import de.lere.vaad.animation.binarysearchtree.BinarySearchTreeAnimation;
 import de.lere.vaad.utils.TextLoaderUtil;
 
 public class BinarySearchTreeGenerator implements Generator {
