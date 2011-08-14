@@ -5,7 +5,7 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-import de.lere.vaad.splaytree.SplayTreeModel;
+import de.lere.vaad.animation.splaytree.SplayTreeModel;
 
 public class SplayTreeModelTest {
 

@@ -1,4 +1,4 @@
-package de.lere.vaad.splaytree.resources.descriptions;
+package de.lere.vaad.animation.splaytree.resources.descriptions;
 
 import java.io.InputStreamReader;
 import java.util.List;
@@ -8,7 +8,7 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
-import de.lere.vaad.splaytree.resources.descriptions.SplayTreeResourceAccessor;
+import de.lere.vaad.animation.splaytree.resources.descriptions.SplayTreeResourceAccessor;
 
 public class ResourceAccessorTest extends TestCase {
 
