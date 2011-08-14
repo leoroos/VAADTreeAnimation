@@ -15,6 +15,7 @@ public class TreeDeleteAnimation<T extends Comparable<T>>
 	private BinaryTreeModel<T> tmpPriorModel;
 	private Node[] prev;
 	private BinaryTreeModel<T> prevModel;
+	private BinaryTreeModel<T> workingModel;
 
 	public TreeDeleteAnimation(BinarySearchTreeSetup<T> p) {
 		super(p);		
@@ -37,15 +38,16 @@ public class TreeDeleteAnimation<T extends Comparable<T>>
 		switch (position) {
 
 		case DeleteInit:
+			this.workingModel = model;
 			graphWriter.setAutomaticUnhighlightNodes(true);
 			coarse("Löschen von " + delVal);
 			fine("Die Lösch Methode wird mit dem Baum\n"
 					+ " und dem zu löschenden Wert aufgerufen");
 			hl(1);
-			hlNode(nodeOne, model);
+			hlNode(nodeOne, workingModel);
 			break;
 		case TestIfLeftChildNull:
-			blinkNode(nodeOne, model);
+			blinkNode(nodeOne, workingModel);
 			hl(2);
 			break;
 		case NoLeftChild:
@@ -55,10 +57,10 @@ public class TreeDeleteAnimation<T extends Comparable<T>>
 			hl(3);
 			break;
 		case FinishAfterTransplantWithRightChild:
-			blinkNode(nodeOne, model);
+			blinkNode(nodeOne, workingModel);
 			break;
 		case TestIfRightChildNull:
-			blinkNode(nodeOne, model);
+			blinkNode(nodeOne, workingModel);
 			hl(4);
 			break;
 		case NoRightChild:
@@ -67,13 +69,13 @@ public class TreeDeleteAnimation<T extends Comparable<T>>
 					+ " ersetzt werden");
 			break;
 		case FinishAfterTransplantWithLeftChild:
-			blinkNode(nodeOne, model);
+			blinkNode(nodeOne, workingModel);
 			break;
 		case GetMinimumOfRight:
 			fine("Der zu löschende Knoten hat linkes und rechtes Kind.\n"
 					+ "Es wird versucht ihn mit seinem Nachfolger"+nodeOneVal+" zu ersetzen.");
 			hl(7);
-			hlNode(nodeOne, model);
+			hlNode(nodeOne, workingModel);
 			break;
 		case TestIfParentOfMinNotDeletee:
 			fine("Es wird geprüft ob Vater des Nachfolgers "+nodeOneVal+" der zu löschende Knoten ist");
@@ -81,7 +83,7 @@ public class TreeDeleteAnimation<T extends Comparable<T>>
 			break;
 		case TransplantingSuccessorWithItsRightChild:
 			fine("Ist der zu löschende Knoten nicht direkt mit dem Nachfolger verbunden\n" +
-					"wird der Nachfolger als nächstes mit seinem rechten Kind ausgetauscht " + nodeTwoVal + " asugetauscht.");
+					"wird der Nachfolger als nächstes mit seinem rechten Kind ausgetauscht " + nodeOneVal + " asugetauscht.");
 			hl(9);
 			break;
 		case SettingDeleteesRightToSuccessorsRightAndSettingNewRightsParent:
@@ -98,52 +100,46 @@ public class TreeDeleteAnimation<T extends Comparable<T>>
 			break;
 		case StartingTransplant:
 			fine("Knoten "+ nodeOneVal + " soll mit " + nodeTwoVal + " ausgetauscht werden");
-			graphWriter.highlightNode(model, ts.NOW, ts.SHORT_ANIMATION, nodeOne, nodeTwo);
+			graphWriter.highlightNode(workingModel, ts.NOW, ts.SHORT_ANIMATION, nodeOne, nodeTwo);
 			hl(16);
 			break;
 		case TestTransplantIfOldHasParent:
 			fine("Es wird getestet ob alter Knoten root war");
-			hlNode(nodeOne, model);
+			hlNode(nodeOne, workingModel);
 			hl(17);
 			break;
 		case TransplantReplacesRoot:
-			fine("Zu ersetzender Knoten war root. Neuer Root wird der ersetzende Knoten" + nodeOne);
-			hlNode(nodeOne, model);
+			fine("Zu ersetzender Knoten war root. Neuer Root wird der ersetzende Knoten" + nodeOneVal);
+			hlNode(nodeOne, workingModel);
 			hl(18);
 			break;
 		case TestIfOldWasLeftChild:
 			fine("Test ob alter Knoten "+nodeOneVal+" linkes Kind ist.");
-			blinkNode(nodeOne, model);
-			Node<T> nodeByID = model.getNodeByID(nodeOne);
-			graphWriter.highlightNode(model, ts.NOW, ts.SHORT_ANIMATION, nodeOne, nodeByID.getParent());
-			this.tmpPriorModel = model;
+			blinkNode(nodeOne, workingModel);
+			Node<T> nodeByID = workingModel.getNodeByID(nodeOne);
+			graphWriter.highlightNode(workingModel, ts.NOW, ts.SHORT_ANIMATION, nodeOne, nodeByID.getParent());
 			hl(19);
 			break;
 		case SettingNewNodeAsLeftToParentOfOldNode:
 			fine("Zu löschender Knoten ist linkes Kind.\n" + " Auszutauschender Knoten wird als linkes Kind von " +nodeOneVal + " gesetzt");
-			prev = new Node[] { nodeOne, nodeTwo };
-			prevModel = model;
-			graphWriter.highlightNode(model, ts.NOW, ts.SHORT_ANIMATION,prev);
+			graphWriter.highlightNode(workingModel, ts.NOW, ts.SHORT_ANIMATION,nodeOne, nodeTwo );
+//			graphWriter.translateNodes(workingModel, model);
 			hl(20);
 			break;
 		case SettingNewNodeAsRightToParentOfOldNode:
 			fine("Zu löschender Knoten ist rechtes Kind.\n" + " Auszutauschender Knoten wird als rechtes Kind von " +nodeOneVal + " gesetzt");
-			prev = new Node[] { nodeOne, nodeTwo };
-			prevModel = model;
-//			for (Node iterable_element : prev) {
-//				graphWriter.unhighlightNode(model, iterable_element);				
-//			}
-			graphWriter.highlightNode(model, ts.NOW, ts.SHORT_ANIMATION,prev);
+			graphWriter.highlightNode(workingModel, ts.NOW, ts.SHORT_ANIMATION,nodeOne, nodeTwo );
+//			graphWriter.translateNodes(workingModel, model);
 			hl(22);
 			step();
 			break;
 		case TransplantSetsParentOfOldToNew:
 			fine("Falls zu ersetzender Knoten ungleich NIL ist wird sein parent\nmit dem parent des zu löschenden Knotens " + nodeOneVal + " ausgetauscht");
 			hl(23,24);
-			graphWriter.highlightNode(model, ts.NOW, ts.SHORT_ANIMATION);
-			for (Node pn : prev) {
-				graphWriter.unhighlightNode(prevModel, pn);
-			}
+			graphWriter.highlightNode(workingModel, ts.NOW, ts.SHORT_ANIMATION);
+//			for (Node pn : prev) {
+//				graphWriter.unhighlightNode(workingModel, pn);
+//			}
 			break;			
 		default:
 			throw new EndOfTheWorldException();

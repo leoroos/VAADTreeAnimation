@@ -277,80 +277,13 @@ public class BinarySearchTreeAnimation<T extends Comparable<T>> {
 		}
 
 		hideAll(model, null);
-
 		nextStateOnLocation(
-				"Beim löschen wird vorgeganen wie bei einem gewöhnlichen\n"
-						+ "Binärbaum. Dabei werden drei Fälle unterschieden:\n"
-						+ "1. Der zu löschende Knoten hat keine Kinder\n"
-						+ "2. Der zu löschende Knoten hat ein Kind\n"
-						+ "3. Der zu löschende Knoten hat zwei Kinder",
-				DIRECTOR_DESCRIPTION_BEGINNING);
-
-		step();
-
-		nextStateOnLocation(
-				"Beispielhafte Darstellung des Löschens eines Knotens.",
-				DIRECTOR_DESCRIPTION_BEGINNING);
-
-		// animator.setModel(model);
-		model.show();
-		step();
-
-		de.lere.vaad.treebuilder.Node<T> root = model.getRoot();
-		while (root != null) {
-			T value = root.getValue();
-			if (root.hasLeftChild() && root.hasRightChild()) {
-				nextStateOnLocation(
-						"3. Der zu löschende Knoten hat zwei Kinder",
-						DIRECTOR_MACROSTEP);
-				nextStateOnLocation(
-						"Löschen von "
-								+ value
-								+ ".\n"
-								+ "Der zu löschende Knoten muss mit seinem direkten Nachfolger oder Vorgänger ersetzt werden.\n"
-								+ "Die möglicherweise vorhandenen Unterbäume müssen entsprechend umgehängt werden.",
-						DIRECTOR_MICROSTEP);
-				step();
-				model.delete(value);
-				step();
-			} else if (root.hasLeftChild() || root.hasRightChild()) {
-				nextStateOnLocation(
-						"2. Der zu löschende Knoten hat genau ein Kind\n",
-						DIRECTOR_MACROSTEP);
-				nextStateOnLocation(
-						"Löschen von "
-								+ value
-								+ ".\n"
-								+ ".Der zu löschende Knoten kann mit seinem Kind ersetzt werden.",
-						DIRECTOR_MICROSTEP);
-				step();
-				model.delete(value);
-				step();
-			} else {
-				nextStateOnLocation(
-						"1. Der zu löschende Knoten hat keine Kinder\n",
-						DIRECTOR_MACROSTEP);
-				nextStateOnLocation(
-						"Löschen des Knotens "
-								+ value
-								+ ".\n"
-								+ "Der Knoten kann entfernt werden ohne das zusätzliche\n"
-								+ "Operationen ausgeführt werden müssen.",
-						DIRECTOR_MICROSTEP);
-				model.delete(value);
-				step();
-			}
-			root = model.getRoot();
-		}
-		step();
-		hideAll(model, null);
-		nextStateOnLocation(
-				"Eine Verfeinerung der Animationen analog zu Insertion folgt in 5.1",
+				"Keine weiteren Animationen konfiguriert.",
 				DIRECTOR_MACROSTEP);
 		step();
 	}
 
-	private void createHeaderText(String title, Color green, Node location) {
+	private void createHeaderText(String title, Color color, Node location) {
 		TextProperties headerProps = getHeaderTextProperties(btProps
 				.getTextProperties());		
 		Text headerText = language.newText(location, title, "headerText", null, headerProps);
@@ -358,7 +291,7 @@ public class BinarySearchTreeAnimation<T extends Comparable<T>> {
 		Offset downright = new Offset(0, 0, headerText, "SE");
 		Offset upLeft = new Offset(0, 0, headerText, "NW");
 		RectProperties rectProperties = new RectProperties();
-		rectProperties.set("fillColor", green);
+		rectProperties.set("fillColor", color);
 		rectProperties.set("filled", true);
 		rectProperties.set("depth", 2);
 		language.newRect(upLeft, downright, "boxBehindHeader", null, rectProperties);

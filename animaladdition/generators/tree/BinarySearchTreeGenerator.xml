@@ -201,7 +201,7 @@
 		</Primitive>
 		<Primitive type="intArray">
 			<name>DeleteKnoten</name>
-			<value><intArray>4, 90, 6, 2</intArray></value>
+			<value><intArray>20,1,2,14,6,15,34,90,1234,12,5,1,4,30,23,26</intArray></value>
 		</Primitive>
 		<Primitive type="boolean">
 			<name>ShowIntro</name>
