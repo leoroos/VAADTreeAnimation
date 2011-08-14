@@ -77,12 +77,11 @@ public class BinaryTreeModelTest {
 
 	@Test
 	public void shouldFireEventOnSearchNothingFoundWithNull() throws Exception {
-		BinaryTreeModel<Integer> spy = spy(model);
-		TreeEventListener<Integer> btmlMock = createLinkBtmlMock(spy);
-		spy.search(10);
-		verify(spy).fireChange(
-				new TreeSearchEvent<Integer>(model.copy(), model.copy(), null));
-		verify(btmlMock).update(Mockito.any(TreeSearchEvent.class));
+		ArgumentCaptor<TreeModelChangeEvent> captorTE = getCaptorTE();
+		TreeEventListener<Integer> btmlMock = createLinkBtmlMock(model);
+		model.search(10);
+		verify(btmlMock, atLeastOnce()).update(captorTE.capture());
+		assertThat(captorTE.getValue(), instanceOf(TreeSearchEvent.class));
 	}
 
 	@Test
@@ -91,9 +90,9 @@ public class BinaryTreeModelTest {
 				3, 6);
 		TreeEventListener<Integer> btmlMock = createLinkBtmlMock(model);
 		Node<Integer> search = model.search(6);
-		verify(btmlMock)
-				.update(new TreeSearchEvent<Integer>(model.copy(),
-						model.copy(), search));
+		verify(btmlMock).update(
+				new TreeSearchEvent<Integer>(model.copy(), model.copy(),
+						search, new BinaryTreeModel.StatisticResult(), 6));
 	}
 
 	@Test
@@ -499,36 +498,39 @@ public class BinaryTreeModelTest {
 		assertThat("Expected equal structure", expSubTree.getRoot()
 				.compareStructure(resultOfRightRotate));
 	}
-	
+
 	@Test
 	public void heightEmptyTreeIsMinus1() throws Exception {
 		int h = model.height();
 		assertThat(h, equalTo(-1));
 	}
-	
+
 	@Test
 	public void heightOfRootIsZero() throws Exception {
 		model.insert(0);
 		int h = model.height();
 		assertThat(h, equalTo(0));
 	}
-	
+
 	@Test
 	public void heightOfTreeWithOneChildIsOne() throws Exception {
 		model.insert(5);
 		model.insert(1);
 		assertThat(model.height(), equalTo(1));
 	}
-	
+
 	@Test
-	public void heightOfTreeDegeneratedTreeEqualsNodesMinusOne() throws Exception {
-		BinaryTreeModel<Integer> model = BinaryTreeModel.createTreeByInsert(1,2,3,4,5,6,7,8,9);
+	public void heightOfTreeDegeneratedTreeEqualsNodesMinusOne()
+			throws Exception {
+		BinaryTreeModel<Integer> model = BinaryTreeModel.createTreeByInsert(1,
+				2, 3, 4, 5, 6, 7, 8, 9);
 		assertThat(model.height(), equalTo(8));
 	}
-	
+
 	@Test
 	public void heightOfTreeDegeneratedTreeEqualsLongestPath() throws Exception {
-		BinaryTreeModel<Integer> model = BinaryTreeModel.createTreeByInsert(20,3,2,4,5,6,7,8,9,34,21,46,60);
+		BinaryTreeModel<Integer> model = BinaryTreeModel.createTreeByInsert(20,
+				3, 2, 4, 5, 6, 7, 8, 9, 34, 21, 46, 60);
 		assertThat(model.height(), equalTo(7));
 	}
 }

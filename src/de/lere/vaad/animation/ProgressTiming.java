@@ -22,7 +22,7 @@ public class ProgressTiming {
 		return now;
 	}
 
-	public TicksTiming getInterval() {
+	public TicksTiming duration() {
 		return interval;
 	}
 

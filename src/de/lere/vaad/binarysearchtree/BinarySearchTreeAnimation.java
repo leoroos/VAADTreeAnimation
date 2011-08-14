@@ -3,8 +3,9 @@ package de.lere.vaad.binarysearchtree;
 import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.apache.commons.io.FileUtils;
@@ -20,28 +21,33 @@ import algoanim.util.Hidden;
 import algoanim.util.Node;
 import algoanim.util.Offset;
 import de.lere.vaad.BinaryTreeProperties;
-import de.lere.vaad.EndOfTheWorldException;
+import de.lere.vaad.animation.DefaultVisibilityEventListener;
+import de.lere.vaad.animation.GraphWriter;
 import de.lere.vaad.animation.GraphWriterImpl;
+import de.lere.vaad.animation.SourceCodeWriter;
+import de.lere.vaad.animation.StepWriter;
+import de.lere.vaad.animation.Timings;
+import de.lere.vaad.binarysearchtree.BinarySearchTreeAnimation.Mission;
 import de.lere.vaad.locationhandler.LocationDirector;
 import de.lere.vaad.locationhandler.LocationHandler;
 import de.lere.vaad.locationhandler.NextStateOnLocationDirector;
 import de.lere.vaad.treebuilder.BinaryTreeLayout;
 import de.lere.vaad.treebuilder.BinaryTreeModel;
+import de.lere.vaad.treebuilder.events.DefaultTreeModelChangeEventListener;
 import de.lere.vaad.treebuilder.events.TreeEvent;
 import de.lere.vaad.treebuilder.events.TreeEventListener;
-import de.lere.vaad.treebuilder.events.TreeEventListenerAggregator;
-import de.lere.vaad.treebuilder.events.TreeHideEvent;
-import de.lere.vaad.treebuilder.events.TreeInsertEvent;
-import de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing;
-import de.lere.vaad.treebuilder.events.TreeModelChangeEventListener;
-import de.lere.vaad.treebuilder.events.TreeShowEvent;
-import de.lere.vaad.treebuilder.events.TreeVisibilityEvent;
-import de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition;
+import de.lere.vaad.treebuilder.events.TreeModelChangeEvent;
 import de.lere.vaad.utils.MathHelper;
 import de.lere.vaad.utils.NodeHelper;
 import de.lere.vaad.utils.TextLoaderUtil;
 
 public class BinarySearchTreeAnimation<T extends Comparable<T>> {
+
+	public interface Mission<T> {
+
+		void accomplish(T arg);
+
+	}
 
 	private static final Point GRAPHROOT_COORDINATES = new Point(400, 300);
 	private static final int MIN_NODES_DISTANCE = 10;
@@ -75,14 +81,15 @@ public class BinarySearchTreeAnimation<T extends Comparable<T>> {
 
 	}
 
-	private final BinaryTreeProperties animationProperties;
+	private final BinaryTreeProperties btProps;
 
 	public final LocationDirector<Offset> DIRECTOR_DESCRIPTION_BEGINNING;
-	public final NextStateOnLocationDirector<Coordinates> DIRECTOR_GRAPHROOT;
+	public final LocationDirector<Coordinates> DIRECTOR_GRAPHROOT;
 	public final LocationDirector<Coordinates> DIRECTOR_HEADER;
 	public final LocationDirector<Offset> DIRECTOR_MACROSTEP;
 	public final LocationDirector<Offset> DIRECTOR_MICROSTEP;
-	public final NextStateOnLocationDirector<Coordinates> DIRECTOR_SOURCECODE;
+	public final LocationDirector<Coordinates> DIRECTOR_SMALLISH_SOURCECODE;
+	public final LocationDirector<Coordinates> DIRECTOR_LONGER_SOURCECODE;
 
 	private final Language language;
 	private BinaryTreeLayout layout;
@@ -107,16 +114,20 @@ public class BinarySearchTreeAnimation<T extends Comparable<T>> {
 	private T[] deleteArray;
 
 	private boolean showIntro = true;
+	private StepWriter stepWriter;
+	private Timings timings;
 
 	public BinarySearchTreeAnimation(Language l, BinaryTreeProperties btp,
 			T[] initialTree) {
-		if (l == null || btp == null)
+		if (l == null || btp == null) {
 			throw new IllegalArgumentException("no null values allowed");
-		if (initialTree == null)
+		}
+		if (initialTree == null) {
 			throw new IllegalArgumentException(
 					"null not allowed for initial tree. Use empty array instead");
+		}
 		this.language = l;
-		this.animationProperties = btp;
+		this.btProps = btp;
 		l.setStepMode(true);
 
 		BinaryTreeModel<T> model = BinaryTreeModel
@@ -126,19 +137,33 @@ public class BinarySearchTreeAnimation<T extends Comparable<T>> {
 
 		this.layout = new BinaryTreeLayout(graphLocation,
 				preferredFirstLevelWidthConsideringGraphSize, 60,
-				btp.getGraphProperties());
+				btp.getGraphProperties(), this.getClass().getSimpleName()
+						+ "Graph");
 		this.lh = new LocationHandler(this.language, btp);
 		this.textLoader = new TextLoaderUtil(getClass(), "resources");
 		this.INITIAL_DESCRIPTION = textLoader.getText("initialDescription.txt");
 		this.initialTree = initialTree;
+		this.stepWriter = new StepWriter(language);
+		this.timings = new Timings();
 
 		DIRECTOR_HEADER = createHeaderLocDir();
 		DIRECTOR_DESCRIPTION_BEGINNING = createDescriptionBeginningLocDir(DIRECTOR_HEADER);
 		DIRECTOR_MACROSTEP = createMacroStepLocDir(DIRECTOR_DESCRIPTION_BEGINNING);
 		DIRECTOR_MICROSTEP = createMicroStepLocDir(DIRECTOR_MACROSTEP);
 		DIRECTOR_GRAPHROOT = createDirectorGraphroot();
-		DIRECTOR_SOURCECODE = createSourceCodeLocDir();
+		DIRECTOR_SMALLISH_SOURCECODE = createSourceCodeLocDir();
+		DIRECTOR_LONGER_SOURCECODE = createLongerSourceCodeLocDir();
 
+	}
+
+	private LocationDirector<Coordinates> createLongerSourceCodeLocDir() {
+
+		Point orientationAnchor = this.layout.getNEBoundary();
+		Point avoidingGraphSourceOverlappingPoint = new Point(
+				orientationAnchor.x + MIN_NODES_DISTANCE,
+				GRAPHROOT_COORDINATES.y >> 1);
+		return new NextStateOnLocationDirector<Coordinates>(
+				Node.convertToNode(avoidingGraphSourceOverlappingPoint));
 	}
 
 	private int calculateOptimalFirstLevelWidth(BinaryTreeModel<T> model) {
@@ -167,186 +192,85 @@ public class BinarySearchTreeAnimation<T extends Comparable<T>> {
 	 */
 	public void buildAnimation() {
 
-		final SourceCode insertionSourceCode = language.newSourceCode(
-				DIRECTOR_SOURCECODE.getLocation(), "insertionSource",
-				new Hidden(),
-				this.animationProperties.getSourceCodeProperties());
-
-		getFilledSourceCode(this.textLoader.getText("insertAlgo.txt"),
-				insertionSourceCode);
-		insertionSourceCode.hide();
-
-		BinaryTreeModel<T> model = BinaryTreeModel
+		final BinaryTreeModel<T> model = BinaryTreeModel
 				.createTreeByInsert(initialTree);
 
-		final GraphWriterImpl<T> writer = new GraphWriterImpl<T>(language,
-				layout);
-		TreeEventListenerAggregator<T> animator = new TreeEventListenerAggregator<T>(
-				language);
-		animator.addAnimatior(new TreeModelChangeEventListener<T>(language,
-				writer));
-		animator.setLayout(this.layout);
+		GraphWriterImpl<T> writer = new GraphWriterImpl<T>(language, layout);
+		SourceCodeWriter sourceCodeWriter = new SourceCodeWriter(language,
+				this.btProps.getSourceCodeProperties(),
+				DIRECTOR_SMALLISH_SOURCECODE, timings);
 
-		// Code highlighting during insertion
-		model.addListener(sourceCodeHighlighter(insertionSourceCode, writer));
+		/* default animations for tree changes */
+		model.addListener(new DefaultTreeModelChangeEventListener<T>(
+				createBinaryTreeSetup(writer, sourceCodeWriter)));
+		model.addListener(new DefaultVisibilityEventListener<T>(writer));
 
-		model.addListener(visibilityHandler(writer));
+		/* omnipotent Header */
+		nextStateOnLocation("Der Binäre Suchbaum\n" + "As designed by "
+				+ this.btProps.authors, DIRECTOR_HEADER);
 
-		// text description during insertion
-		model.addListener(insertionCodeDescriber());
-
-		// activate steps while traversing insertion algorithm
-		model.addListener(new TreeEventListener<T>() {
-
-			@Override
-			public void update(TreeEvent<T> event) {
-				if (event instanceof TreeInsertSourceCodeTraversing<?>) {
-					step();
-				}
-			}
-		});
-
-		model.addListener(new TreeEventListener<T>() {
-
-			@Override
-			public void update(TreeEvent<T> event) {
-				if (event instanceof TreeInsertEvent<?>) {
-					TreeInsertEvent<T> e = (TreeInsertEvent<T>) event;
-					int compStats = ((TreeInsertEvent<T>) event).insertionResult.numOfComparisons;
-					nextStateOnLocation("Das Einfügen des Knotens "
-							+ e.nodeOfModification.getValue() + " hat "
-							+ compStats + " Vergleiche benötigt.",
-							DIRECTOR_MICROSTEP);
-				}
-
-			}
-		});
-
-		
-		// Intro ----------------------------------------
-		nextStateOnLocation("Der Binäre Suchbaum", DIRECTOR_HEADER);
-
-		nextStateOnLocation(INITIAL_DESCRIPTION, DIRECTOR_DESCRIPTION_BEGINNING);
-
-		step();
-
-		hideAll(model, insertionSourceCode);
-		nextStateOnLocation("Beispiel eines binären Suchbaums",
-				DIRECTOR_MACROSTEP);
-
-		T rv = model.getRoot().getValue();
-		nextStateOnLocation("Alle Knoten kleiner " + rv
-				+ " befinden sich linkes von der Wurzel,\n"
-				+ "alle Knoten größer " + rv + " rechts von der Wurzel.",
-				DIRECTOR_MICROSTEP);
-
-//		animator.setModel(model);
-
-		step();
-
-		hideAll(model, null);
-
-		nextStateOnLocation(
-				"Ein binärer Suchbaum ermöglicht das Einfügen, Entfernen und Suchen von Werten\n"
-						+ "in durchschnittlich θ(lg h) Zeit und im schlechtesten Fall \n"
-						+ "in maximal θ(h) Zeit, wobei h seine Höhe darstellt.",
-				DIRECTOR_DESCRIPTION_BEGINNING);
-
-		step();
-
-		// Search if search array greater 0
-		nextStateOnLocation(
-				"Beispielhafte Darstellung der Suche eines Knotens",
-				DIRECTOR_DESCRIPTION_BEGINNING);
-		model.show();
-//		animator.setModel(model);
-
-		step();
-
-		nextStateOnLocation(
-				"Die Suche im binären Suchbaum beginnt bei der Wurzel,\n"
-						+ "vergleicht darauf ob der gesuchte Knoten größer oder kleiner ist und führt seine Suche entsprechend\n"
-						+ "rechts oder links fort.", DIRECTOR_MACROSTEP);
-		step();
-
-		nextStateOnLocation(
-				"Soll der Knoten V gesucht werden führt die Suche an J und P vorbei.",
-				DIRECTOR_MICROSTEP);
-
-		// model.search("V");
-		//
-		// step();
-		//
-		// nextStateOnLocation("Analog für C", DIRECTOR_MICROSTEP);
-		//
-		// step();
-		//
-		// model.search("C");
-		//
-		// step();
-		//
-		// nextStateOnLocation("und Q", DIRECTOR_MICROSTEP);
-		//
-		// step();
-		//
-		// model.search("Q");
-		//
-		// step();
-
-		// Insert if insert array greater 0
-
-		hideAll(model, null);
-		nextStateOnLocation("Einfügens eines Knotens",
-				DIRECTOR_DESCRIPTION_BEGINNING);
-		nextStateOnLocation(
-				"Beim Einfügen wird zuerst wie beim Suchen vorgegangen.\n"
-						+ "Es wird versucht den einzufügenden Knoten zu suchen, wird dabei ein Blatt\n"
-						+ "erreicht wird der Knoten dort wo erwartet worden wäre ihn zu finden eingefügt.",
-				DIRECTOR_MACROSTEP);
-		animator.setModel(model);
-		insertionSourceCode.show();
-
-		step();
-
-		T[] insertionArray = getInsertionArray();
-		for (T insEl : insertionArray) {
-			model.insert(insEl);
+		/* Optional intro */
+		if (isShowIntro()) {
+			putDescriptionUp();
+			step();
+			hideAllDescriptions();
 		}
 
-		step();
+		if (hasElements(searchArray)) {
+			Mission<T> searchMission = new Mission<T>() {
+				@Override
+				public void accomplish(T arg) {
+					model.search(arg);
+				}
+			};
+			equipModelAccomplishMissionReturnTraceless(model, searchMission,
+					searchArray, new TreeSearchAnimation<T>(
+							createBinaryTreeSetup(writer, sourceCodeWriter)));
 
-		// model.insert("T");
-		//
-		// step();
-		//
-		// nextStateOnLocation("Analog wird E rechts von D eingefügt ...",
-		// DIRECTOR_MICROSTEP);
-		//
-		// step();
-		//
-		// model.insert("E");
-		//
-		// step();
-		//
-		// nextStateOnLocation("... I rechts von G", DIRECTOR_MICROSTEP);
-		//
-		// step();
-		//
-		// model.insert("I");
-		//
-		// step();
-		//
-		// nextStateOnLocation("und H links von I", DIRECTOR_MICROSTEP);
-		//
-		// step();
-		//
-		// model.insert("H");
-		//
-		// step();
+		}
 
-		// Delete if delete array greater 0
-		// Hide all
-		hideAll(model, insertionSourceCode);
+		if (hasElements(this.insertionArray)) {
+
+			Mission<T> insertionCmd = new Mission<T>() {
+				@Override
+				public void accomplish(T arg) {
+					model.insert(arg);
+				}
+			};
+
+			equipModelAccomplishMissionReturnTraceless(model, insertionCmd,
+					this.insertionArray, new TreeInsertionAnimation<T>(
+							createBinaryTreeSetup(writer, sourceCodeWriter)));
+
+		}
+
+		if (hasElements(deleteArray)) {
+			nextStateOnLocation(
+					"Beim löschen wird vorgeganen wie bei einem gewöhnlichen\n"
+							+ "Binärbaum. Dabei werden drei Fälle unterschieden:\n"
+							+ "1. Der zu löschende Knoten hat keine Kinder\n"
+							+ "2. Der zu löschende Knoten hat ein Kind\n"
+							+ "3. Der zu löschende Knoten hat zwei Kinder",
+					DIRECTOR_DESCRIPTION_BEGINNING);
+			step();
+			hideAllDescriptions();
+
+			SourceCodeWriter deleteSCW = new SourceCodeWriter(language,
+					this.btProps.getSourceCodeProperties(),
+					DIRECTOR_LONGER_SOURCECODE, timings);
+			Mission<T> deleteMission = new Mission<T>() {
+				@Override
+				public void accomplish(T arg) {
+					model.delete(arg);
+				}
+			};
+			equipModelAccomplishMissionReturnTraceless(model, deleteMission,
+					deleteArray, new TreeDeleteAnimation<T>(
+							createBinaryTreeSetup(writer, deleteSCW)));
+
+		}
+
+		hideAll(model, null);
 
 		nextStateOnLocation(
 				"Beim löschen wird vorgeganen wie bei einem gewöhnlichen\n"
@@ -362,7 +286,10 @@ public class BinarySearchTreeAnimation<T extends Comparable<T>> {
 				"Beispielhafte Darstellung des Löschens eines Knotens.",
 				DIRECTOR_DESCRIPTION_BEGINNING);
 
-		animator.setModel(model);
+		// animator.setModel(model);
+		model.show();
+		step();
+
 		de.lere.vaad.treebuilder.Node<T> root = model.getRoot();
 		while (root != null) {
 			T value = root.getValue();
@@ -417,219 +344,107 @@ public class BinarySearchTreeAnimation<T extends Comparable<T>> {
 		step();
 	}
 
-	private TreeEventListener<T> sourceCodeHighlighter(
-			final SourceCode insertionSourceCode,
-			final GraphWriterImpl<T> writer) {
-		return new TreeEventListener<T>() {
+	private void equipModelAccomplishMissionReturnTraceless(
+			final BinaryTreeModel<T> modelOfOperation, Mission<T> mission,
+			T[] targetArray, TreeEventListener<?>... animations) {
 
-			private int[] previouslyHighlighted = {};
-			private de.lere.vaad.treebuilder.Node<T> previouslyHighlightedNode;
-			private BinaryTreeModel<T> codeCurModel;
-			private de.lere.vaad.treebuilder.Node<T> codeCurrentNodePos;
+		ArrayList<TreeEventListener<T>> arming = new ArrayList<TreeEventListener<T>>();
+		for (TreeEventListener<?> treeEventListener : animations) {
+			/* got to be <T> */
+			@SuppressWarnings("unchecked")
+			TreeEventListener<T> treeEventListenerT = (TreeEventListener<T>) treeEventListener;
+			arming.add(treeEventListenerT);
+		}
+		this.equipModelAccomplishMissionReturnTraceless(modelOfOperation,
+				mission, targetArray, arming);
 
-			private void highlightLines(final SourceCode sourceCode,
-					int... lines) {
-				lines = makeZeroBased(lines);
-				for (int i : previouslyHighlighted) {
-					sourceCode.unhighlight(i);
-				}
-				this.previouslyHighlighted = lines;
-				for (int j : lines) {
-					sourceCode.highlight(j);
-				}
-				highlightNode(codeCurrentNodePos, codeCurModel);
-			}
-
-			private void highlightNode(
-					de.lere.vaad.treebuilder.Node<T> currentPosition,
-					BinaryTreeModel<T> model) {
-				if (previouslyHighlightedNode != null)
-					writer.unhighlightNode(model, previouslyHighlightedNode);
-				previouslyHighlightedNode = currentPosition;
-				writer.highlightNode(model, currentPosition);
-			}
-
-			private int[] makeZeroBased(int[] lines) {
-				for (int i = 0; i < lines.length; i++) {
-					int j = lines[i] - 1;
-					if (j < 0) {
-						throw new IllegalArgumentException(
-								"expected only args greater 0 but was " + j);
-					}
-					lines[i] = j;
-				}
-				return lines;
-			}
-
-			@Override
-			public void update(TreeEvent<T> event) {
-				if (event instanceof TreeInsertSourceCodeTraversing<?>) {
-					TreeInsertSourceCodeTraversing<T> ie = (TreeInsertSourceCodeTraversing<T>) event;
-					InsertSourceCodePosition curPos = ie.position;
-					codeCurrentNodePos = ie.currentPosition;
-					codeCurModel = ie.currentModel;
-					switch (curPos) {
-
-					case Init:
-						highlightLines(insertionSourceCode, 2, 3);
-
-						break;
-					case CheckingIfInsertionPossible:
-						highlightLines(insertionSourceCode, 4);
-
-						break;
-					case TestingIfWhereToFromCurrent:
-						highlightLines(insertionSourceCode, 6);
-						break;
-					case LookingAlongLeftChild:
-						highlightLines(insertionSourceCode, 7);
-
-						break;
-					case LookingAlongRightChild:
-						highlightLines(insertionSourceCode, 9);
-
-						break;
-					case SettingParentForNewCurrentNode:
-						highlightLines(insertionSourceCode, 10);
-
-						break;
-					case CheckingIfNewIsRoot:
-						highlightLines(insertionSourceCode, 11);
-						break;
-					case FinalIsSettingToRoot:
-						highlightLines(insertionSourceCode, 12);
-						break;
-					case FinalIsSettingAsLeftChildFrom:
-						highlightLines(insertionSourceCode, 14);
-						break;
-					case FinalIsSettingAsRightChildFrom:
-						highlightLines(insertionSourceCode, 16);
-						break;
-					case CheckingIfToSetLeftInFinalStep:
-						highlightLines(insertionSourceCode, 13);
-						break;
-
-					default:
-						throw new EndOfTheWorldException();
-					}
-				}
-			}
-		};
 	}
 
-	private TreeEventListener<T> visibilityHandler(
-			final GraphWriterImpl<T> writer) {
-		return new TreeEventListener<T>() {
+	private void equipModelAccomplishMissionReturnTraceless(
+			final BinaryTreeModel<T> modelOfOperation, Mission<T> mission,
+			T[] targetArray, ArrayList<TreeEventListener<T>> animationArming) {
 
-			@Override
-			public void update(TreeEvent<T> event) {
-				if (event instanceof TreeVisibilityEvent<?>) {
-					if (event instanceof TreeHideEvent<?>) {
-						writer.hideCurrent();
-					}
-					if (event instanceof TreeShowEvent<?>) {
-						step();
-						writer.showCurrent();
-					}
-				}
-			}
+		// new TreeEventListener<T>() {
+		//
+		// @Override
+		// public void update(TreeEvent<T> event) {
+		// if (event instanceof TreeModelChangeEvent<?>) {
+		// nextStateOnLocation("Noch zu bearbeiten: ",
+		// DIRECTOR_DESCRIPTION_BEGINNING);
+		// }
+		// }
+		//
+		// };
 
-		};
+		for (TreeEventListener<T> treeEventListener : animationArming) {
+			modelOfOperation.addListener(treeEventListener);
+		}
+
+		modelOfOperation.show();
+
+		// Iterate Command over model
+		performForEach(mission, targetArray);
+
+		/*
+		 * hide before removing listener to allow them to perform according
+		 * steps
+		 */
+		hideAll(modelOfOperation, null);
+		for (TreeEventListener<T> treeEventListener : animationArming) {
+			modelOfOperation.removeListener(treeEventListener);
+		}
 	}
 
-	private TreeEventListener<T> insertionCodeDescriber() {
-		return new TreeEventListener<T>() {
+	private void putDescriptionUp() {
+		nextStateOnLocation(INITIAL_DESCRIPTION, DIRECTOR_DESCRIPTION_BEGINNING);
 
-			private void describe(String string) {
-				nextStateOnLocation(string, DIRECTOR_MICROSTEP);
-			}
-
-			@Override
-			public void update(TreeEvent<T> event) {
-				if (event instanceof TreeInsertSourceCodeTraversing<?>) {
-					TreeInsertSourceCodeTraversing<T> ie = (TreeInsertSourceCodeTraversing<T>) event;
-					InsertSourceCodePosition position = ie.position;
-					de.lere.vaad.treebuilder.Node<T> curPos = ie.currentPosition;
-					T val = ie.insertionValue;
-					switch (position) {
-
-					case Init:
-						nextStateOnLocation("Einfügen von " + val,
-								DIRECTOR_MACROSTEP);
-						describe("Initialisierung: die Suche wird an der Wurzel "
-								+ curPos.getValue() + " begonnen ");
-						break;
-					case CheckingIfInsertionPossible:
-						if (curPos == null) {
-							describe("Nächste zu prüfende Position ist Null also wurde Platz zum Einfügen gefunden.");
-						} else {
-							describe("Solange kein Platz zum Einfügen gefunden wurde suche weiter um "
-									+ val
-									+ " einzufügen. "
-									+ "Prüfe als nächstes " + curPos.getValue());
-						}
-						break;
-					case TestingIfWhereToFromCurrent:
-						describe("Teste ob Knoten " + val
-								+ " links oder recht von " + curPos.getValue()
-								+ " einzufügen ist.");
-						break;
-					case LookingAlongLeftChild:
-						describe(val
-								+ " war kleiner deswegen suche links weiter nach Ort zum Einfügen");
-
-						break;
-					case LookingAlongRightChild:
-						describe(val
-								+ " war größer deswegen suche rechts weiter nach Ort zum Einfügen");
-						break;
-					case SettingParentForNewCurrentNode:
-						if (curPos == null) {
-							describe("Der Ort zur Ersetzung hatte keinen Parent also wird für "
-									+ val + " null als parent gesetzt");
-						} else {
-							describe(val + " bekommt einen neuen Parent: "
-									+ curPos.getValue());
-						}
-
-						break;
-					case CheckingIfNewIsRoot:
-						describe("Prüfe ob " + val + " neuer root ist.");
-						break;
-					case FinalIsSettingToRoot:
-						describe(val + " wird neue Wurzel.");
-						break;
-					case FinalIsSettingAsLeftChildFrom:
-						describe("Knoten " + val + " als linkes Kind eingfügt");
-						break;
-					case FinalIsSettingAsRightChildFrom:
-						describe("Knoten " + curPos.getValue()
-								+ " als rechtes Kind eingfügt");
-						break;
-					case CheckingIfToSetLeftInFinalStep:
-						describe("Prüfe ob Knoten " + val
-								+ " links oder rechts von " + curPos.getValue()
-								+ " eingefügt werden soll");
-						break;
-
-					default:
-						throw new EndOfTheWorldException();
-					}
-				}
-			}
-		};
+		nextStateOnLocation(
+				"Ein binärer Suchbaum ermöglicht das Einfügen, Entfernen und Suchen von Werten\n"
+						+ "in durchschnittlich θ(lg h) Zeit und im schlechtesten Fall \n"
+						+ "in maximal θ(h) Zeit, wobei h seine Höhe darstellt.",
+				DIRECTOR_MICROSTEP);
 	}
 
-	private @Nullable
-	T[] getInsertionArray() {
-		return insertionArray;
+	private BinarySearchTreeSetup<T> createBinaryTreeSetup(
+			GraphWriter<T> writer, SourceCodeWriter scw) {
+		BinarySearchTreeSetup<T> p = new BinarySearchTreeSetup<T>();
+		p.setCoarseDescription(DIRECTOR_MACROSTEP);
+		p.setFineDescription(DIRECTOR_MICROSTEP);
+		p.setLang(language);
+		p.setLh(lh);
+		p.setBinaryTreeProperties(this.btProps);
+		p.setSourceCodeAnchor(scw);
+		p.setStepWriter(new StepWriter(language));
+		p.setWriter(writer);
+		return p;
+	}
+
+	private void performForEach(Mission<T> insCommand, T[] anElementArray) {
+		List<Mission<T>> result = new ArrayList<Mission<T>>();
+		result.add(insCommand);
+		performForEach(result, anElementArray);
+
+	}
+
+	private void performForEach(List<Mission<T>> missions, T[] anElementArray) {
+		if (hasElements(anElementArray)) {
+			for (T insEl : anElementArray) {
+				for (Mission<T> mission : missions) {
+					mission.accomplish(insEl);
+				}
+			}
+		}
+	}
+
+	private boolean hasElements(T[] anElementArray) {
+		return anElementArray != null && anElementArray.length > 0;
 	}
 
 	private LocationDirector<Offset> createDescriptionBeginningLocDir(
 			LocationDirector<Coordinates> headerPos) {
 		Text headerDummyPrimitive = language.newText(headerPos.getLocation(),
 				"12345678890", "headerDummyText", new Hidden());
-		int textVerticalHeight = this.animationProperties.textVerticalHeight;
+		int textVerticalHeight = this.btProps.textVerticalHeight;
 		Offset beginDescriptionLoc = new Offset(30, 2 * textVerticalHeight,
 				headerDummyPrimitive, AnimalScript.DIRECTION_SE);
 		NextStateOnLocationDirector<Offset> director = new NextStateOnLocationDirector<Offset>(
@@ -651,16 +466,17 @@ public class BinarySearchTreeAnimation<T extends Comparable<T>> {
 
 	private NextStateOnLocationDirector<Offset> createMacroStepLocDir(
 			LocationDirector<?> beginDescriptionLoc) {
-		SourceCodeProperties scProps = new SourceCodeProperties();
-		SourceCode sc = language.newSourceCode(
-				beginDescriptionLoc.getLocation(), "algorithmOperations", null,
-				scProps);
+		// SourceCodeProperties scProps = new SourceCodeProperties();
+		// SourceCode sc = language.newSourceCode(
+		// beginDescriptionLoc.getLocation(), "algorithmOperations", null,
+		// scProps);
 		String codeGroupText = " \n \n \n";
 
-		sc = lh.getFilledSourceCode(codeGroupText, sc);
+		Group createTextGroup = lh.createTextGroup(codeGroupText,
+				beginDescriptionLoc.getLocation());
 
 		Offset macroStepLocation = new Offset(0,
-				this.animationProperties.textVerticalHeight, sc,
+				this.btProps.textVerticalHeight, createTextGroup,
 				AnimalScript.DIRECTION_SW);
 
 		NextStateOnLocationDirector<Offset> director = new NextStateOnLocationDirector<Offset>(
@@ -680,17 +496,22 @@ public class BinarySearchTreeAnimation<T extends Comparable<T>> {
 	}
 
 	private NextStateOnLocationDirector<Coordinates> createSourceCodeLocDir() {
+		Point orientationAnchor = this.layout.getNEBoundary();
+		Point avoidingGraphSourceOverlappingPoint = new Point(
+				orientationAnchor.x + MIN_NODES_DISTANCE, orientationAnchor.y);
 		return new NextStateOnLocationDirector<Coordinates>(
-				Node.convertToNode(this.layout.getNEBoundary()));
+				Node.convertToNode(avoidingGraphSourceOverlappingPoint));
 	}
 
 	private void hideAll(@Nullable BinaryTreeModel<T> model,
 			@Nullable SourceCode code) {
 		hideAllDescriptions();
-		if (model != null)
+		if (model != null) {
 			model.hide();
-		if (code != null)
+		}
+		if (code != null) {
 			code.hide();
+		}
 	}
 
 	private void hideAllDescriptions() {
@@ -700,11 +521,7 @@ public class BinarySearchTreeAnimation<T extends Comparable<T>> {
 	}
 
 	private void step() {
-		language.nextStep();
-	}
-
-	private SourceCode getFilledSourceCode(String text, SourceCode sc) {
-		return lh.getFilledSourceCode(text, sc);
+		this.stepWriter.step();
 	}
 
 	private <U extends Node> void nextStateOnLocation(String string,
@@ -731,6 +548,14 @@ public class BinarySearchTreeAnimation<T extends Comparable<T>> {
 
 	public boolean isShowIntro() {
 		return showIntro;
+	}
+
+	public void setSearchAnimation(T[] searchArray) {
+		this.searchArray = searchArray;
+	}
+
+	public void setDeleteAnimation(T[] deleteArray) {
+		this.deleteArray = deleteArray;
 	}
 
 }

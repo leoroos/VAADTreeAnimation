@@ -11,6 +11,13 @@ import static de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.Ins
 import static de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition.LookingAlongRightChild;
 import static de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition.SettingParentForNewCurrentNode;
 import static de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition.TestingIfWhereToFromCurrent;
+import static de.lere.vaad.treebuilder.events.TreeSearchCodeTraversingEvent.SearchTraversingPosition.FinalReturnSearchResult;
+import static de.lere.vaad.treebuilder.events.TreeSearchCodeTraversingEvent.SearchTraversingPosition.GoOnSearchingAlongLeftChild;
+import static de.lere.vaad.treebuilder.events.TreeSearchCodeTraversingEvent.SearchTraversingPosition.GoOnSearchingAlongRightChild;
+import static de.lere.vaad.treebuilder.events.TreeSearchCodeTraversingEvent.SearchTraversingPosition.TestIfGoOnSearching;
+import static de.lere.vaad.treebuilder.events.TreeSearchCodeTraversingEvent.SearchTraversingPosition.TestIfSearchAlongLeftChild;
+
+import static de.lere.vaad.binarysearchtree.TreeDeleteSourceTraversingEvent.DeleteTraversingPosition.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,26 +26,37 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import javax.annotation.Nullable;
 
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.omg.PortableInterceptor.SUCCESSFUL;
+
+import de.lere.vaad.binarysearchtree.TreeDeleteSourceTraversingEvent;
+import de.lere.vaad.binarysearchtree.TreeDeleteSourceTraversingEvent.DeleteTraversingPosition;
 import de.lere.vaad.treebuilder.events.TreeDeleteEvent;
 import de.lere.vaad.treebuilder.events.TreeEvent;
 import de.lere.vaad.treebuilder.events.TreeEventListener;
 import de.lere.vaad.treebuilder.events.TreeHideEvent;
 import de.lere.vaad.treebuilder.events.TreeInsertEvent;
 import de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing;
+import de.lere.vaad.treebuilder.events.TreeSearchCodeTraversingEvent;
+import de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition;
+import de.lere.vaad.treebuilder.events.TreeSearchCodeTraversingEvent.SearchTraversingPosition;
 import de.lere.vaad.treebuilder.events.TreeLeftRotateEvent;
 import de.lere.vaad.treebuilder.events.TreeRightRotateEvent;
 import de.lere.vaad.treebuilder.events.TreeSearchEvent;
 import de.lere.vaad.treebuilder.events.TreeShowEvent;
 import de.lere.vaad.treebuilder.events.TreeVisibilityEvent;
-import de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition;
 
 /**
  * @author Leo Roos, Rene Hertling Represents the logical structure of a binary
  *         tree. Contains the root and convience-method for child-node access.
  */
 public class BinaryTreeModel<T extends Comparable<T>> {
+
+	public static class DeleteStatisticResult extends StatisticResult {
+		public int transplantations = 0;
+	}
 
 	private Node<T> root;
 
@@ -65,7 +83,7 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 			return 0;
 		}
 		return root.size();
-	}	
+	}
 
 	public boolean isEmpty() {
 		return size() == 0;
@@ -129,14 +147,14 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 	 * @author Leo Roos, Rene Hertling
 	 * 
 	 */
-	public class InsertionResult {
+	public static class StatisticResult {
 
-		public int numOfComparisons = 0;
-
+		public int numberOfComparisons = 0;
+		public boolean successful = false;
 	}
 
 	public Node<T> insert(T value) {
-		InsertionResult insertionResult = new InsertionResult();
+		StatisticResult insertionResult = new StatisticResult();
 		BinaryTreeModel<T> before = this.copy();
 		Node<T> y = null;
 		Node<T> x = getRoot();
@@ -145,7 +163,7 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 				CheckingIfInsertionPossible)) {
 			y = x;
 			fireTreeInsertSource(TestingIfWhereToFromCurrent, x, value);
-			insertionResult.numOfComparisons++;
+			insertionResult.numberOfComparisons++;
 			if (NodeOrder.isEqualChildConsideredLeft(x.getValue(), value)) {
 				x = x.getLeft();
 				fireTreeInsertSource(LookingAlongLeftChild, x, value);
@@ -171,25 +189,29 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 			y.setRight(finalToInsert);
 		}
 
+		/*
+		 * Since duplicates allowed always true
+		 */
+		insertionResult.successful = true;
 		fireChange(new TreeInsertEvent<T>(before, this.copy(), finalToInsert,
 				insertionResult));
 		return finalToInsert;
 	}
 
 	private boolean ifIsNullIncrCompsFireEvent(Node<T> nullCheckOn,
-			InsertionResult insertionResult, T value,
+			StatisticResult insertionResult, T value,
 			InsertSourceCodePosition eventToFire) {
-		insertionResult.numOfComparisons++;
+		insertionResult.numberOfComparisons++;
 		fireTreeInsertSource(eventToFire, nullCheckOn, value);
 		return nullCheckOn == null;
 	}
 
 	private boolean checkWhetherLeftChildAndFireAccording(
 			InsertSourceCodePosition pos, Node<T> current, T value,
-			InsertionResult insertionResult) {
+			StatisticResult insertionResult) {
 		boolean leftChild = NodeOrder.isEqualChildConsideredLeft(
 				current.getValue(), value);
-		insertionResult.numOfComparisons++;
+		insertionResult.numberOfComparisons++;
 		fireTreeInsertSource(pos, current, value);
 		return leftChild;
 	}
@@ -310,21 +332,6 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 		return HashCodeBuilder.reflectionHashCode(this);
 	}
 
-	private boolean hasEqualListener(BinaryTreeModel<?> other) {
-		if (this.listeners.size() != other.listeners.size()) {
-			return false;
-		}
-
-		boolean thiscontainsAll = this.listeners.containsAll(other.listeners);
-		if (thiscontainsAll) {
-			if (other.listeners.containsAll(this.listeners)) {
-				return true;
-			}
-		}
-
-		return true;
-	}
-
 	public static <T extends Comparable<T>> BinaryTreeModel<T> createTreeByInsert(
 			List<T> args) {
 		BinaryTreeModel<T> binaryTreeModel = new BinaryTreeModel<T>();
@@ -353,26 +360,62 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 		if (nodeToDelete != null) {
 			deleted = nodeToDelete;
 			successor = delete(nodeToDelete);
+			currentDeleteStatistics.successful = true;
+		} else {
+			currentDeleteStatistics.successful = false;
 		}
 		BinaryTreeModel<T> current = copy();
-		fireChange(new TreeDeleteEvent<T>(old, current, deleted, successor));
+		fireChange(new TreeDeleteEvent<T>(old, current, deleted, successor,
+				currentDeleteStatistics, v));
 		return deleted;
 	}
 
+	private DeleteStatisticResult currentDeleteStatistics;
+
 	private void transplant(Node<T> old, Node<T> newnode) {
-		if (!old.hasParent()) {
+		currentDeleteStatistics.transplantations++;
+		fireDeleteTraversing(StartingTransplant, old, newnode);
+		if (fireDeleteTraversing(TestTransplantIfOldHasParent, old,
+				!old.hasParent())) {
+			fireDeleteTraversing(TransplantReplacesRoot, root, newnode);
 			root = newnode;
 			if (newnode != null) {
 				newnode.setParent(null);
 			}
-		} else if (old.isLeftChild()) {
+		} else if (fireDeleteTraversing(TestIfOldWasLeftChild, old,
+				old.isLeftChild())) {
+			fireDeleteTraversing(SettingNewNodeAsLeftToParentOfOldNode,
+					old.getParent());
 			old.getParent().setLeft(newnode);
-		} else if (old.isRightChild()) {
+		} else if (fireDeleteTraversing(TestIfOldWasRightChild, old,
+				old.isRightChild())) {
+			fireDeleteTraversing(SettingNewNodeAsRightToParentOfOldNode,
+					old.getParent());
 			old.getParent().setRight(newnode);
 		} else {
 			throw new IllegalStateException();
 		}
+		fireDeleteTraversing(TransplantSetsParentOfOldToNew, old.getParent(),
+				newnode, true /* to conform the algorithm */);
 	}
+
+	private boolean fireDeleteTraversing(
+			DeleteTraversingPosition transplantsetsparentofoldtonew,
+			Node<T> one, Node<T> two, boolean b) {
+		this.currentDeleteStatistics.numberOfComparisons++;
+		fireDeleteTraversing(transplantsetsparentofoldtonew, one, two);
+		return b;
+	}
+
+	private void fireDeleteTraversing(
+			DeleteTraversingPosition traversingPosition, Node<T> one,
+			Node<T> two) {
+		fireChange(new TreeDeleteSourceTraversingEvent<T>(this.copy(), one,
+				traversingPosition, currentDelVal, two));
+	}
+
+	private @Nullable
+	T currentDelVal;
 
 	/**
 	 * @param deletee
@@ -381,28 +424,100 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 	 *         <code>null</code> for root or leaf.
 	 */
 	public Node<T> delete(Node<T> deletee) {
-		if (!deletee.hasLeftChild()) {
-			transplant(deletee, deletee.getRight());
+		currentDeleteStatistics = new DeleteStatisticResult();
+		currentDelVal = deletee.getValue();
+		fireDeleteTraversing(DeleteInit, deletee);
+		if (fireDeleteTraversing(TestIfLeftChildNull, deletee.getLeft(),
+				!deletee.hasLeftChild())) {
+			fireDeleteTraversing(NoLeftChild, deletee.getRight());
+			Node<T> transplantwith = deletee.getRight();
+			transplant(deletee, transplantwith);
+			fireDeleteTraversing(FinishAfterTransplantWithRightChild,
+					transplantwith);
 			return deletee.getRight();
-		} else if (!deletee.hasRightChild()) {
-			transplant(deletee, deletee.getLeft());
+		} else if (fireDeleteTraversing(TestIfRightChildNull,
+				deletee.getRight(), !deletee.hasRightChild())) {
+			fireDeleteTraversing(NoRightChild, deletee.getLeft());
+			Node<T> transplantwith = deletee.getLeft();
+			transplant(deletee, transplantwith);
+			fireDeleteTraversing(FinishAfterTransplantWithLeftChild,
+					transplantwith);
 			return deletee.getLeft();
 		} else {
 			Node<T> successor = deletee.getRight().getMinimum();
-			if (!successor.getParent().equals(deletee)) {
+			fireDeleteTraversing(GetMinimumOfRight, successor);
+			if (fireDeleteTraversing(TestIfParentOfMinNotDeletee,
+					successor.getParent(),
+					!successor.getParent().equals(deletee))) {
+				fireDeleteTraversing(TransplantingSuccessorWithItsRightChild,
+						successor.getRight());
 				transplant(successor, successor.getRight());
+				fireDeleteTraversing(
+						SettingDeleteesRightToSuccessorsRightAndSettingNewRightsParent,
+						deletee.getRight());
 				successor.setRight(deletee.getRight());
 			}
+			fireDeleteTraversing(TransplantingDeleteeWithSuccessor, successor);
 			transplant(deletee, successor);
+			fireDeleteTraversing(
+					SettingSuccessorLeftWithDeleteeLeftAndSettingsNewLeftsParent,
+					deletee.getLeft());
 			successor.setLeft(deletee.getLeft());
 			return successor;
 		}
 	}
 
-	public Node<T> search(T v) {
-		Node<T> found = internalSearch(v);
-		fireChange(new TreeSearchEvent<T>(this.copy(), this.copy(), found));
-		return found;
+	private boolean fireDeleteTraversing(
+			TreeDeleteSourceTraversingEvent.DeleteTraversingPosition traversingPosition,
+			Node<T> currentPos, boolean b) {
+		return fireDeleteTraversing(traversingPosition, currentPos, null, b);
+	}
+
+	private void fireDeleteTraversing(
+			DeleteTraversingPosition traversingPosition, Node<T> currentPos) {
+		fireDeleteTraversing(traversingPosition, currentPos, null);
+	}
+
+	private StatisticResult runningSearchStatistics;
+
+	public Node<T> search(T k) {
+		this.runningSearchStatistics = new StatisticResult();
+		Node<T> x = getRoot();
+		fireSearchTraversing(SearchTraversingPosition.Init, x, k);
+		while (fireSearchTraversing(TestIfGoOnSearching, x, k,
+				(x != null && k != x.getValue()))) {
+			if (fireSearchTraversing(TestIfSearchAlongLeftChild, x, k,
+					NodeOrder.isEqualChildConsideredLeft(x.getValue(), k))) {
+				x = x.getLeft();
+				fireSearchTraversing(GoOnSearchingAlongLeftChild, x, k);
+			} else {
+				x = x.getRight();
+				fireSearchTraversing(GoOnSearchingAlongRightChild, x, k);
+			}
+		}
+		if (x != null)
+			runningSearchStatistics.successful = true;
+		fireSearchTraversing(FinalReturnSearchResult, x, k);
+		fireChange(new TreeSearchEvent<T>(this.copy(), this.copy(), x,
+				this.runningSearchStatistics, k));
+		return x;
+	}
+
+	private boolean fireSearchTraversing(
+			SearchTraversingPosition traversingPosition, Node<T> currentPos,
+			T searchVal, boolean b) {
+		this.runningSearchStatistics.numberOfComparisons++;
+		fireSearchTraversing(traversingPosition, currentPos, searchVal);
+		return b;
+	}
+
+	private void fireSearchTraversing(
+			SearchTraversingPosition traversingPosition, Node<T> currentPos,
+			T searchVal) {
+		if (currentPos != null)
+			currentPos = currentPos.copy();
+		fireChange(new TreeSearchCodeTraversingEvent<T>(traversingPosition,
+				this.copy(), currentPos, searchVal));
 	}
 
 	private Node<T> internalSearch(T v) {
@@ -486,7 +601,23 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 		return y;
 	}
 
+	public Node<T> getNodeByID(Node<T> node) {
+		List<Node<T>> nodes = getNodesInOrder();
+		int index = nodes.indexOf(node);
+		if (index < 0) {
+			return null;
+		}
+		return nodes.get(index);
+	}
+
 	// FIXME is this still relevant?
+	/**
+	 * @param <T>
+	 * @param model
+	 * @param node
+	 * @return try using {@link #lookupNodeByID(BinaryTreeModel, Node)} instead
+	 */
+	@Deprecated
 	public static <T extends Comparable<T>> Node<T> lookupNodeByID(
 			BinaryTreeModel<T> model, Node<T> node) {
 		List<Node<T>> nodes = model.getNodesInOrder();
@@ -500,9 +631,9 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 	public void hide() {
 		fireVisibilityChange(new TreeHideEvent<T>(this.copy()));
 	}
-	
+
 	private void fireVisibilityChange(TreeVisibilityEvent<T> event) {
-		fireChange(event);	
+		fireChange(event);
 	}
 
 	public void show() {
@@ -513,9 +644,9 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 	 * @return height of the root or -1 if tree is empty
 	 */
 	public int height() {
-		if(root == null) {
+		if (root == null) {
 			return -1;
-		} else {	
+		} else {
 			return root.height();
 		}
 	}

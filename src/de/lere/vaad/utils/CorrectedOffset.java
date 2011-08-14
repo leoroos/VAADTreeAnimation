@@ -40,7 +40,7 @@ public class CorrectedOffset {
 			nodeField.setAccessible(true);
 			nodeField.set(offsetInstance, newFieldValue);
 		} catch (Exception e) {
-			throw new EndOfTheWorldException();
+			throw new EndOfTheWorldException(e);
 		}
 	}
 

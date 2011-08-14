@@ -1,6 +1,6 @@
 package de.lere.vaad.treebuilder.events;
 
-import javax.swing.event.TreeModelListener;
+import javax.annotation.Nullable;
 
 import de.lere.vaad.treebuilder.BinaryTreeModel;
 import de.lere.vaad.treebuilder.Node;
@@ -10,8 +10,7 @@ public abstract class TreeModelChangeEvent<T extends Comparable<T>> extends Tree
 	
 	public final BinaryTreeModel<T> beforeChange;
 	public final BinaryTreeModel<T> afterChange;
-	//May be null
-	public final Node<T> nodeOfModification;
+	public final @Nullable Node<T> nodeOfModification;
 	
 	public TreeModelChangeEvent(BinaryTreeModel<T> before, BinaryTreeModel<T> after, Node<T> nodeOfModification) {
 		this.beforeChange = before;

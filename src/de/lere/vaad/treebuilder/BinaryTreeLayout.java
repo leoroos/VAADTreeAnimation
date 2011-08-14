@@ -74,9 +74,9 @@ public class BinaryTreeLayout {
 		return graphProperties;
 	}
 
-	public BinaryTreeLayout(Point graphRootPoint, int firstLevelWidth2,
+	public BinaryTreeLayout(Point graphRootPoint, int firstLevelWidth,
 			int verticalSpacing, GraphProperties graphProperties) {
-		this(graphRootPoint, firstLevelWidth2, verticalSpacing,
+		this(graphRootPoint, firstLevelWidth, verticalSpacing,
 				graphProperties, "DefaultGraphName");
 	}
 

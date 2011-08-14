@@ -14,7 +14,7 @@
 	<classpathentry kind="lib" path="lib/mockito-all-1.8.5.jar"/>
 	<classpathentry kind="lib" path="lib/Animal-current.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/vaad_lab3/doc/AlgoAnimAPIDoc.zip!/"/>
+			<attribute name="javadoc_location" value="jar:platform:/resource/vaad/doc/AlgoAnimAPIDoc.zip!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/annotations.jar"/>

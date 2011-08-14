@@ -27,7 +27,7 @@ public final class NodeUID {
 	
 	@Override
 	public String toString() {
-		return Long.toString(getUid());
+		return getClass().getSimpleName() +"["+ Long.toString(getUid()) +"]";
 	}
 	
 }

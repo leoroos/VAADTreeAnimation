@@ -1,10 +1,7 @@
 package de.lere.vaad.locationhandler;
 
-import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.junit.Before;
 
 import algoanim.primitives.Group;
 import algoanim.primitives.Primitive;
@@ -15,14 +12,14 @@ import algoanim.util.Node;
 import algoanim.util.Offset;
 import animal.graphics.meta.Location;
 import de.lere.vaad.BinaryTreeProperties;
-import de.lere.vaad.treebuilder.BinaryTreeLayout;
+import de.lere.vaad.animation.SourceCodeWriter;
 import de.lere.vaad.utils.StrUtils;
 import edu.umd.cs.findbugs.annotations.Nullable;
 
 
 public class LocationHandler {
 	
-	private int runninggroupidentifier = 0;
+	private static int runninggroupidentifier = 0;
 	
 	private final BinaryTreeProperties btProps;
 	private Language language;
@@ -95,10 +92,15 @@ public class LocationHandler {
 		return getTextGroup(stringToLinesAtDelimiter, location);
 	}
 
+	
+	
 	/**
 	 * Fills the {@link SourceCode} object {@code sc} with the lines provided by
 	 * {@code codeGroupText}.
+	 * 
+	 * FIXME Should already have been moved to {@link SourceCodeWriter}
 	 */
+	@Deprecated
 	public SourceCode getFilledSourceCode(String codeGroupText, SourceCode sc) {
 		List<String> split = StrUtils.toLines(codeGroupText);
 		for (int i = 0; i < split.size(); i++) {

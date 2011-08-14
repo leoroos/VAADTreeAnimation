@@ -1,4 +1,4 @@
-package de.lere.vaad.animation;
+package de.lere.vaad.animation.nullstubs;
 
 import algoanim.primitives.Graph;
 import algoanim.properties.GraphProperties;
@@ -12,6 +12,6 @@ public class NullGraph extends Graph {
 	public static final String [] FAKE_NAME = { "FAKE" };
 
 	public NullGraph() {
-		super(new NullGraphGen(), "NullName", NO_CONNECTIONS_ADJ_MATRIX, FAKE_NODE, FAKE_NAME, null,new GraphProperties());
+		super(new NullGraphGenerator(), "NullName", NO_CONNECTIONS_ADJ_MATRIX, FAKE_NODE, FAKE_NAME, null,new GraphProperties());
 	}
 }

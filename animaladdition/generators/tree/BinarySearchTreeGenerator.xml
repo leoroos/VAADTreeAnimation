@@ -188,12 +188,24 @@
 			</AnimationPropertyItem>
 		</AnimationProperties>				
 		<Primitive type="intArray">
+			<name>InitialBaumViaInsertion</name>
+			<value><intArray>20,2,14,6,1,4,23,26,34,90,12</intArray></value>
+		</Primitive>
+		<Primitive type="intArray">
+			<name>SearchKnoten</name>
+			<value><intArray>1, 15, 26, 12</intArray></value>
+		</Primitive>
+		<Primitive type="intArray">
 			<name>InsertionKnoten</name>
 			<value><intArray>1, 15, 30, 5</intArray></value>
 		</Primitive>
 		<Primitive type="intArray">
-			<name>InitialBaumViaInsertion</name>
-			<value><intArray>20,2,14,6,1,4,23,26,34,90,12</intArray></value>
+			<name>DeleteKnoten</name>
+			<value><intArray>4, 90, 6, 2</intArray></value>
 		</Primitive>
+		<Primitive type="boolean">
+			<name>ShowIntro</name>
+			<value><boolean value="true" /></value>
+		</Primitive>				
 	</Folder>
 </PropertiesTreeModel>

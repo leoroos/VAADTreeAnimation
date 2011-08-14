@@ -17,8 +17,8 @@ import algoanim.util.Node;
 import algoanim.util.TicksTiming;
 import algoanim.util.Timing;
 import de.lere.vaad.animation.GraphWriterImpl;
-import de.lere.vaad.animation.NullGraph;
 import de.lere.vaad.animation.Timings;
+import de.lere.vaad.animation.nullstubs.NullGraph;
 import de.lere.vaad.treebuilder.BinaryTreeLayout;
 import de.lere.vaad.treebuilder.BinaryTreeModel;
 import de.lere.vaad.treebuilder.events.TreeDeleteEvent;
@@ -49,15 +49,17 @@ public class BinarySearchTreeAnimator<T extends Comparable<T>> implements
 	private Language language;
 	private Graph lastCreatedGraph;
 
-	private static final Timing NOW = new TicksTiming(0);
 	private static final Timing HIGHLIGHT_EDGE_DURATION = new TicksTiming(50);
 	private static final Timing HIGHLIGHT_NODE_DURATION = new TicksTiming(50);
 
 	private static final TicksTiming DELETE_NODE_HIGHLIGHT_DURATION = new TicksTiming(
 			25);
 
-	public BinarySearchTreeAnimator(Language lang) {
+	private final Timings ts;
+
+	public BinarySearchTreeAnimator(Language lang, Timings ts) {
 		this.language = lang;
+		this.ts = ts;
 		this.model = new BinaryTreeModel<T>();
 		this.layout = DEFAULT_LAYOUT;
 		this.lastCreatedGraph = new NullGraph();
@@ -93,7 +95,7 @@ public class BinarySearchTreeAnimator<T extends Comparable<T>> implements
 	}
 
 	private void writeGraph(OrderedGraphInformation<T> infos) {
-		lastCreatedGraph.hide(NOW);
+		lastCreatedGraph.hide(ts.NOW);
 		if (model.size() < 1) {
 			// don't draw empty graph
 			return;
@@ -241,12 +243,12 @@ public class BinarySearchTreeAnimator<T extends Comparable<T>> implements
 		Integer deletee = oldinfos.indexedNodes.get(event.nodeOfModification);
 		de.lere.vaad.treebuilder.Node<T> successorNode = event.successor;
 
-		lastCreatedGraph.highlightNode(deletee, NOW,
+		lastCreatedGraph.highlightNode(deletee, ts.NOW,
 				DELETE_NODE_HIGHLIGHT_DURATION);
 		language.nextStep();
 
-		GraphWriterImpl<T> impl = new GraphWriterImpl<T>(language,
-				lastCreatedGraph, layout);
+		GraphWriterImpl<T> impl = new GraphWriterImpl<T>(lastCreatedGraph, language,
+				 layout , ts);
 
 		if (successorNode != null) {
 			Integer successor = oldinfos.indexedNodes.get(successorNode);
@@ -254,17 +256,17 @@ public class BinarySearchTreeAnimator<T extends Comparable<T>> implements
 					.lookupNodeByID(event.beforeChange, successorNode)
 					.getParent();
 			// impl.hideEdge(event.beforeChange,
-			// successor2,successor2.getParent(), Timings.NOW,
+			// successor2,successor2.getParent(), ts.NOW,
 			// Timings._25_TICKS);
 			Integer successorParentIndex = oldinfos.getIndexOf(oldSuccParent);
 			if (successorParentIndex != null) {
-				lastCreatedGraph.hideEdge(successorParentIndex, successor, NOW,
+				lastCreatedGraph.hideEdge(successorParentIndex, successor, ts.NOW,
 						HIGHLIGHT_NODE_DURATION);
-				impl.highlightNode(model, successorNode, NOW,
+				impl.highlightNode(model, successorNode, ts.NOW,
 						DELETE_NODE_HIGHLIGHT_DURATION);
 				language.nextStep();
 			}
-			impl.translateNodes(event.beforeChange, event.afterChange, NOW,
+			impl.translateNodes(event.beforeChange, event.afterChange, ts.NOW,
 					HIGHLIGHT_NODE_DURATION);
 			language.nextStep();
 		}
@@ -298,7 +300,7 @@ public class BinarySearchTreeAnimator<T extends Comparable<T>> implements
 	}
 
 	private void writeHighlightNode(Integer node) {
-		lastCreatedGraph.highlightNode(node, NOW, HIGHLIGHT_NODE_DURATION);
+		lastCreatedGraph.highlightNode(node, ts.NOW, HIGHLIGHT_NODE_DURATION);
 	}
 
 	@Override

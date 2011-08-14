@@ -21,14 +21,17 @@ import algoanim.properties.SourceCodeProperties;
 import algoanim.util.Coordinates;
 import algoanim.util.Offset;
 import de.lere.vaad.BinaryTreeProperties;
+import de.lere.vaad.animation.DefaultVisibilityEventListener;
 import de.lere.vaad.animation.GraphWriterImpl;
+import de.lere.vaad.animation.StepWriter;
 import de.lere.vaad.animation.Timings;
+import de.lere.vaad.binarysearchtree.BinaryTreeSetup;
 import de.lere.vaad.splaytree.SplayTreeModel;
 import de.lere.vaad.treebuilder.BinaryTreeLayout;
 import de.lere.vaad.treebuilder.BinaryTreeModel;
 import de.lere.vaad.treebuilder.Node;
 import de.lere.vaad.treebuilder.events.TreeEventListenerAggregator;
-import de.lere.vaad.treebuilder.events.TreeModelChangeEventListener;
+import de.lere.vaad.treebuilder.events.DefaultTreeModelChangeEventListener;
 import de.lere.vaad.utils.NodeHelper;
 import de.lere.vaad.utils.StrUtils;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -52,12 +55,8 @@ public class FiddlerOnTheRoof {
 		this.layout = new BinaryTreeLayout(
 				NodeHelper.convertCoordinatesToAWTPoint(GRAPHROOT_COORDINATES),
 				400, 60, BinaryTreeLayout.getDefaultGraphProperties());
+		timings = new Timings();
 	}
-
-	/**
-	 * Container Object for properties of this Animation
-	 */
-	private BinaryTreeProperties splayProps = new BinaryTreeProperties();
 
 	public static void main(String[] args) {
 		// Create a new animation
@@ -95,15 +94,14 @@ public class FiddlerOnTheRoof {
 			throws IOException {
 		final GraphWriterImpl<Integer> writer = new GraphWriterImpl<Integer>(language,
 				layout);
-		TreeEventListenerAggregator<Integer> animator = new TreeEventListenerAggregator<Integer>(
-				language);
-		animator.addAnimatior(new TreeModelChangeEventListener<Integer>(language, writer));
-		animator.setLayout(this.layout);		
+		BinaryTreeSetup<Integer> setup = createSetup(writer);
 		List<Integer> ints = createSomeInts(12);
 		BinaryTreeModel<Integer> model = BinaryTreeModel
 				.createTreeByInsert(ints);
 		SplayTreeModel<Integer> splayTreeModel = SplayTreeModel.from(model);		
-		animator.setModel(splayTreeModel);
+		splayTreeModel.addListener(new DefaultVisibilityEventListener<Integer>(writer));
+		splayTreeModel.addListener(new DefaultTreeModelChangeEventListener<Integer>(setup));
+		splayTreeModel.show();
 
 		Collections.shuffle(ints);
 		Iterator<Integer> iterator = ints.iterator();
@@ -111,7 +109,7 @@ public class FiddlerOnTheRoof {
 		while(iterator.hasNext()){
 			Integer next = iterator.next();
 			if(text!=null){
-				text.hide(Timings.NOW);
+				text.hide(timings.NOW);
 			}			
 			text = language.newText(new Coordinates(0, 0), "Suche Wert: " + next, "text", null);
 			splayTreeModel.search(next);
@@ -120,9 +118,18 @@ public class FiddlerOnTheRoof {
 		step();
 	}
 
+	private BinaryTreeSetup<Integer> createSetup(GraphWriterImpl<Integer> writer) {
+		BinaryTreeSetup<Integer> setup = new BinaryTreeSetup<Integer>();
+		setup.setBinaryTreeProperties(animationProperties);
+		setup.setLang(language);
+		setup.setStepWriter(new StepWriter(language));
+		setup.setWriter(writer);
+		return setup;
+	}
+
 	private Text printText(Text newText, Node<Integer> search, String t) {
 		if (newText != null)
-			newText.hide(Timings.NOW);
+			newText.hide(timings.NOW);
 		newText = language.newText(new Coordinates(0, 0), "Rotiere " + t + " um "
 				+ search.getValue(), "LOL", null);
 		return newText;
@@ -133,6 +140,8 @@ public class FiddlerOnTheRoof {
 	}
 
 	Random r = new Random(234);
+
+	private final Timings timings;
 
 	private List<Integer> createSomeInts(int howmuch) {
 		ArrayList<Integer> list = new ArrayList<Integer>();

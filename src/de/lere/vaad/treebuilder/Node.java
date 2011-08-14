@@ -38,9 +38,9 @@ public class Node<T extends Comparable<T>> {
 			right = "RC[" + getRight().getValue().toString() + "]";
 		}
 
-		StringBuffer append = new StringBuffer().append(getUid()).append("[")
+		StringBuffer append = new StringBuffer().append(getClass().getSimpleName()).append("[").append(getUid()).append("[")
 				.append(value).append("][").append(left).append("]")
-				.append("[").append(right).append("]");
+				.append("[").append(right).append("]").append("]");
 		return append.toString();
 	}
 

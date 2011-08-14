@@ -1,4 +1,4 @@
-package de.lere.vaad.animation;
+package de.lere.vaad.animation.nullstubs;
 
 import java.awt.Color;
 
@@ -10,7 +10,7 @@ import algoanim.primitives.generators.Language;
 import algoanim.util.Node;
 import algoanim.util.Timing;
 
-public class NullGraphGen implements GraphGenerator {
+public class NullGraphGenerator implements GraphGenerator {
 
 	@Override
 	public void changeColor(Primitive primitive, String s, Color color,

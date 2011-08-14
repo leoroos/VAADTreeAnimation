@@ -37,9 +37,11 @@ public class BinarySearchTreeGenerator implements Generator {
         TextProperties TextProps = (TextProperties)props.getPropertiesByName("TextProperties");
         SourceCodeProperties sourceCode = (SourceCodeProperties)props.getPropertiesByName("SourceCodeProperties");
         GraphProperties graphProps = (GraphProperties)props.getPropertiesByName("GraphProperties");
-        int[] insertionKnoten = (int[])primitives.get("InsertionKnoten");
-        int[] initialBaum = (int[])primitives.get("InitialBaumViaInsertion");        
-        
+        int[] searchNodes = (int[])primitives.get("SearchKnoten");
+        int[] insertionNodes = (int[])primitives.get("InsertionKnoten");
+        int[] deleteKnoten = (int[])primitives.get("DeleteKnoten");        
+        int[] initialBaum = (int[])primitives.get("InitialBaumViaInsertion");     
+        Boolean showIntro = (Boolean)primitives.get("ShowIntro");        
         BinaryTreeProperties btprops = new BinaryTreeProperties();
         btprops.setTextProperties(TextProps);
         btprops.setSourceCodeProperties(sourceCode);
@@ -48,8 +50,10 @@ public class BinarySearchTreeGenerator implements Generator {
         btprops.title = getAlgorithmName();
         
         BinarySearchTreeAnimation<Integer> treeAnimation = new BinarySearchTreeAnimation<Integer>(lang, btprops, toIntegerArray(initialBaum));
-        treeAnimation.setInsertionAnimation(toIntegerArray(insertionKnoten));
-        treeAnimation.setShowIntro(true);
+        treeAnimation.setSearchAnimation(toIntegerArray(searchNodes));
+        treeAnimation.setInsertionAnimation(toIntegerArray(insertionNodes));
+        treeAnimation.setDeleteAnimation(toIntegerArray(deleteKnoten));
+        treeAnimation.setShowIntro(showIntro);
         treeAnimation.buildAnimation();
         
         return lang.toString();

@@ -6,49 +6,57 @@ import de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSour
 import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class TreeInsertSourceCodeTraversing<T extends Comparable<T>> extends
-		TreeEvent<T> {
+		TreeSourceTraversingEvent<T> {
 
 	public enum InsertSourceCodePosition {
-		Init, //
+		/**
+		 * node is root
+		 */
+		Init(1), //
 		/**
 		 * Insertion is possible when node becomes null<br>
 		 * checks for null -> node maybe null
 		 */
-		CheckingIfInsertionPossible, //
-		TestingIfWhereToFromCurrent, //
+		CheckingIfInsertionPossible(2), //
+		TestingIfWhereToFromCurrent(3), //
 		/**
 		 * node is new node to look in next step along
 		 */
-		LookingAlongLeftChild, //
+		LookingAlongLeftChild(4), //
 		/**
 		 * node is new node to look in next step along
 		 */
-		LookingAlongRightChild, //
+		LookingAlongRightChild(5), //
 		/**
 		 * node null for root else new parent
 		 */
-		SettingParentForNewCurrentNode, //
+		SettingParentForNewCurrentNode(6), //
 		/**
 		 * node is value node
 		 */
-		CheckingIfNewIsRoot, //
+		CheckingIfNewIsRoot(7), //
 		/**
 		 * node is value node
 		 */
-		FinalIsSettingToRoot, //
-		/**
-		 * node is parent from which node will be inserted left
-		 */
-		FinalIsSettingAsLeftChildFrom, //
-		/**
-		 * node is parent from which node will be inserted right
-		 */
-		FinalIsSettingAsRightChildFrom, //
+		FinalIsSettingToRoot(8), //
 		/**
 		 * node is parent from which will be inserted left or right
 		 */
-		CheckingIfToSetLeftInFinalStep, //
+		CheckingIfToSetLeftInFinalStep(9), //		
+		/**
+		 * node is parent from which node will be inserted left
+		 */
+		FinalIsSettingAsLeftChildFrom(10), //
+		/**
+		 * node is parent from which node will be inserted right
+		 */
+		FinalIsSettingAsRightChildFrom(11), //
+
 		;
+		
+		InsertSourceCodePosition(int i){
+			putEnumPos(this, i);
+		}
 	}
 
 	public final InsertSourceCodePosition position;
@@ -63,15 +71,12 @@ public class TreeInsertSourceCodeTraversing<T extends Comparable<T>> extends
 			@NonNull InsertSourceCodePosition pos,
 			@NonNull BinaryTreeModel<T> currentModel, Node<T> curPos,
 			@NonNull T insertionValue) {
-		if (pos == null)
-			throw new IllegalArgumentException("null not allowed");
-		if (currentModel == null)
-			throw new IllegalArgumentException("null not allowed");
+		assertNonNull(currentModel);
+		assertNonNull(pos);
 
 		this.position = pos;
 		this.currentModel = currentModel;
-		if (insertionValue == null)
-			throw new IllegalArgumentException("null not allowed");
+		assertNonNull(insertionValue);
 		this.insertionValue = insertionValue;
 		if (curPos != null)
 			this.currentPosition = curPos.copy();
@@ -79,9 +84,19 @@ public class TreeInsertSourceCodeTraversing<T extends Comparable<T>> extends
 			this.currentPosition = null;
 	}
 
+	private void assertNonNull(Object insertionValue) {
+		if (insertionValue == null)
+			throw new IllegalArgumentException("null not allowed");
+	}
+
 	@Override
 	public void notifyListener(TreeEventListener<T> listener) {
 		listener.update(this);
+	}
+
+	@Override
+	public InsertSourceCodePosition getCodePosition() {
+		return this.position;
 	}
 
 }

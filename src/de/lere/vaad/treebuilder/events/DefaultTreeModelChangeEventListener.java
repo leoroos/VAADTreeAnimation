@@ -1,33 +1,28 @@
 package de.lere.vaad.treebuilder.events;
 
-import static de.lere.vaad.animation.Timings.*;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import algoanim.primitives.generators.Language;
 import de.lere.vaad.animation.GraphWriter;
 import de.lere.vaad.animation.ProgressTiming;
 import de.lere.vaad.animation.Timings;
-import de.lere.vaad.animation.TreeAnimator;
+import de.lere.vaad.binarysearchtree.BinaryTreeSetup;
 import de.lere.vaad.treebuilder.BinaryTreeModel;
 import de.lere.vaad.treebuilder.Node;
 
-import algoanim.primitives.generators.Language;
-import algoanim.util.TicksTiming;
-
-public class TreeModelChangeEventListener<T extends Comparable<T>> implements
-		TreeAnimator<T>, TreeEventListener<T> {
+public class DefaultTreeModelChangeEventListener<T extends Comparable<T>>
+		implements TreeEventListener<T> {
 
 	private GraphWriter<T> writer;
 	private final Language lang;
+	private Timings ts;
 
-	public TreeModelChangeEventListener(Language language, GraphWriter<T> writer) {
-		this.lang = language;
-		if (writer == null) {
-			throw new IllegalArgumentException("Writer must not be null");
-		}
-		this.writer = writer;
+	public DefaultTreeModelChangeEventListener(BinaryTreeSetup<T> setup) {
+		this.lang = setup.getLanguage();
+		this.writer = setup.getWriter();
+		this.ts = setup.getBinaryTreeProperties().getTimings();
 	}
 
 	public void animateRotateRight(TreeRightRotateEvent<T> event) {
@@ -39,36 +34,34 @@ public class TreeModelChangeEventListener<T extends Comparable<T>> implements
 		ProgressTiming stepTiming = createRotateTimings();
 
 		Node<T> rotateAround = event.nodeOfModification;
-		Node<T> nodeInOriginal = BinaryTreeModel.lookupNodeByID(
-				event.beforeChange, rotateAround);
+		Node<T> nodeInOriginal = event.beforeChange.getNodeByID(rotateAround);
 		Node<T> parentOfRotate = nodeInOriginal.getParent();
 		Node<T> grandParentOfRotate = parentOfRotate != null ? parentOfRotate
 				.getParent() : null;
 		Node<T> parentOfDetach = nodeInOriginal;
 		Node<T> nodeToDetach = parentOfDetach.getRight();
 		writer.highlightEdge(event.beforeChange, parentOfDetach, nodeToDetach,
-				stepTiming.now(), stepTiming.getInterval());
+				stepTiming.now(), stepTiming.duration());
 		writer.highlightEdge(event.beforeChange, grandParentOfRotate,
 				parentOfRotate, stepTiming.now(), stepTiming.progress());
 		writer.hideEdge(event.beforeChange, parentOfDetach, nodeToDetach,
-				stepTiming.now(), stepTiming.getInterval());
+				stepTiming.now(), stepTiming.duration());
 		writer.hideEdge(event.beforeChange, grandParentOfRotate,
 				parentOfRotate, stepTiming.now(), stepTiming.progress());
 		writer.translateNodes(event.beforeChange, event.afterChange,
-				stepTiming.now(), stepTiming.progress(LONG_ANIMATION));
+				stepTiming.now(), stepTiming.progress(ts.LONG_ANIMATION));
 		writer.buildGraph(event.afterChange, stepTiming.now());
 		Node<T> right = event.nodeOfModification.getRight();
 		Node<T> rightLeft = right != null ? right.getLeft() : null;
 		writer.highlightEdge(event.afterChange, right, rightLeft,
-				stepTiming.now(), stepTiming.getInterval());
+				stepTiming.now(), stepTiming.duration());
 		writer.unhighlightEdge(event.afterChange, right, rightLeft,
 				stepTiming.now(), stepTiming.progress());
 		lang.nextStep();
 	}
 
 	private ProgressTiming createRotateTimings() {
-		return new ProgressTiming(Timings.NOW,
-				Timings.DEFAULT_ANIMATION);
+		return new ProgressTiming(ts.NOW, ts.DEFAULT_ANIMATION);
 	}
 
 	public void animateRotateLeft(TreeLeftRotateEvent<T> event) {
@@ -80,28 +73,28 @@ public class TreeModelChangeEventListener<T extends Comparable<T>> implements
 		ProgressTiming stepTiming = createRotateTimings();
 
 		Node<T> rotateAround = event.nodeOfModification;
-		Node<T> nodeInOriginal = BinaryTreeModel.lookupNodeByID(
-				event.beforeChange, rotateAround);
+		Node<T> nodeInOriginal = event.beforeChange.getNodeByID(rotateAround);
 		Node<T> parentOfRotate = nodeInOriginal.getParent();
 		Node<T> grandParentOfRotate = parentOfRotate != null ? parentOfRotate
 				.getParent() : null;
 		Node<T> parentOfDetach = nodeInOriginal;
 		Node<T> nodeToDetach = parentOfDetach.getLeft();
 		writer.highlightEdge(event.beforeChange, parentOfDetach, nodeToDetach,
-				stepTiming.now(), stepTiming.getInterval());
+				stepTiming.now(), stepTiming.duration());
 		writer.highlightEdge(event.beforeChange, grandParentOfRotate,
 				parentOfRotate, stepTiming.now(), stepTiming.progress());
 		writer.hideEdge(event.beforeChange, parentOfDetach, nodeToDetach,
-				stepTiming.now(), stepTiming.getInterval());
+				stepTiming.now(), stepTiming.duration());
 		writer.hideEdge(event.beforeChange, grandParentOfRotate,
 				parentOfRotate, stepTiming.now(), stepTiming.progress());
 		writer.translateNodes(event.beforeChange, event.afterChange,
-				stepTiming.now(), stepTiming.progress(LONG_ANIMATION.getDelay()));
+				stepTiming.now(),
+				stepTiming.progress(ts.LONG_ANIMATION.getDelay()));
 		writer.buildGraph(event.afterChange, stepTiming.now());
 		Node<T> left = event.nodeOfModification.getLeft();
 		Node<T> leftRight = left != null ? left.getLeft() : null;
 		writer.highlightEdge(event.afterChange, left, leftRight,
-				stepTiming.now(), stepTiming.getInterval());
+				stepTiming.now(), stepTiming.duration());
 		writer.unhighlightEdge(event.afterChange, left, leftRight,
 				stepTiming.now(), stepTiming.progress());
 		lang.nextStep();
@@ -116,18 +109,17 @@ public class TreeModelChangeEventListener<T extends Comparable<T>> implements
 		de.lere.vaad.treebuilder.Node<T> nodeOfModification = event.nodeOfModification;
 		Node<T> parentNode = nodeOfModification.getParent();
 
-		writer.highlightNode(event.afterChange, nodeOfModification,
-				Timings.NOW, Timings.SHORT_ANIMATION);
-		writer.unhighlightNode(event.afterChange, nodeOfModification,
-				Timings.SHORT_ANIMATION, Timings.SHORT_ANIMATION);
-		writer.highlightEdge(event.afterChange, parentNode, nodeOfModification,
-				Timings.NOW, Timings.SHORT_ANIMATION);
-		writer.unhighlightEdge(event.afterChange, parentNode,
-				nodeOfModification, Timings.SHORT_ANIMATION,
-				Timings.SHORT_ANIMATION);
-		lang.nextStep();
+		ProgressTiming t = new ProgressTiming(ts.NOW, ts.SHORT_ANIMATION);
 
-		writer.buildGraph(event.afterChange);
+		writer.highlightNode(event.afterChange, nodeOfModification, t.now(),
+				t.duration());
+		writer.highlightEdge(event.afterChange, parentNode, nodeOfModification,
+				ts.NOW, ts.SHORT_ANIMATION);
+		t.progress();
+		writer.unhighlightNode(event.afterChange, nodeOfModification, t.now(),
+				t.duration());
+		writer.unhighlightEdge(event.afterChange, parentNode,
+				nodeOfModification, t.now(), t.duration());
 
 		lang.nextStep();
 	}
@@ -136,16 +128,35 @@ public class TreeModelChangeEventListener<T extends Comparable<T>> implements
 		if (event.nodeOfModification == null)
 			return;
 
+		ProgressTiming t = new ProgressTiming(ts.NOW, ts.SHORT_ANIMATION);
+
 		writer.highlightNode(event.beforeChange, event.nodeOfModification,
-				Timings.NOW, Timings.SHORT_ANIMATION);
+				t.now(), t.duration());
+		t.progress();
+		if (event.successor != null) {
+			writer.highlightNode(event.beforeChange, event.successor, t.now(),
+					t.duration());
+			t.progress();
 
-		writer.highlightNode(event.beforeChange, event.successor,
-				Timings.SHORT_ANIMATION,
-				Timings.SHORT_ANIMATION);
-
+			Node<T> succInOldModel = event.beforeChange
+					.getNodeByID(event.successor);
+			if (succInOldModel.hasParent()) {
+				writer.hideEdge(event.beforeChange, succInOldModel.getParent(),
+						succInOldModel, t.now(), t.duration());
+			}
+			if (succInOldModel.hasLeftChild())
+				writer.hideEdge(event.beforeChange, succInOldModel,
+						succInOldModel.getLeft(), t.now(), t.duration());
+			if (event.successor.hasRightChild())
+				writer.hideEdge(event.beforeChange, succInOldModel,
+						succInOldModel.getRight(), t.now(), t.duration());
+		}
 		lang.nextStep();
 
-		writer.buildGraph(event.afterChange);
+		writer.translateNodes(event.beforeChange, event.afterChange, ts.NOW,
+				ts.DEFAULT_ANIMATION);
+
+		writer.buildGraph(event.afterChange, ts.DEFAULT_ANIMATION);
 
 		lang.nextStep();
 	}
@@ -159,7 +170,8 @@ public class TreeModelChangeEventListener<T extends Comparable<T>> implements
 		List<de.lere.vaad.treebuilder.Node<T>> listFromRootToNode = getListFromRootToNode(event.nodeOfModification);
 		for (int i = 0; i < listFromRootToNode.size() - 1; i++) {
 			de.lere.vaad.treebuilder.Node<T> next = listFromRootToNode.get(i);
-			writer.blinkNode(event.beforeChange, next, NOW, SHORT_ANIMATION);
+			writer.blinkNode(event.beforeChange, next, ts.NOW,
+					ts.SHORT_ANIMATION);
 		}
 		writer.highlightNode(event.beforeChange, event.nodeOfModification);
 	}
@@ -179,7 +191,6 @@ public class TreeModelChangeEventListener<T extends Comparable<T>> implements
 		return lineToRoot;
 	}
 
-	@Override
 	public void animate(TreeEvent<T> event) {
 		if (event instanceof TreeModelChangeEvent<?>) {
 			if (event instanceof TreeInsertEvent<?>) {

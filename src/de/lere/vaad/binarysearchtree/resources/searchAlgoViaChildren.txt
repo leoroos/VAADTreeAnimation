@@ -1,4 +1,5 @@
 Tree-Search(x,k)
+x = root
 if x== NIL or k == x.key
     return x
 if k < x.key

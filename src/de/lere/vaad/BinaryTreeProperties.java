@@ -3,6 +3,7 @@ package de.lere.vaad;
 import algoanim.properties.GraphProperties;
 import algoanim.properties.SourceCodeProperties;
 import algoanim.properties.TextProperties;
+import de.lere.vaad.animation.Timings;
 
 /**
  * Container class that contains the configuration for the SplayTree. <br>
@@ -94,6 +95,16 @@ public class BinaryTreeProperties {
 
 		public final int width;
 		public final int height;
+	}
+	
+	Timings timings = new Timings();
+	
+	public void setTimings(Timings timings) {
+		this.timings = timings;
+	}
+	
+	public Timings getTimings() {
+		return timings;
 	}
 
 }
