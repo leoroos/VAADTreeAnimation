@@ -1,5 +1,25 @@
 package de.lere.vaad.treebuilder;
 
+import static de.lere.vaad.animation.binarysearchtree.TreeDeleteSourceTraversingEvent.DeleteTraversingPosition.DeleteInit;
+import static de.lere.vaad.animation.binarysearchtree.TreeDeleteSourceTraversingEvent.DeleteTraversingPosition.FinishAfterTransplantWithLeftChild;
+import static de.lere.vaad.animation.binarysearchtree.TreeDeleteSourceTraversingEvent.DeleteTraversingPosition.FinishAfterTransplantWithRightChild;
+import static de.lere.vaad.animation.binarysearchtree.TreeDeleteSourceTraversingEvent.DeleteTraversingPosition.GetMinimumOfRight;
+import static de.lere.vaad.animation.binarysearchtree.TreeDeleteSourceTraversingEvent.DeleteTraversingPosition.NoLeftChild;
+import static de.lere.vaad.animation.binarysearchtree.TreeDeleteSourceTraversingEvent.DeleteTraversingPosition.NoRightChild;
+import static de.lere.vaad.animation.binarysearchtree.TreeDeleteSourceTraversingEvent.DeleteTraversingPosition.SettingDeleteesRightToSuccessorsRightAndSettingNewRightsParent;
+import static de.lere.vaad.animation.binarysearchtree.TreeDeleteSourceTraversingEvent.DeleteTraversingPosition.SettingNewNodeAsLeftToParentOfOldNode;
+import static de.lere.vaad.animation.binarysearchtree.TreeDeleteSourceTraversingEvent.DeleteTraversingPosition.SettingNewNodeAsRightToParentOfOldNode;
+import static de.lere.vaad.animation.binarysearchtree.TreeDeleteSourceTraversingEvent.DeleteTraversingPosition.SettingSuccessorLeftWithDeleteeLeftAndSettingsNewLeftsParent;
+import static de.lere.vaad.animation.binarysearchtree.TreeDeleteSourceTraversingEvent.DeleteTraversingPosition.StartingTransplant;
+import static de.lere.vaad.animation.binarysearchtree.TreeDeleteSourceTraversingEvent.DeleteTraversingPosition.TestIfLeftChildNull;
+import static de.lere.vaad.animation.binarysearchtree.TreeDeleteSourceTraversingEvent.DeleteTraversingPosition.TestIfOldWasLeftChild;
+import static de.lere.vaad.animation.binarysearchtree.TreeDeleteSourceTraversingEvent.DeleteTraversingPosition.TestIfParentOfMinNotDeletee;
+import static de.lere.vaad.animation.binarysearchtree.TreeDeleteSourceTraversingEvent.DeleteTraversingPosition.TestIfRightChildNull;
+import static de.lere.vaad.animation.binarysearchtree.TreeDeleteSourceTraversingEvent.DeleteTraversingPosition.TestTransplantIfOldHasParent;
+import static de.lere.vaad.animation.binarysearchtree.TreeDeleteSourceTraversingEvent.DeleteTraversingPosition.TransplantReplacesRoot;
+import static de.lere.vaad.animation.binarysearchtree.TreeDeleteSourceTraversingEvent.DeleteTraversingPosition.TransplantSetsParentOfOldToNew;
+import static de.lere.vaad.animation.binarysearchtree.TreeDeleteSourceTraversingEvent.DeleteTraversingPosition.TransplantingDeleteeWithSuccessor;
+import static de.lere.vaad.animation.binarysearchtree.TreeDeleteSourceTraversingEvent.DeleteTraversingPosition.TransplantingSuccessorWithItsRightChild;
 import static de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition.CheckingIfInsertionPossible;
 import static de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition.CheckingIfNewIsRoot;
 import static de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition.CheckingIfToSetLeftInFinalStep;
@@ -17,8 +37,6 @@ import static de.lere.vaad.treebuilder.events.TreeSearchCodeTraversingEvent.Sear
 import static de.lere.vaad.treebuilder.events.TreeSearchCodeTraversingEvent.SearchTraversingPosition.TestIfGoOnSearching;
 import static de.lere.vaad.treebuilder.events.TreeSearchCodeTraversingEvent.SearchTraversingPosition.TestIfSearchAlongLeftChild;
 
-import static de.lere.vaad.animation.binarysearchtree.TreeDeleteSourceTraversingEvent.DeleteTraversingPosition.*;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,7 +48,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.omg.PortableInterceptor.SUCCESSFUL;
 
 import de.lere.vaad.animation.binarysearchtree.TreeDeleteSourceTraversingEvent;
 import de.lere.vaad.animation.binarysearchtree.TreeDeleteSourceTraversingEvent.DeleteTraversingPosition;
@@ -40,15 +57,14 @@ import de.lere.vaad.treebuilder.events.TreeEventListener;
 import de.lere.vaad.treebuilder.events.TreeHideEvent;
 import de.lere.vaad.treebuilder.events.TreeInsertEvent;
 import de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing;
-import de.lere.vaad.treebuilder.events.TreeSearchCodeTraversingEvent;
 import de.lere.vaad.treebuilder.events.TreeInsertSourceCodeTraversing.InsertSourceCodePosition;
-import de.lere.vaad.treebuilder.events.TreeSearchCodeTraversingEvent.SearchTraversingPosition;
 import de.lere.vaad.treebuilder.events.TreeLeftRotateEvent;
 import de.lere.vaad.treebuilder.events.TreeRightRotateEvent;
+import de.lere.vaad.treebuilder.events.TreeSearchCodeTraversingEvent;
+import de.lere.vaad.treebuilder.events.TreeSearchCodeTraversingEvent.SearchTraversingPosition;
 import de.lere.vaad.treebuilder.events.TreeSearchEvent;
 import de.lere.vaad.treebuilder.events.TreeShowEvent;
 import de.lere.vaad.treebuilder.events.TreeVisibilityEvent;
-import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * @author Leo Roos, Rene Hertling Represents the logical structure of a binary
@@ -224,7 +240,7 @@ public class BinaryTreeModel<T extends Comparable<T>> {
 				value));
 	}
 
-	void fireChange(TreeEvent<T> event) {
+	protected void fireChange(TreeEvent<T> event) {
 		for (TreeEventListener<T> l : listeners) {
 			event.notifyListener(l);
 		}

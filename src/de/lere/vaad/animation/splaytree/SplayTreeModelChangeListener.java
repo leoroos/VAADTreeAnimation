@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.lere.vaad.animation.binarysearchtree.BinaryTreeSetup;
-import de.lere.vaad.treebuilder.events.DefaultTreeModelChangeEventListener;
+import de.lere.vaad.treebuilder.events.TreeDeleteEvent;
 import de.lere.vaad.treebuilder.events.TreeEvent;
 import de.lere.vaad.treebuilder.events.TreeEventListener;
+import de.lere.vaad.treebuilder.events.TreeInsertEvent;
 import de.lere.vaad.treebuilder.events.TreeLeftRotateEvent;
+import de.lere.vaad.treebuilder.events.TreeModelChangeEventListenerForSplaytreeAnimations;
 import de.lere.vaad.treebuilder.events.TreeRightRotateEvent;
+import de.lere.vaad.treebuilder.events.TreeSearchEvent;
 
 public class SplayTreeModelChangeListener<T extends Comparable<T>> implements
 		TreeEventListener<T> {
@@ -17,8 +20,8 @@ public class SplayTreeModelChangeListener<T extends Comparable<T>> implements
 		RECORDING_NOTHING, RECORDING_ZIG, RECORDING_ZIG_ZIG, RECORDING_ZIG_ZAG
 	}
 
-	private DefaultTreeModelChangeEventListener<T> animator;
-	
+	private TreeModelChangeEventListenerForSplaytreeAnimations<T> animator;
+
 	private List<SplayTreeStepListener<T>> splayOperationListeners;
 
 	private List<SplayOperation<T>> operations;
@@ -34,7 +37,7 @@ public class SplayTreeModelChangeListener<T extends Comparable<T>> implements
 	private SUB_RECORDING_STATUS recordingStatus;
 
 	public SplayTreeModelChangeListener(BinaryTreeSetup<T> setup) {
-		animator = new DefaultTreeModelChangeEventListener<T>(setup);
+		animator = new TreeModelChangeEventListenerForSplaytreeAnimations<T>(setup);
 		this.splayOperationListeners = new ArrayList<SplayTreeStepListener<T>>();
 		this.operations = new ArrayList<SplayOperation<T>>();
 		this.steps = new ArrayList<SplayStep<T>>();
@@ -42,12 +45,12 @@ public class SplayTreeModelChangeListener<T extends Comparable<T>> implements
 		this.recordingStatus = SUB_RECORDING_STATUS.RECORDING_NOTHING;
 		this.stepCause = null;
 	}
-	
-	public void add(SplayTreeStepListener<T> listener){
+
+	public void add(SplayTreeStepListener<T> listener) {
 		this.splayOperationListeners.add(listener);
 	}
-	
-	public boolean remove(SplayTreeStepListener<T> listener){
+
+	public boolean remove(SplayTreeStepListener<T> listener) {
 		return this.splayOperationListeners.remove(listener);
 	}
 
@@ -58,22 +61,50 @@ public class SplayTreeModelChangeListener<T extends Comparable<T>> implements
 				doHandleSplayStart();
 			} else if (event instanceof SplayEndedEvent) {
 				doHandleSplayEnded();
-			} else {
-				if (event instanceof SplayTreeStartEvent) {
-					handleSplayStepStarted((SplayTreeStartEvent<T>) event);
-				} else if (event instanceof SplayTreeEndEvent) {
-					handleSplayStepEnded();
-				} else if (event instanceof TreeLeftRotateEvent) {
-					stepEvents.add(event);
-				} else if (event instanceof TreeRightRotateEvent) {
-					stepEvents.add(event);
-				}
+			} else if (event instanceof SplayTreeStartEvent) {
+				handleSplayStepStarted((SplayTreeStartEvent<T>) event);
+			} else if (event instanceof SplayTreeEndEvent) {
+				handleSplayStepEnded();
+			}
+
+		} else if (event instanceof TreeEvent) {
+			if (event instanceof TreeLeftRotateEvent) {
+				stepEvents.add(event);
+			} else if (event instanceof TreeRightRotateEvent) {
+				stepEvents.add(event);
+			}
+			else if(event instanceof TreeSearchEvent){
+				fireNodeFound(event);
+			}
+			else if(event instanceof TreeDeleteEvent){
+				fireNodeDelete(event);
+			}
+			else if( event instanceof TreeInsertEvent){
+				fireNodeInsert(event);
 			}
 		}
 	}
 
+	private void fireNodeInsert(TreeEvent<T> event) {
+		for(SplayTreeStepListener<T> l : splayOperationListeners){
+			l.nodeInserted((TreeInsertEvent<T>) event);
+		}
+	}
+
+	private void fireNodeDelete(TreeEvent<T> event) {
+		for(SplayTreeStepListener<T> l : splayOperationListeners){
+			l.nodeDelete((TreeDeleteEvent<T>) event);
+		}
+	}
+
+	private void fireNodeFound(TreeEvent<T> event) {
+		for(SplayTreeStepListener<T> l : splayOperationListeners){
+			l.nodeFound((TreeSearchEvent<T>) event);
+		}
+	}
+
 	private void handleSplayStepEnded() {
-		int sizeOfSteps = steps.size();
+		int sizeOfSteps = stepEvents.size();
 		if (recordingStatus == SUB_RECORDING_STATUS.RECORDING_NOTHING) {
 			throw new IllegalStateException("Must be in recording state.");
 		} else if (recordingStatus == SUB_RECORDING_STATUS.RECORDING_ZIG) {
@@ -113,7 +144,7 @@ public class SplayTreeModelChangeListener<T extends Comparable<T>> implements
 			recordingStatus = SUB_RECORDING_STATUS.RECORDING_ZIG;
 		} else if (event instanceof ZigZigStartedEvent) {
 			recordingStatus = SUB_RECORDING_STATUS.RECORDING_ZIG_ZIG;
-		} else if (event instanceof ZigZagEventStarted) {
+		} else if (event instanceof ZigZagStartedEvent) {
 			recordingStatus = SUB_RECORDING_STATUS.RECORDING_ZIG_ZAG;
 		} else {
 			throw new IllegalStateException("No corresponding event found...");
@@ -145,20 +176,20 @@ public class SplayTreeModelChangeListener<T extends Comparable<T>> implements
 	}
 
 	private void relayStepsToListeners() {
-		for(SplayOperation<T> operation : this.operations){
+		for (SplayOperation<T> operation : this.operations) {
 			List<SplayStep<T>> steps = operation.getOperationSteps();
-			for(SplayStep<T> step : steps){
+			for (SplayStep<T> step : steps) {
 				fireNewStep(step);
 				List<TreeEvent<T>> events = step.getEventsInStep();
-				for(TreeEvent<T> event : events){
+				for (TreeEvent<T> event : events) {
 					animator.animate(event);
 				}
-			}			
+			}
 		}
-	}	
-	
-	private void fireNewStep(SplayStep<T> step){
-		for(SplayTreeStepListener<T> listener : this.splayOperationListeners){
+	}
+
+	private void fireNewStep(SplayStep<T> step) {
+		for (SplayTreeStepListener<T> listener : this.splayOperationListeners) {
 			listener.newStep(step);
 		}
 	}

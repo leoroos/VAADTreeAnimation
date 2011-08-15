@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
@@ -36,9 +37,14 @@ import de.lere.vaad.animation.locationhandler.NextStateOnLocationDirector;
 import de.lere.vaad.animation.splaytree.resources.descriptions.SplayTreeResourceAccessor;
 import de.lere.vaad.treebuilder.BinaryTreeLayout;
 import de.lere.vaad.treebuilder.BinaryTreeModel;
+import de.lere.vaad.treebuilder.events.TreeDeleteEvent;
+import de.lere.vaad.treebuilder.events.TreeEvent;
+import de.lere.vaad.treebuilder.events.TreeInsertEvent;
+import de.lere.vaad.treebuilder.events.TreeModelChangeEventListenerForSplaytreeAnimations;
+import de.lere.vaad.treebuilder.events.TreeSearchEvent;
 import de.lere.vaad.utils.NodeHelper;
 
-public class SplayTreeAnimation {
+public class SplayTreeAnimation implements SplayTreeStepListener<String> {
 
 	private static final Point GRAPHROOT_COORDINATES = new Point(400, 300);
 
@@ -162,9 +168,7 @@ public class SplayTreeAnimation {
 
 		DefaultVisibilityEventListener<String> visibilityAnimator = new DefaultVisibilityEventListener<String>(
 				writer);
-		SplayTreeModelChangeListener<String> changeAnimator = new SplayTreeModelChangeListener<String>(
-				setup);
-
+		TreeModelChangeEventListenerForSplaytreeAnimations<String> changeAnimator = new TreeModelChangeEventListenerForSplaytreeAnimations<String>(setup);
 		model.addListener(changeAnimator);
 		model.addListener(visibilityAnimator);
 		model.show();
@@ -260,8 +264,17 @@ public class SplayTreeAnimation {
 		nextStateOnLocation(showcaseMacroDescription, DIRECTOR_MACROSTEP);
 
 		nextStateOnLocation("Suche nach einen Schlüssel $$",
-				DIRECTOR_MICROSTEP);
-
+				DIRECTOR_MICROSTEP);		
+		step();
+		BinaryTreeModel<String> btree = BinaryTreeModel.createTreeByInsert("10,5,20,1,7,15,25".split(","));
+		SplayTreeModel<String> splay = SplayTreeModel.from(btree);
+		SplayTreeModelChangeListener<String> changeListener = new SplayTreeModelChangeListener<String>(setup);
+		splay.addListener(visibilityAnimator);
+		splay.addListener(changeListener);		
+		changeListener.add(this);
+		splay.show();
+		step();
+		splay.search("25");		
 		nextStateOnLocation("Einfügen des Schlüssels $$", DIRECTOR_MICROSTEP);
 
 		nextStateOnLocation("Löschen eines Schlüssels $$", DIRECTOR_MICROSTEP);
@@ -424,4 +437,40 @@ public class SplayTreeAnimation {
 		return this.lh.createTextGroup(string, location);
 	}
 
+	@Override
+	public void newStep(SplayStep<String> step) {
+		SplayTreeEvent<String> cause = step.getCause();
+		List<TreeEvent<String>> rotations = step.getEventsInStep();
+		if(cause instanceof ZigStartedEvent){
+			nextStateOnLocation("Performing a Zig-Step on some node", DIRECTOR_MICROSTEP);			
+		}
+		else if(cause instanceof ZigZigStartedEvent){
+			nextStateOnLocation("Performing a ZigZig", DIRECTOR_MICROSTEP);
+		}
+		else if(cause instanceof ZigZagStartedEvent){
+			nextStateOnLocation("Performing a ZigZag", DIRECTOR_MICROSTEP);
+		}
+		else {
+			throw new IllegalArgumentException("Invalid Splay-Event");
+		}
+		step();		
+	}
+
+	@Override
+	public void nodeFound(TreeSearchEvent<String> event) {
+		nextStateOnLocation("Suche: " + event.searchVal, DIRECTOR_MACROSTEP);
+		step();
+	}
+
+	@Override
+	public void nodeDelete(TreeDeleteEvent<String> event) {
+		nextStateOnLocation("L�sche: " + event.deleteValue, DIRECTOR_MACROSTEP);
+		step();
+	}
+
+	@Override
+	public void nodeInserted(TreeInsertEvent<String> event) {
+		nextStateOnLocation("Einf�gen von " + event.nodeOfModification, DIRECTOR_MACROSTEP);
+		step();
+	}
 }

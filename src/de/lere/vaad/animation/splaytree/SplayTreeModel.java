@@ -74,12 +74,12 @@ public class SplayTreeModel<T extends Comparable<T>> extends BinaryTreeModel<T> 
 				leftRotate(p);
 				fireChange(new ZigZigEndedEvent<T>());
 			} else if (x.equals(p.getRight()) && p.equals(g.getLeft())) {
-				fireChange(new ZigZagEventStarted<T>());
+				fireChange(new ZigZagStartedEvent<T>());
 				leftRotate(p);
 				rightRotate(g);
 				fireChange(new ZigZagEventEnded<T>());
 			} else if (x.equals(p.getLeft()) && p.equals(g.getRight())) {
-				fireChange(new ZigZagEventStarted<T>());
+				fireChange(new ZigZagStartedEvent<T>());
 				rightRotate(p);
 				leftRotate(g);
 				fireChange(new ZigZagEventEnded<T>());
