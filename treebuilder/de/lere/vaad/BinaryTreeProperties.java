@@ -54,10 +54,9 @@ public class BinaryTreeProperties {
 
 	public GraphProperties getGraphProperties() {
 		if (graphProperties == null) {
-			return new GraphProperties(genByName);
-		} else {
-			return graphProperties;
+			graphProperties = new GraphProperties(genByName);
 		}
+		return graphProperties;
 	}
 
 	public void setGraphProperties(GraphProperties graphProperties) {

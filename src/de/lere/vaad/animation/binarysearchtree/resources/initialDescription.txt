@@ -4,3 +4,7 @@ bei dem die Knoten des linken Teilbaums eines Knotens nur kleinere (oder gleiche
 Schlüssel und die Knoten des rechten Teilbaums eines Knotens nur größere
 (oder gleiche) Schlüssel als der Knoten selbst besitzen.
                            Quelle: www.wikipedia.com
+                           
+Ein binärer Suchbaum ermöglicht das Einfügen, Entfernen und Suchen von Werten
+in durchschnittlich θ(lg h) Zeit und im schlechtesten Fall
+in maximal θ(h) Zeit, wobei h seine Höhe darstellt.
