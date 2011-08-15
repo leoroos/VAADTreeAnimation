@@ -6,7 +6,7 @@ import de.lere.vaad.treebuilder.events.TreeSearchEvent;
 
 public interface SplayTreeStepListener<T extends Comparable<T>> {
 
-	void newStep(SplayStep<T> step);
+	void newStep(SplayTreeEvent<T> step);
 	
 	void nodeFound(TreeSearchEvent<T> event);
 	

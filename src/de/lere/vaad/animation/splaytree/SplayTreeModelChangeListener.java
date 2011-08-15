@@ -30,20 +30,18 @@ public class SplayTreeModelChangeListener<T extends Comparable<T>> implements
 
 	private ArrayList<TreeEvent<T>> stepEvents;
 
-	private SplayTreeEvent<T> stepCause;
-
 	private boolean recordingOperation;
 
 	private SUB_RECORDING_STATUS recordingStatus;
 
 	public SplayTreeModelChangeListener(BinaryTreeSetup<T> setup) {
-		animator = new TreeModelChangeEventListenerForSplaytreeAnimations<T>(setup);
+		animator = new TreeModelChangeEventListenerForSplaytreeAnimations<T>(
+				setup);
 		this.splayOperationListeners = new ArrayList<SplayTreeStepListener<T>>();
 		this.operations = new ArrayList<SplayOperation<T>>();
 		this.steps = new ArrayList<SplayStep<T>>();
 		this.stepEvents = new ArrayList<TreeEvent<T>>();
-		this.recordingStatus = SUB_RECORDING_STATUS.RECORDING_NOTHING;
-		this.stepCause = null;
+		this.recordingStatus = SUB_RECORDING_STATUS.RECORDING_NOTHING;	
 	}
 
 	public void add(SplayTreeStepListener<T> listener) {
@@ -68,48 +66,47 @@ public class SplayTreeModelChangeListener<T extends Comparable<T>> implements
 			}
 
 		} else if (event instanceof TreeEvent) {
-			if (event instanceof TreeLeftRotateEvent) {
-				stepEvents.add(event);
-			} else if (event instanceof TreeRightRotateEvent) {
-				stepEvents.add(event);
-			}
-			else if(event instanceof TreeSearchEvent){
-				fireNodeFound(event);
-			}
-			else if(event instanceof TreeDeleteEvent){
-				fireNodeDelete(event);
-			}
-			else if( event instanceof TreeInsertEvent){
-				fireNodeInsert(event);
-			}
+			// if (event instanceof TreeLeftRotateEvent) {
+			// stepEvents.add(event);
+			// } else if (event instanceof TreeRightRotateEvent) {
+			// stepEvents.add(event);
+			// } else {
+			// if (event instanceof TreeSearchEvent) {
+			// fireNodeFound(event);
+			// } else if (event instanceof TreeDeleteEvent) {
+			// fireNodeDelete(event);
+			// } else if (event instanceof TreeInsertEvent) {
+			// fireNodeInsert(event);
+			// }
+			stepEvents.add(event);
 		}
 	}
 
 	private void fireNodeInsert(TreeEvent<T> event) {
-		for(SplayTreeStepListener<T> l : splayOperationListeners){
+		for (SplayTreeStepListener<T> l : splayOperationListeners) {
 			l.nodeInserted((TreeInsertEvent<T>) event);
 		}
 	}
 
 	private void fireNodeDelete(TreeEvent<T> event) {
-		for(SplayTreeStepListener<T> l : splayOperationListeners){
+		for (SplayTreeStepListener<T> l : splayOperationListeners) {
 			l.nodeDelete((TreeDeleteEvent<T>) event);
 		}
 	}
 
 	private void fireNodeFound(TreeEvent<T> event) {
-		for(SplayTreeStepListener<T> l : splayOperationListeners){
+		for (SplayTreeStepListener<T> l : splayOperationListeners) {
 			l.nodeFound((TreeSearchEvent<T>) event);
 		}
 	}
 
 	private void handleSplayStepEnded() {
-		int sizeOfSteps = stepEvents.size();
+		int sizeOfSteps = numberOfRotations(stepEvents);
 		if (recordingStatus == SUB_RECORDING_STATUS.RECORDING_NOTHING) {
 			throw new IllegalStateException("Must be in recording state.");
 		} else if (recordingStatus == SUB_RECORDING_STATUS.RECORDING_ZIG) {
 			if (sizeOfSteps == 1) {
-				SplayStep<T> step = new SplayStep<T>(this.stepCause);
+				SplayStep<T> step = new SplayStep<T>();
 				step.addAll(this.stepEvents);
 				steps.add(step);
 			} else {
@@ -120,7 +117,7 @@ public class SplayTreeModelChangeListener<T extends Comparable<T>> implements
 		} else if (recordingStatus == SUB_RECORDING_STATUS.RECORDING_ZIG_ZIG
 				|| recordingStatus == SUB_RECORDING_STATUS.RECORDING_ZIG_ZAG) {
 			if (sizeOfSteps == 2) {
-				SplayStep<T> step = new SplayStep<T>(stepCause);
+				SplayStep<T> step = new SplayStep<T>();
 				step.addAll(stepEvents);
 				steps.add(step);
 			} else {
@@ -130,8 +127,18 @@ public class SplayTreeModelChangeListener<T extends Comparable<T>> implements
 			}
 		}
 		recordingStatus = SUB_RECORDING_STATUS.RECORDING_NOTHING;
-		stepEvents.clear();
-		stepCause = null;
+		stepEvents.clear();		
+	}
+
+	private int numberOfRotations(ArrayList<TreeEvent<T>> stepsEvent) {
+		int count = 0;
+		for (TreeEvent<T> event : stepsEvent) {
+			if (event instanceof TreeLeftRotateEvent
+					|| event instanceof TreeRightRotateEvent) {
+				++count;
+			}
+		}
+		return count;
 	}
 
 	private void handleSplayStepStarted(SplayTreeEvent<T> event) {
@@ -149,7 +156,7 @@ public class SplayTreeModelChangeListener<T extends Comparable<T>> implements
 		} else {
 			throw new IllegalStateException("No corresponding event found...");
 		}
-		this.stepCause = event;
+		this.stepEvents.add(event);
 	}
 
 	private void doHandleSplayStart() {
@@ -179,16 +186,24 @@ public class SplayTreeModelChangeListener<T extends Comparable<T>> implements
 		for (SplayOperation<T> operation : this.operations) {
 			List<SplayStep<T>> steps = operation.getOperationSteps();
 			for (SplayStep<T> step : steps) {
-				fireNewStep(step);
 				List<TreeEvent<T>> events = step.getEventsInStep();
 				for (TreeEvent<T> event : events) {
+					if (event instanceof SplayTreeStartEvent) {
+						fireNewStep((SplayTreeStartEvent<T>) event);
+					} else if (event instanceof TreeSearchEvent) {
+						fireNodeFound(event);
+					} else if (event instanceof TreeDeleteEvent) {
+						fireNodeDelete(event);
+					} else if (event instanceof TreeInsertEvent) {
+						fireNodeInsert(event);
+					}
 					animator.animate(event);
 				}
 			}
 		}
 	}
 
-	private void fireNewStep(SplayStep<T> step) {
+	private void fireNewStep(SplayTreeStartEvent<T> step) {
 		for (SplayTreeStepListener<T> listener : this.splayOperationListeners) {
 			listener.newStep(step);
 		}

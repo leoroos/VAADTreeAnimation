@@ -3,7 +3,6 @@ package de.lere.vaad.animation.splaytree;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 
@@ -22,7 +21,6 @@ import de.lere.vaad.animation.binarysearchtree.BinaryTreeSetup;
 import de.lere.vaad.animation.locationhandler.LocationDirector;
 import de.lere.vaad.treebuilder.BinaryTreeModel;
 import de.lere.vaad.treebuilder.events.TreeDeleteEvent;
-import de.lere.vaad.treebuilder.events.TreeEvent;
 import de.lere.vaad.treebuilder.events.TreeInsertEvent;
 import de.lere.vaad.treebuilder.events.TreeModelChangeEventListenerForSplaytreeAnimations;
 import de.lere.vaad.treebuilder.events.TreeSearchEvent;
@@ -208,7 +206,7 @@ public class SplayTreeAnimation extends TreeAnimationBase<String> implements Spl
 		String showcaseMacroDescription = "Beispielhafte Darstellung der beschriebenen Operationen.";
 		nextStateOnLocation(showcaseMacroDescription, DIRECTOR_MACROSTEP);
 
-		nextStateOnLocation("Suche nach einen Schlüssel $$",
+		nextStateOnLocation("SUCHE NUN!",
 				DIRECTOR_MICROSTEP);		
 		step();
 		BinaryTreeModel<String> btree = BinaryTreeModel.createTreeByInsert("10,5,20,1,7,15,25".split(","));
@@ -220,9 +218,11 @@ public class SplayTreeAnimation extends TreeAnimationBase<String> implements Spl
 		splay.show();
 		step();
 		splay.search("25");		
-		nextStateOnLocation("Einfügen des Schlüssels $$", DIRECTOR_MICROSTEP);
+		nextStateOnLocation("EINF�GEN NUN!", DIRECTOR_MICROSTEP);
+		step();
+		splay.insert("40");
 
-		nextStateOnLocation("Löschen eines Schlüssels $$", DIRECTOR_MICROSTEP);
+		nextStateOnLocation("L�SCHEN NUN!", DIRECTOR_MICROSTEP);
 
 		step();
 
@@ -245,9 +245,8 @@ public class SplayTreeAnimation extends TreeAnimationBase<String> implements Spl
 
 
 	@Override
-	public void newStep(SplayStep<String> step) {
-		SplayTreeEvent<String> cause = step.getCause();
-		List<TreeEvent<String>> rotations = step.getEventsInStep();
+	public void newStep(SplayTreeEvent step) {
+		SplayTreeEvent<String> cause = step;		
 		if(cause instanceof ZigStartedEvent){
 			nextStateOnLocation("Performing a Zig-Step on some node", DIRECTOR_MICROSTEP);			
 		}
@@ -276,7 +275,7 @@ public class SplayTreeAnimation extends TreeAnimationBase<String> implements Spl
 	}
 
 	@Override
-	public void nodeInserted(TreeInsertEvent<String> event) {
+	public void nodeInserted(TreeInsertEvent<String> event) {		
 		nextStateOnLocation("Einfügen von " + event.nodeOfModification, DIRECTOR_MACROSTEP);
 		step();
 	}
