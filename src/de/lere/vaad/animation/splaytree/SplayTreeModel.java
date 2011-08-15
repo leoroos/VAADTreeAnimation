@@ -20,7 +20,7 @@ public class SplayTreeModel<T extends Comparable<T>> extends BinaryTreeModel<T> 
 	@Override
 	public Node<T> insert(T value) {
 		Node<T> insertedNode = super.insert(value);
-		splay(insertedNode);
+		splayWithEvents(insertedNode);
 		return insertedNode;
 	}
 
@@ -28,7 +28,7 @@ public class SplayTreeModel<T extends Comparable<T>> extends BinaryTreeModel<T> 
 	public Node<T> delete(T v) {
 		Node<T> deleted = super.delete(v);
 		if (deleted != null) {
-			splay(deleted.getParent());
+			splayWithEvents(deleted.getParent());
 		}
 		return deleted;
 	}
@@ -36,8 +36,14 @@ public class SplayTreeModel<T extends Comparable<T>> extends BinaryTreeModel<T> 
 	@Override
 	public Node<T> search(T v) {
 		Node<T> found = super.search(v);
-		splay(found);
+		splayWithEvents(found);
 		return found;
+	}
+
+	private void splayWithEvents(Node<T> x) {
+		this.fireChange(new SplayStartedEvent<T>());
+		splay(x);
+		this.fireChange(new SplayEndedEvent<T>());
 	}
 
 	private void splay(Node<T> x) {
@@ -48,25 +54,35 @@ public class SplayTreeModel<T extends Comparable<T>> extends BinaryTreeModel<T> 
 		if (x.equals(this.getRoot())) {
 			return;
 		} else if (p.equals(this.getRoot())) {
+			fireChange(new ZigStartedEvent<T>());
 			if (x.isLeftChild()) {
 				rightRotate(this.getRoot());
 			} else {
 				leftRotate(this.getRoot());
 			}
+			fireChange(new ZigEndedEvent<T>());
 		} else {
 			Node<T> g = p.getParent();
 			if (x.equals(p.getLeft()) && p.equals(g.getLeft())) {
+				fireChange(new ZigZigStartedEvent<T>());
 				rightRotate(g);
 				rightRotate(p);
+				fireChange(new ZigZigEndedEvent<T>());
 			} else if (x.equals(p.getRight()) && p.equals(g.getRight())) {
+				fireChange(new ZigZigStartedEvent<T>());
 				leftRotate(g);
 				leftRotate(p);
+				fireChange(new ZigZigEndedEvent<T>());
 			} else if (x.equals(p.getRight()) && p.equals(g.getLeft())) {
+				fireChange(new ZigZagEventStarted<T>());
 				leftRotate(p);
 				rightRotate(g);
+				fireChange(new ZigZagEventEnded<T>());
 			} else if (x.equals(p.getLeft()) && p.equals(g.getRight())) {
+				fireChange(new ZigZagEventStarted<T>());
 				rightRotate(p);
 				leftRotate(g);
+				fireChange(new ZigZagEventEnded<T>());
 			}
 		}
 		splay(x);

@@ -5,17 +5,12 @@ import java.awt.Font;
 import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
 
 import algoanim.animalscript.AnimalScript;
 import algoanim.primitives.Group;
-import algoanim.primitives.Primitive;
 import algoanim.primitives.SourceCode;
 import algoanim.primitives.Text;
 import algoanim.primitives.generators.Language;
@@ -27,21 +22,21 @@ import algoanim.util.Hidden;
 import algoanim.util.Node;
 import algoanim.util.Offset;
 import de.lere.vaad.BinaryTreeProperties;
+import de.lere.vaad.animation.DefaultVisibilityEventListener;
+import de.lere.vaad.animation.GraphWriter;
+import de.lere.vaad.animation.GraphWriterImpl;
+import de.lere.vaad.animation.StepWriter;
+import de.lere.vaad.animation.binarysearchtree.BinaryTreeSetup;
 import de.lere.vaad.animation.locationhandler.Action;
 import de.lere.vaad.animation.locationhandler.ActionAdapter;
 import de.lere.vaad.animation.locationhandler.LocationDirector;
-import de.lere.vaad.animation.locationhandler.LocationDirectorProvider;
 import de.lere.vaad.animation.locationhandler.LocationHandler;
 import de.lere.vaad.animation.locationhandler.LocationProvider;
 import de.lere.vaad.animation.locationhandler.NextStateOnLocationDirector;
 import de.lere.vaad.animation.splaytree.resources.descriptions.SplayTreeResourceAccessor;
 import de.lere.vaad.treebuilder.BinaryTreeLayout;
 import de.lere.vaad.treebuilder.BinaryTreeModel;
-import de.lere.vaad.treebuilder.events.TreeEventListenerAggregator;
-import de.lere.vaad.utils.CorrectedOffset;
 import de.lere.vaad.utils.NodeHelper;
-import de.lere.vaad.utils.StrUtils;
-import edu.umd.cs.findbugs.annotations.Nullable;
 
 public class SplayTreeAnimation {
 
@@ -57,7 +52,8 @@ public class SplayTreeAnimation {
 		this.language = l;
 		this.animationProperties = tp;
 		l.setStepMode(true);
-		this.layout = new BinaryTreeLayout(GRAPHROOT_COORDINATES, 200, 60, tp.getGraphProperties());
+		this.layout = new BinaryTreeLayout(GRAPHROOT_COORDINATES, 200, 60,
+				BinaryTreeLayout.getDefaultGraphProperties());
 		this.lh = new LocationHandler(language, tp);
 
 		DIRECTOR_HEADER = createHeaderLocDir();
@@ -108,12 +104,21 @@ public class SplayTreeAnimation {
 
 		System.out.println(animationCode);
 
-		File file = new File("/tmp/animationCode.asu");
+		File file = new File("/tmp/splayTreeAnimation.asu");
 		try {
 			FileUtils.writeStringToFile(file, animationCode);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private BinaryTreeSetup<String> createSetup(GraphWriter<String> writer) {
+		BinaryTreeSetup<String> setup = new BinaryTreeSetup<String>();
+		setup.setBinaryTreeProperties(animationProperties);
+		setup.setLang(language);
+		setup.setStepWriter(new StepWriter(language));
+		setup.setWriter(writer);
+		return setup;
 	}
 
 	private void buildAnimation(BinaryTreeProperties props) throws IOException {
@@ -137,6 +142,8 @@ public class SplayTreeAnimation {
 
 		step();
 
+		sourceCode.highlight(0);
+
 		//
 		// Zig-Step
 		//
@@ -146,31 +153,38 @@ public class SplayTreeAnimation {
 				+ "Splay-Operation einer Transformation handelt.";
 		nextStateOnLocation(actionZigMacroDescription, DIRECTOR_MACROSTEP);
 
-		nextStateOnLocation("Führe Rechtsrotation um P aus.",
-				DIRECTOR_MACROSTEP);
+		final GraphWriter<String> writer = new GraphWriterImpl<String>(
+				language, layout);
+		BinaryTreeSetup<String> setup = createSetup(writer);
 
-		 ;
 		BinaryTreeModel<String> model = BinaryTreeModel
 				.createTreeByInsert("P,F,R,A,G".split(","));
 
-		model.addListener(new TreeEventListenerAggregator<String>(
-				language));
+		DefaultVisibilityEventListener<String> visibilityAnimator = new DefaultVisibilityEventListener<String>(
+				writer);
+		SplayTreeModelChangeListener<String> changeAnimator = new SplayTreeModelChangeListener<String>(
+				setup);
+
+		model.addListener(changeAnimator);
+		model.addListener(visibilityAnimator);
 		model.show();
-		
-		for (int i = 0; i < 20; ++i) {
-			if ((i % 2) == 0) {
-				model.rightRotate(model.getRoot());
-			} else {
-				model.leftRotate(model.getRoot());
-			}
-		}
 
 		step();
+
+		nextStateOnLocation("Führe Rechtsrotation um P aus.",
+				DIRECTOR_MACROSTEP);
+
+		step();
+
+		rightRotateAround(model, "P");
+
 		//
 		// ZigZig-Step
 		//
 
 		hideAll(model);
+		sourceCode.unhighlight(0);
+		sourceCode.highlight(1);
 		String actionZigzigMacroDescription = "Es wird C gesucht.\n"
 				+ "Ist der gesuchte Knoten der linke Sohn seines Vaters der wiederum ein linkes Kind ist,\n"
 				+ "wird der Zig-zig Schritt ausgeführt, der eine doppelte Rechtsrotation ist.\n"
@@ -178,50 +192,55 @@ public class SplayTreeAnimation {
 		nextStateOnLocation(actionZigzigMacroDescription, DIRECTOR_MACROSTEP);
 
 		model = BinaryTreeModel.createTreeByInsert("P,G,R,C,H,A,B".split(","));
+		model.addListener(changeAnimator);
+		model.addListener(visibilityAnimator);
 		model.show();
-
 		step();
 
 		nextStateOnLocation("Führe Rechtsrotation um g aus.",
 				DIRECTOR_MICROSTEP);
 
 		de.lere.vaad.treebuilder.Node<String> g = model.search("G");
+		step();
 		model.rightRotate(g);
 
 		nextStateOnLocation("Führe Rechtsrotation um p aus.",
 				DIRECTOR_MICROSTEP);
-
+		step();
 		rightRotateAround(model, "P");
 
 		//
 		// ZigZag-Step
 		//
 		hideAll(model);
+		sourceCode.unhighlight(1);
+		sourceCode.highlight(2);
 		String actionZigzagMacroDescription = "Sei I gesucht.\n"
 				+ "I befindet sich links von P und recht von G bzw.\n"
 				+ "Hier wird ein Zig-zag Schritt ausgeführt.\n";
 		nextStateOnLocation(actionZigzagMacroDescription, DIRECTOR_MACROSTEP);
-
 		model = BinaryTreeModel.createTreeByInsert("P,G,S,E,I,H,J".split(","));
+		model.addListener(changeAnimator);
+		model.addListener(visibilityAnimator);
 		model.show();
-
 		step();
 
-		nextStateOnLocation("Führe Linksrotation um G aus.", DIRECTOR_MICROSTEP);
+		nextStateOnLocation("Führe Linksrotation um G aus.",
+				DIRECTOR_MICROSTEP);
+		step();
 		leftRotateAround(model, "G");
-
-		step();
 
 		nextStateOnLocation("Führe Rechtsrotation um P aus.",
 				DIRECTOR_MICROSTEP);
-		rightRotateAround(model, "P");
-
 		step();
+		rightRotateAround(model, "P");
 
 		//
 		// Description of Behavior for Access Operations
 		//
 		hideAll(model);
+		sourceCode.unhighlight(2);
+		nextStateOnLocation("", DIRECTOR_DESCRIPTION_BEGINNING);
 		String accessBehaviourMacroDescription = "Verhalten bei zugreifenden Operationen	\n"
 				+ "Suche:\n"
 				+ "Wird ein Knoten gesucht, wird auf diesem eine Splay Operation ausgeführt.\n"
@@ -240,21 +259,18 @@ public class SplayTreeAnimation {
 		String showcaseMacroDescription = "Beispielhafte Darstellung der beschriebenen Operationen.";
 		nextStateOnLocation(showcaseMacroDescription, DIRECTOR_MACROSTEP);
 
-		nextStateOnLocation("Suche nach einen Schlüssel $$", DIRECTOR_MICROSTEP);
-
-		step();
+		nextStateOnLocation("Suche nach einen Schlüssel $$",
+				DIRECTOR_MICROSTEP);
 
 		nextStateOnLocation("Einfügen des Schlüssels $$", DIRECTOR_MICROSTEP);
-
-		step();
 
 		nextStateOnLocation("Löschen eines Schlüssels $$", DIRECTOR_MICROSTEP);
 
 		step();
+
 	}
 
 	private void hideAll(BinaryTreeModel<String> model) {
-		nextStateOnLocation("", DIRECTOR_DESCRIPTION_BEGINNING);
 		nextStateOnLocation("", DIRECTOR_MACROSTEP);
 		nextStateOnLocation("", DIRECTOR_MICROSTEP);
 		if (model != null)
@@ -276,14 +292,6 @@ public class SplayTreeAnimation {
 	}
 
 	Random r = new Random(22);
-
-	private List<Integer> createSomeInts(int howmuch) {
-		ArrayList<Integer> list = new ArrayList<Integer>();
-		for (int i = 0; i < howmuch; ++i) {
-			list.add(r.nextInt(howmuch * 20));
-		}
-		return list;
-	}
 
 	private <T extends Node> Action<T> actionSourceCodeText(Class<T> type) {
 		Action<T> sourceCodeText = new ActionAdapter<T>() {
