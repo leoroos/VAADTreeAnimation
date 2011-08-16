@@ -18,7 +18,7 @@ public class TreeModelchangeEventListenerForGenericTreeAnimations<T extends Comp
 		Timings t = new Timings();
 		GraphWriter<T> writer = getWriter();
 		writer.highlightNode(event.afterChange, event.nodeOfModification.getParent(), t.NOW , t.DEFAULT_ANIMATION);
-		writer.unhighlightNode(event.afterChange, event.nodeOfModification.getParent(), t.DEFAULT_ANIMATION, t.DEFAULT_ANIMATION);
+		//writer.unhighlightNode(event.afterChange, event.nodeOfModification.getParent(), t.DEFAULT_ANIMATION, t.DEFAULT_ANIMATION);
 		getLang().nextStep();
 	}
 }
