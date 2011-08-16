@@ -221,6 +221,8 @@ public class SplayTreeAnimation extends TreeAnimationBase<String> implements Spl
 		nextStateOnLocation("EINF�GEN NUN!", DIRECTOR_MICROSTEP);
 		step();
 		splay.insert("40");
+		step();
+		splay.delete("5");
 
 		nextStateOnLocation("L�SCHEN NUN!", DIRECTOR_MICROSTEP);
 
@@ -276,7 +278,7 @@ public class SplayTreeAnimation extends TreeAnimationBase<String> implements Spl
 
 	@Override
 	public void nodeInserted(TreeInsertEvent<String> event) {		
-		nextStateOnLocation("Einfügen von " + event.nodeOfModification, DIRECTOR_MACROSTEP);
+		nextStateOnLocation("Einfügen von " + event.nodeOfModification.getValue(), DIRECTOR_MACROSTEP);
 		step();
 	}
 

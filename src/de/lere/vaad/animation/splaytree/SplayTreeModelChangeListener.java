@@ -65,19 +65,7 @@ public class SplayTreeModelChangeListener<T extends Comparable<T>> implements
 				handleSplayStepEnded();
 			}
 
-		} else if (event instanceof TreeEvent) {
-			// if (event instanceof TreeLeftRotateEvent) {
-			// stepEvents.add(event);
-			// } else if (event instanceof TreeRightRotateEvent) {
-			// stepEvents.add(event);
-			// } else {
-			// if (event instanceof TreeSearchEvent) {
-			// fireNodeFound(event);
-			// } else if (event instanceof TreeDeleteEvent) {
-			// fireNodeDelete(event);
-			// } else if (event instanceof TreeInsertEvent) {
-			// fireNodeInsert(event);
-			// }
+		} else if (event instanceof TreeEvent) {			
 			stepEvents.add(event);
 		}
 	}
@@ -180,6 +168,7 @@ public class SplayTreeModelChangeListener<T extends Comparable<T>> implements
 					"Should be recording when receiving a SplayEndedEvent.");
 		}
 		relayStepsToListeners();
+		operations.clear();
 	}
 
 	private void relayStepsToListeners() {
