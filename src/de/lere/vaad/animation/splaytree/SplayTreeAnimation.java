@@ -52,6 +52,7 @@ public class SplayTreeAnimation extends TreeAnimationBase<String> implements Spl
 		BinaryTreeProperties tp = new BinaryTreeProperties();
 		
 		tp.getGraphProperties().set("fillColor", Color.WHITE);
+		tp.getGraphProperties().set("highlightColor", Color.RED);
 		tp.getSourceCodeProperties().set("highlightColor", Color.CYAN);
 		
 		
