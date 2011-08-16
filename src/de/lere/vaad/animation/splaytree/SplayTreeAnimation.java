@@ -26,20 +26,22 @@ import de.lere.vaad.treebuilder.events.TreeModelChangeEventListenerForSplaytreeA
 import de.lere.vaad.treebuilder.events.TreeSearchEvent;
 import de.lere.vaad.utils.TextLoaderUtil;
 
-public class SplayTreeAnimation extends TreeAnimationBase<String> implements SplayTreeStepListener<String> {
+public class SplayTreeAnimation extends TreeAnimationBase<String> implements
+		SplayTreeStepListener<String> {
 
 	private TextLoaderUtil loaderUtil;
 
 	private TextLoaderUtil getLoaderUtil() {
 		if (loaderUtil == null) {
-			loaderUtil = new TextLoaderUtil(getClass(), "resources/descriptions");
-			
+			loaderUtil = new TextLoaderUtil(getClass(),
+					"resources/descriptions");
+
 		}
 		return loaderUtil;
 	}
 
 	private SplayTreeAnimation(Language l, BinaryTreeProperties tp) {
-		super(l,tp, "P,F,R,A,G".split(","));
+		super(l, tp, "P,F,R,A,G".split(","));
 	}
 
 	/**
@@ -50,12 +52,11 @@ public class SplayTreeAnimation extends TreeAnimationBase<String> implements Spl
 		// name, author, screen width, screen height
 
 		BinaryTreeProperties tp = new BinaryTreeProperties();
-		
+
 		tp.getGraphProperties().set("fillColor", Color.WHITE);
 		tp.getGraphProperties().set("highlightColor", Color.RED);
 		tp.getSourceCodeProperties().set("highlightColor", Color.CYAN);
-		
-		
+
 		tp.authors = "Rene Hertling, Leo Roos";
 
 		tp.title = "Splaytree Animation";
@@ -63,7 +64,7 @@ public class SplayTreeAnimation extends TreeAnimationBase<String> implements Spl
 		Language l = new AnimalScript(tp.title, tp.authors,
 				tp.screenResolution.width, tp.screenResolution.height);
 		SplayTreeAnimation animation = new SplayTreeAnimation(l, tp);
-			animation.buildAnimation();
+		animation.buildAnimation();
 
 		String animationCode = l.getAnimationCode();
 
@@ -88,11 +89,13 @@ public class SplayTreeAnimation extends TreeAnimationBase<String> implements Spl
 
 	@Override
 	protected void doBuildAnimation() {
-		
-		SourceCodeWriter scw = new SourceCodeWriter(language, getBinaryTreeProperties().getSourceCodeProperties(), DIRECTOR_SMALLISH_SOURCECODE, new Timings());
-		
+
+		SourceCodeWriter scw = new SourceCodeWriter(language,
+				getBinaryTreeProperties().getSourceCodeProperties(),
+				DIRECTOR_SMALLISH_SOURCECODE, new Timings());
+
 		scw.newSourceCode("1. Zig Step\n" + "2. Zig-zig Step\n"
-						+ "3. Zig-zag Step");
+				+ "3. Zig-zag Step");
 		scw.setAutomaticLineUnhighlighting(true);
 		scw.highlight(1);
 
@@ -114,7 +117,8 @@ public class SplayTreeAnimation extends TreeAnimationBase<String> implements Spl
 
 		DefaultVisibilityEventListener<String> visibilityAnimator = new DefaultVisibilityEventListener<String>(
 				writer);
-		TreeModelChangeEventListenerForSplaytreeAnimations<String> changeAnimator = new TreeModelChangeEventListenerForSplaytreeAnimations<String>(setup);
+		TreeModelChangeEventListenerForSplaytreeAnimations<String> changeAnimator = new TreeModelChangeEventListenerForSplaytreeAnimations<String>(
+				setup);
 		model.addListener(changeAnimator);
 		model.addListener(visibilityAnimator);
 		model.show();
@@ -173,8 +177,7 @@ public class SplayTreeAnimation extends TreeAnimationBase<String> implements Spl
 		model.show();
 		step();
 
-		nextStateOnLocation("Führe Linksrotation um G aus.",
-				DIRECTOR_MICROSTEP);
+		nextStateOnLocation("Führe Linksrotation um G aus.", DIRECTOR_MICROSTEP);
 		step();
 		leftRotateAround(model, "G");
 
@@ -188,45 +191,46 @@ public class SplayTreeAnimation extends TreeAnimationBase<String> implements Spl
 		//
 		hideAll(model);
 		scw.unhighlight(3);
+		scw.hide();
 		nextStateOnLocation("", DIRECTOR_DESCRIPTION_BEGINNING);
-		String accessBehaviourMacroDescription = "Verhalten bei zugreifenden Operationen	\n"
+		String accessBehaviourMacroDescription = "Verhalten bei zugreifenden Operationen	\n\n"
 				+ "Suche:\n"
-				+ "Wird ein Knoten gesucht, wird auf diesem eine Splay Operation ausgeführt.\n"
+				+ "Wird ein Knoten gesucht und gefunden, so wird auf diesem eine Splay-Operation ausgeführt.\n"
 				+ "Einfügen:\n"
 				+ "Beim Einfügen wird der Knoten wie in einen Binärbaum hinzugefügt und\n"
-				+ "anschließend der eingefügte Knoten zur Wurzel gesplayed\n"
+				+ "anschließend wird der eingefügte gesplayed\n"
 				+ "Löschen:\n"
 				+ "Beim Löschen wird der zu löschende Knoten wie in einem Binärbaum gelöscht\n"
-				+ "und sein Parent zur Wurzel gesplayed.";
+				+ "und dann der Parent des gelöschten Knotens gesplayed.";
 		nextStateOnLocation(accessBehaviourMacroDescription, DIRECTOR_MACROSTEP);
 
 		step();
 		//
 		// Showcase the operations
 		//
-		String showcaseMacroDescription = "Beispielhafte Darstellung der beschriebenen Operationen.";
+		String showcaseMacroDescription = "Es folgt nun eine beispielhafte Darstellung der Operationen.";
 		nextStateOnLocation(showcaseMacroDescription, DIRECTOR_MACROSTEP);
-
-		nextStateOnLocation("SUCHE NUN!",
-				DIRECTOR_MICROSTEP);		
 		step();
-		BinaryTreeModel<String> btree = BinaryTreeModel.createTreeByInsert("10,5,20,1,7,15,25".split(","));
+		nextStateOnLocation("Suche nach einem Knoten:", DIRECTOR_MACROSTEP);
+		step();
+		BinaryTreeModel<String> btree = BinaryTreeModel
+				.createTreeByInsert("10,5,20,1,7,15,25".split(","));
 		SplayTreeModel<String> splay = SplayTreeModel.from(btree);
-		SplayTreeModelChangeListener<String> changeListener = new SplayTreeModelChangeListener<String>(setup);
+		SplayTreeModelChangeListener<String> changeListener = new SplayTreeModelChangeListener<String>(
+				setup);
 		splay.addListener(visibilityAnimator);
-		splay.addListener(changeListener);		
+		splay.addListener(changeListener);
 		changeListener.add(this);
 		splay.show();
 		step();
-		splay.search("25");		
-		nextStateOnLocation("EINF�GEN NUN!", DIRECTOR_MICROSTEP);
+		splay.search("25");
+		nextStateOnLocation("Einfügen eines Knotens:", DIRECTOR_MACROSTEP);
 		step();
 		splay.insert("40");
 		step();
-		splay.delete("5");
-
-		nextStateOnLocation("L�SCHEN NUN!", DIRECTOR_MICROSTEP);
-
+		nextStateOnLocation("Löschen eines Knotens:", DIRECTOR_MACROSTEP);
+		step();
+		splay.delete("10");
 		step();
 
 	}
@@ -246,40 +250,41 @@ public class SplayTreeAnimation extends TreeAnimationBase<String> implements Spl
 		lh.nextStateOnLocation(string, director);
 	}
 
-
 	@Override
 	public void newStep(SplayTreeEvent<String> step) {
-		SplayTreeEvent<String> cause = step;		
-		if(cause instanceof ZigStartedEvent){
-			nextStateOnLocation("Performing a Zig-Step on some node", DIRECTOR_MICROSTEP);			
-		}
-		else if(cause instanceof ZigZigStartedEvent){
+		SplayTreeEvent<String> cause = step;
+		if (cause instanceof ZigStartedEvent) {
+			nextStateOnLocation("Performing a Zig-Step on some node",
+					DIRECTOR_MICROSTEP);
+		} else if (cause instanceof ZigZigStartedEvent) {
 			nextStateOnLocation("Performing a ZigZig", DIRECTOR_MICROSTEP);
-		}
-		else if(cause instanceof ZigZagStartedEvent){
+		} else if (cause instanceof ZigZagStartedEvent) {
 			nextStateOnLocation("Performing a ZigZag", DIRECTOR_MICROSTEP);
-		}
-		else {
+		} else {
 			throw new IllegalArgumentException("Invalid Splay-Event");
 		}
-		step();		
+		step();
 	}
 
 	@Override
 	public void nodeFound(TreeSearchEvent<String> event) {
-		nextStateOnLocation("Suche: " + event.searchVal, DIRECTOR_MACROSTEP);
+		nextStateOnLocation("Suche nach Knoten mit dem Wert: "
+				+ event.searchVal, DIRECTOR_MACROSTEP);
 		step();
 	}
 
 	@Override
 	public void nodeDelete(TreeDeleteEvent<String> event) {
-		nextStateOnLocation("Lösche: " + event.deleteValue, DIRECTOR_MACROSTEP);
+		nextStateOnLocation("Lösche Knoten mit dem Wert:" + event.deleteValue,
+				DIRECTOR_MACROSTEP);
 		step();
 	}
 
 	@Override
-	public void nodeInserted(TreeInsertEvent<String> event) {		
-		nextStateOnLocation("Einfügen von " + event.nodeOfModification.getValue(), DIRECTOR_MACROSTEP);
+	public void nodeInserted(TreeInsertEvent<String> event) {
+		nextStateOnLocation("Füge Knoten mit dem Wert \""
+				+ event.nodeOfModification.getValue() + "\" ein.",
+				DIRECTOR_MACROSTEP);
 		step();
 	}
 
@@ -288,9 +293,23 @@ public class SplayTreeAnimation extends TreeAnimationBase<String> implements Spl
 		return getBinaryTreeProperties().title;
 	}
 
-
 	@Override
 	protected String getInitialDescription() {
 		return getLoaderUtil().getText("intro");
+	}
+
+	@Override
+	public void newOperation(SplayStartedEvent<String> operation) {
+		nextStateOnLocation("Der Knoten wird nun an die Wurzel gesplayed.",
+				DIRECTOR_MICROSTEP);
+		step();
+	}
+
+	@Override
+	public void operationEnded(SplayEndedEvent<String> operation) {
+		nextStateOnLocation(
+				"Der Knoten befindet sich nun an der Wurzel. Der Splay-Vorgang ist beendet.",
+				DIRECTOR_MICROSTEP);
+		nextStateOnLocation("", DIRECTOR_MICROSTEP);
 	}
 }
