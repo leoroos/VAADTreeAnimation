@@ -247,7 +247,7 @@ public class SplayTreeAnimation extends TreeAnimationBase<String> implements Spl
 
 
 	@Override
-	public void newStep(SplayTreeEvent step) {
+	public void newStep(SplayTreeEvent<String> step) {
 		SplayTreeEvent<String> cause = step;		
 		if(cause instanceof ZigStartedEvent){
 			nextStateOnLocation("Performing a Zig-Step on some node", DIRECTOR_MICROSTEP);			

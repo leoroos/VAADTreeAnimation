@@ -95,7 +95,7 @@ public class SplayTreeModelChangeListener<T extends Comparable<T>> implements
 		} else if (recordingStatus == SUB_RECORDING_STATUS.RECORDING_ZIG) {
 			if (sizeOfSteps == 1) {
 				SplayStep<T> step = new SplayStep<T>();
-				step.addAll(this.stepEvents);
+				step.addAll(stepEvents);
 				steps.add(step);
 			} else {
 				throw new IllegalStateException(
@@ -160,6 +160,11 @@ public class SplayTreeModelChangeListener<T extends Comparable<T>> implements
 	private void doHandleSplayEnded() {
 		if (this.recordingOperation) {
 			this.recordingOperation = false;
+			SplayStep<T> step = new SplayStep<T>();
+			step.addAll(stepEvents);
+			if(!step.getEventsInStep().isEmpty()){
+				steps.add(step);
+			}
 			SplayOperation<T> operation = new SplayOperation<T>();
 			operation.addAll(steps);
 			operations.add(operation);
