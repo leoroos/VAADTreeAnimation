@@ -170,5 +170,9 @@ public class SourceCodeWriter {
 	public void highlightLines(int[] lines) {
 		this.highlightLines(ts.NOW, ts.NOW, lines);
 	}
+	
+	public void hightlightMultipleLines(int ... lines){
+		this.highlightLines(lines);
+	}
 
 }

@@ -45,8 +45,8 @@ public abstract class TreeAnimationBase<T extends Comparable<T>> {
 
 	private static final int DEFAULT_GRAPH_WIDTH = 640;
 	protected static final Point GRAPHROOT_COORDINATES = new Point(400, 300);
-	private static final int MAX_GRAPH_WIDTH = 1920;
-	private static final int MIN_NODES_DISTANCE = 10;
+	public static final int MAX_GRAPH_WIDTH = 1920;
+	public static final int MIN_NODES_DISTANCE = 10;
 	protected final BinaryTreeProperties btProps;
 	@Nullable
 	protected T[] deleteArray;

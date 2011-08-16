@@ -3,6 +3,7 @@ package de.lere.vaad.animation.splaytree;
 import de.lere.vaad.treebuilder.BinaryTreeModel;
 import de.lere.vaad.treebuilder.Node;
 
+
 public class SplayTreeModel<T extends Comparable<T>> extends BinaryTreeModel<T> {
 
 	public SplayTreeModel() {
@@ -53,33 +54,34 @@ public class SplayTreeModel<T extends Comparable<T>> extends BinaryTreeModel<T> 
 		Node<T> p = x.getParent();
 		if (x.equals(this.getRoot())) {
 			return;
-		} else if (p.equals(this.getRoot())) {
-			fireChange(new ZigStartedEvent<T>());
+		} else if (p.equals(this.getRoot())) {			
 			if (x.isLeftChild()) {
+				fireChange(new ZigStartedEvent<T>(ROTATION_TYPE.RIGHT_ROTATE));
 				rightRotate(this.getRoot());
 			} else {
+				fireChange(new ZigStartedEvent<T>(ROTATION_TYPE.LEFT_ROTATE));
 				leftRotate(this.getRoot());
 			}
 			fireChange(new ZigEndedEvent<T>());
 		} else {
 			Node<T> g = p.getParent();
 			if (x.equals(p.getLeft()) && p.equals(g.getLeft())) {
-				fireChange(new ZigZigStartedEvent<T>());
+				fireChange(new ZigZigStartedEvent<T>(ROTATION_TYPE.RIGHT_ROTATE));
 				rightRotate(g);
 				rightRotate(p);
 				fireChange(new ZigZigEndedEvent<T>());
 			} else if (x.equals(p.getRight()) && p.equals(g.getRight())) {
-				fireChange(new ZigZigStartedEvent<T>());
+				fireChange(new ZigZigStartedEvent<T>(ROTATION_TYPE.LEFT_ROTATE));
 				leftRotate(g);
 				leftRotate(p);
 				fireChange(new ZigZigEndedEvent<T>());
 			} else if (x.equals(p.getRight()) && p.equals(g.getLeft())) {
-				fireChange(new ZigZagStartedEvent<T>());
+				fireChange(new ZigZagStartedEvent<T>(ROTATION_TYPE.LEFT_ROTATE));
 				leftRotate(p);
 				rightRotate(g);
 				fireChange(new ZigZagEventEnded<T>());
 			} else if (x.equals(p.getLeft()) && p.equals(g.getRight())) {
-				fireChange(new ZigZagStartedEvent<T>());
+				fireChange(new ZigZagStartedEvent<T>(ROTATION_TYPE.RIGHT_ROTATE));
 				rightRotate(p);
 				leftRotate(g);
 				fireChange(new ZigZagEventEnded<T>());

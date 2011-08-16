@@ -50,12 +50,6 @@ public class SplayTreeGenerator implements Generator {
         btprops.setGraphProperties(graphProps);
         btprops.authors = getAnimationAuthor();
         btprops.title = getAlgorithmName();
-//        
-//        initialBaum = new int [] { 10, 15, 20, 12, 8, 17, 3};
-//        searchNodes = new int [] { 15, 17, 12, 20 };
-//        insertionNodes = new int [] { 13,14,17 };
-//        deleteKnoten = new int [] { 20, 3, 13, 14, 17 };
-        //deleteKnoten = new int [] { };
        
         SplayTreeAnimation<Integer> splayAnimation = new SplayTreeAnimation<Integer>(lang, btprops, toIntegerArray(initialBaum));
         splayAnimation.setSearchAnimation(toIntegerArray(searchNodes));
