@@ -26,10 +26,11 @@ import de.lere.vaad.treebuilder.events.TreeModelChangeEventListenerForSplaytreeA
 import de.lere.vaad.treebuilder.events.TreeSearchEvent;
 import de.lere.vaad.utils.TextLoaderUtil;
 
-public class SplayTreeAnimation extends TreeAnimationBase<String> implements
-		SplayTreeStepListener<String> {
+public class SplayTreeAnimation<T extends Comparable<T>> extends
+		TreeAnimationBase<T> implements SplayTreeStepListener {
 
 	private TextLoaderUtil loaderUtil;
+	private boolean isDeleting;
 
 	private TextLoaderUtil getLoaderUtil() {
 		if (loaderUtil == null) {
@@ -40,8 +41,8 @@ public class SplayTreeAnimation extends TreeAnimationBase<String> implements
 		return loaderUtil;
 	}
 
-	private SplayTreeAnimation(Language l, BinaryTreeProperties tp) {
-		super(l, tp, "P,F,R,A,G".split(","));
+	public SplayTreeAnimation(Language l, BinaryTreeProperties tp, T[] initial) {
+		super(l, tp, initial);
 	}
 
 	/**
@@ -63,7 +64,9 @@ public class SplayTreeAnimation extends TreeAnimationBase<String> implements
 
 		Language l = new AnimalScript(tp.title, tp.authors,
 				tp.screenResolution.width, tp.screenResolution.height);
-		SplayTreeAnimation animation = new SplayTreeAnimation(l, tp);
+		SplayTreeAnimation<Integer> animation = new SplayTreeAnimation<Integer>(
+				l, tp,
+				new Integer[] { 20, 2, 14, 6, 1, 4, 23, 345, 34, 90, 12 });
 		animation.buildAnimation();
 
 		String animationCode = l.getAnimationCode();
@@ -78,8 +81,17 @@ public class SplayTreeAnimation extends TreeAnimationBase<String> implements
 		}
 	}
 
-	private BinaryTreeSetup<String> createSetup(GraphWriter<String> writer) {
+	private BinaryTreeSetup<String> createStaticSetup(GraphWriter<String> writer) {
 		BinaryTreeSetup<String> setup = new BinaryTreeSetup<String>();
+		setup.setBinaryTreeProperties(getBinaryTreeProperties());
+		setup.setLang(language);
+		setup.setStepWriter(new StepWriter(language));
+		setup.setWriter(writer);
+		return setup;
+	}
+
+	private BinaryTreeSetup<T> createSetup(GraphWriter<T> writer) {
+		BinaryTreeSetup<T> setup = new BinaryTreeSetup<T>();
 		setup.setBinaryTreeProperties(getBinaryTreeProperties());
 		setup.setLang(language);
 		setup.setStepWriter(new StepWriter(language));
@@ -90,6 +102,64 @@ public class SplayTreeAnimation extends TreeAnimationBase<String> implements
 	@Override
 	protected void doBuildAnimation() {
 
+		BinaryTreeSetup<String> setup = performStaticPresentation();
+		setup.getStepWriter().step("GenerischerTeil");
+		animateGenericPart();
+	}
+
+	private void animateGenericPart() {
+		GraphWriter<T> gWriter = new GraphWriterImpl<T>(language, this.layout);
+		BinaryTreeSetup<T> setup2 = createSetup(gWriter);
+		SplayTreeModel<T> model = new SplayTreeModel<T>();
+		DefaultVisibilityEventListener<T> visibilityAnimator = new DefaultVisibilityEventListener<T>(
+				gWriter);
+		SplayTreeModelChangeListener<T> changeListener = new SplayTreeModelChangeListener<T>(
+				setup2);
+		if (hasElements(initialTree)) {
+			for (T t : initialTree) {
+				model.insert(t);
+			}
+		}
+		model.addListener(visibilityAnimator);
+		model.addListener(changeListener);
+		changeListener.add(this);
+
+		if (hasElements(insertionArray)) {
+			setup2.getStepWriter().step("Einfügen");
+			nextStateOnLocation("Es werden nun Knoten eingefügt.",
+					DIRECTOR_MACROSTEP);
+			step();
+			model.show();
+			step();
+			for (T t : insertionArray) {
+				model.insert(t);
+			}
+		}
+		if (hasElements(searchArray)) {
+			setup2.getStepWriter().step("Suchen");
+			nextStateOnLocation("Es wird nun nach Knoten gesucht.",
+					DIRECTOR_MACROSTEP);
+			step();
+			model.show();
+			step();
+			for (T t : searchArray) {
+				model.search(t);
+			}
+		}
+		if (hasElements(deleteArray)) {
+			setup2.getStepWriter().step("Löschen");
+			nextStateOnLocation("Es werden nun Knoten aus dem Baum entfernt",
+					DIRECTOR_MACROSTEP);
+			step();
+			model.show();
+			step();
+			for (T t : deleteArray) {
+				model.delete(t);
+			}
+		}
+	}
+
+	private BinaryTreeSetup<String> performStaticPresentation() {
 		SourceCodeWriter scw = new SourceCodeWriter(language,
 				getBinaryTreeProperties().getSourceCodeProperties(),
 				DIRECTOR_SMALLISH_SOURCECODE, new Timings());
@@ -110,7 +180,7 @@ public class SplayTreeAnimation extends TreeAnimationBase<String> implements
 
 		final GraphWriter<String> writer = new GraphWriterImpl<String>(
 				language, layout);
-		BinaryTreeSetup<String> setup = createSetup(writer);
+		BinaryTreeSetup<String> setup = createStaticSetup(writer);
 
 		BinaryTreeModel<String> model = BinaryTreeModel
 				.createTreeByInsert("P,F,R,A,G".split(","));
@@ -232,7 +302,8 @@ public class SplayTreeAnimation extends TreeAnimationBase<String> implements
 		step();
 		splay.delete("10");
 		step();
-
+		hideAll(splay);
+		return setup;
 	}
 
 	private void rightRotateAround(BinaryTreeModel<String> model, String v) {
@@ -251,15 +322,20 @@ public class SplayTreeAnimation extends TreeAnimationBase<String> implements
 	}
 
 	@Override
-	public void newStep(SplayTreeEvent<String> step) {
-		SplayTreeEvent<String> cause = step;
+	public void newStep(SplayTreeEvent step) {
+		SplayTreeEvent<?> cause = step;
 		if (cause instanceof ZigStartedEvent) {
-			nextStateOnLocation("Performing a Zig-Step on some node",
+			nextStateOnLocation(
+					"Der Vater des zu splayenden Knotens ist die Wurzel des Baumes. Daher wird als nächstes ein Zig-Step durchgeführt.",
 					DIRECTOR_MICROSTEP);
 		} else if (cause instanceof ZigZigStartedEvent) {
-			nextStateOnLocation("Performing a ZigZig", DIRECTOR_MICROSTEP);
+			nextStateOnLocation(
+					"Der zu splayende Knoten ist das rechte/linke Kind seines Vaters,\n der wiederrum rechtes/linkes Kind seines Vaters ist.\n Es wird daher ein ZigZig-Step durchgeführt.",
+					DIRECTOR_MICROSTEP);
 		} else if (cause instanceof ZigZagStartedEvent) {
-			nextStateOnLocation("Performing a ZigZag", DIRECTOR_MICROSTEP);
+			nextStateOnLocation(
+					"Der zu splayende Knoten ist das rechte/linke Kind seines Vaters,\n der selbst allerdings linkes/rechtes Kind seines Vaters ist.\n Es wird daher ein ZigZag-Step durchgeführt.",
+					DIRECTOR_MICROSTEP);
 		} else {
 			throw new IllegalArgumentException("Invalid Splay-Event");
 		}
@@ -267,24 +343,27 @@ public class SplayTreeAnimation extends TreeAnimationBase<String> implements
 	}
 
 	@Override
-	public void nodeFound(TreeSearchEvent<String> event) {
+	public void nodeFound(TreeSearchEvent event) {
 		nextStateOnLocation("Suche nach Knoten mit dem Wert: "
 				+ event.searchVal, DIRECTOR_MACROSTEP);
+		isDeleting = false;
 		step();
 	}
 
 	@Override
-	public void nodeDelete(TreeDeleteEvent<String> event) {
+	public void nodeDelete(TreeDeleteEvent event) {
 		nextStateOnLocation("Lösche Knoten mit dem Wert:" + event.deleteValue,
 				DIRECTOR_MACROSTEP);
+		isDeleting = true;
 		step();
 	}
 
 	@Override
-	public void nodeInserted(TreeInsertEvent<String> event) {
-		nextStateOnLocation("Füge Knoten mit dem Wert \""
-				+ event.nodeOfModification.getValue() + "\" ein.",
+	public void nodeInserted(TreeInsertEvent event) {
+		nextStateOnLocation("Füge Knoten mit dem Wert <"
+				+ event.nodeOfModification.getValue() + "> ein.",
 				DIRECTOR_MACROSTEP);
+		isDeleting = false;
 		step();
 	}
 
@@ -299,17 +378,26 @@ public class SplayTreeAnimation extends TreeAnimationBase<String> implements
 	}
 
 	@Override
-	public void newOperation(SplayStartedEvent<String> operation) {
-		nextStateOnLocation("Der Knoten wird nun an die Wurzel gesplayed.",
-				DIRECTOR_MICROSTEP);
+	public void newOperation(SplayStartedEvent operation) {
+		if (isDeleting) {
+			nextStateOnLocation(
+					"Der Vaterknoten des gelöschten Knoten wird nun gesplayed",
+					DIRECTOR_MICROSTEP);
+		} else {
+			nextStateOnLocation("Der Knoten wird nun an die Wurzel gesplayed.",
+					DIRECTOR_MICROSTEP);
+		}
 		step();
 	}
 
 	@Override
-	public void operationEnded(SplayEndedEvent<String> operation) {
+	public void operationEnded(SplayEndedEvent operation) {
 		nextStateOnLocation(
 				"Der Knoten befindet sich nun an der Wurzel. Der Splay-Vorgang ist beendet.",
 				DIRECTOR_MICROSTEP);
+		step();
 		nextStateOnLocation("", DIRECTOR_MICROSTEP);
+		nextStateOnLocation("", DIRECTOR_MACROSTEP);
+		step();
 	}
 }

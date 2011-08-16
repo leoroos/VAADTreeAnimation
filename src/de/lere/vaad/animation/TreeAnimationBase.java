@@ -34,7 +34,6 @@ import de.lere.vaad.treebuilder.BinaryTreeModel;
 import de.lere.vaad.treebuilder.events.TreeEventListener;
 import de.lere.vaad.utils.MathHelper;
 import de.lere.vaad.utils.NodeHelper;
-import de.lere.vaad.utils.TextLoaderUtil;
 
 public abstract class TreeAnimationBase<T extends Comparable<T>> {
 
@@ -332,7 +331,7 @@ public abstract class TreeAnimationBase<T extends Comparable<T>> {
 	protected abstract void doBuildAnimation();
 	
 	
-	protected void hideAll(@Nullable BinaryTreeModel<T> model,
+	protected void hideAll(@Nullable BinaryTreeModel<?> model,
 			Primitive... hideable) {
 		hideAllDescriptions();
 		if (model != null) {

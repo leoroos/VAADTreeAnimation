@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.lere.vaad.animation.binarysearchtree.BinaryTreeSetup;
+import de.lere.vaad.treebuilder.events.DefaultTreeModelChangeEventListener;
 import de.lere.vaad.treebuilder.events.TreeDeleteEvent;
 import de.lere.vaad.treebuilder.events.TreeEvent;
 import de.lere.vaad.treebuilder.events.TreeEventListener;
 import de.lere.vaad.treebuilder.events.TreeInsertEvent;
 import de.lere.vaad.treebuilder.events.TreeLeftRotateEvent;
-import de.lere.vaad.treebuilder.events.TreeModelChangeEventListenerForSplaytreeAnimations;
 import de.lere.vaad.treebuilder.events.TreeRightRotateEvent;
 import de.lere.vaad.treebuilder.events.TreeSearchEvent;
 
@@ -20,7 +20,7 @@ public class SplayTreeModelChangeListener<T extends Comparable<T>> implements
 		RECORDING_NOTHING, RECORDING_ZIG, RECORDING_ZIG_ZIG, RECORDING_ZIG_ZAG
 	}
 
-	private TreeModelChangeEventListenerForSplaytreeAnimations<T> animator;
+	private DefaultTreeModelChangeEventListener<T> animator;
 
 	private List<SplayTreeStepListener<T>> splayOperationListeners;
 
@@ -35,7 +35,7 @@ public class SplayTreeModelChangeListener<T extends Comparable<T>> implements
 	private SUB_RECORDING_STATUS recordingStatus;
 
 	public SplayTreeModelChangeListener(BinaryTreeSetup<T> setup) {
-		animator = new TreeModelChangeEventListenerForSplaytreeAnimations<T>(
+		animator = new DefaultTreeModelChangeEventListener<T>(
 				setup);
 		this.splayOperationListeners = new ArrayList<SplayTreeStepListener<T>>();
 		this.operations = new ArrayList<SplayOperation<T>>();
@@ -161,8 +161,8 @@ public class SplayTreeModelChangeListener<T extends Comparable<T>> implements
 	private void doHandleSplayEnded(SplayEndedEvent<T> event) {
 		if (this.recordingOperation) {
 			this.recordingOperation = false;
-			SplayStep<T> step = new SplayStep<T>();
 			stepEvents.add(event);
+			SplayStep<T> step = new SplayStep<T>();		
 			step.addAll(stepEvents);
 			steps.add(step);
 			SplayOperation<T> operation = new SplayOperation<T>();
@@ -174,6 +174,8 @@ public class SplayTreeModelChangeListener<T extends Comparable<T>> implements
 		}
 		relayStepsToListeners();
 		operations.clear();
+		steps.clear();
+		stepEvents.clear();
 	}
 
 	private void relayStepsToListeners() {
