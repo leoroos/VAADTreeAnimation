@@ -22,7 +22,7 @@ import de.lere.vaad.animation.locationhandler.LocationDirector;
 import de.lere.vaad.treebuilder.BinaryTreeModel;
 import de.lere.vaad.treebuilder.events.TreeDeleteEvent;
 import de.lere.vaad.treebuilder.events.TreeInsertEvent;
-import de.lere.vaad.treebuilder.events.TreeModelChangeEventListenerForSplaytreeAnimations;
+import de.lere.vaad.treebuilder.events.TreeModelChangeEventListenerForStaticSplayTreeAnimations;
 import de.lere.vaad.treebuilder.events.TreeSearchEvent;
 import de.lere.vaad.utils.TextLoaderUtil;
 
@@ -187,7 +187,7 @@ public class SplayTreeAnimation<T extends Comparable<T>> extends
 
 		DefaultVisibilityEventListener<String> visibilityAnimator = new DefaultVisibilityEventListener<String>(
 				writer);
-		TreeModelChangeEventListenerForSplaytreeAnimations<String> changeAnimator = new TreeModelChangeEventListenerForSplaytreeAnimations<String>(
+		TreeModelChangeEventListenerForStaticSplayTreeAnimations<String> changeAnimator = new TreeModelChangeEventListenerForStaticSplayTreeAnimations<String>(
 				setup);
 		model.addListener(changeAnimator);
 		model.addListener(visibilityAnimator);

@@ -21,5 +21,4 @@ else
 	elseif x == p.left AND p == g.right
 		rotateRight(p)
 		rotateLeft(g)
-
 splay(T, x)	

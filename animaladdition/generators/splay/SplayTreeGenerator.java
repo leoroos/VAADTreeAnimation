@@ -1,4 +1,4 @@
-package generators.tree;
+package generators.splay;
 
 import generators.framework.Generator;
 import generators.framework.GeneratorType;
@@ -31,7 +31,7 @@ public class SplayTreeGenerator implements Generator {
     
     @Override
 	public void init(){
-        lang = new AnimalScript("Der Binäre Suchbaum", "Rene Hertling, Leo Roos", 1024, 600);
+        lang = new AnimalScript("Der Splay-Baum", "Rene Hertling, Leo Roos", 1024, 600);
     }
 
     @Override
@@ -50,11 +50,11 @@ public class SplayTreeGenerator implements Generator {
         btprops.setGraphProperties(graphProps);
         btprops.authors = getAnimationAuthor();
         btprops.title = getAlgorithmName();
-        
-        initialBaum = new int [] { 10, 15, 20, 12, 8, 17, 3};
-        searchNodes = new int [] { 15, 17, 12, 20 };
-        insertionNodes = new int [] { 13,14,17 };
-        deleteKnoten = new int [] { 20, 3, 13, 14, 17 };
+//        
+//        initialBaum = new int [] { 10, 15, 20, 12, 8, 17, 3};
+//        searchNodes = new int [] { 15, 17, 12, 20 };
+//        insertionNodes = new int [] { 13,14,17 };
+//        deleteKnoten = new int [] { 20, 3, 13, 14, 17 };
         //deleteKnoten = new int [] { };
        
         SplayTreeAnimation<Integer> splayAnimation = new SplayTreeAnimation<Integer>(lang, btprops, toIntegerArray(initialBaum));
@@ -77,12 +77,12 @@ public class SplayTreeGenerator implements Generator {
 
 	@Override
 	public String getName() {
-        return "Binärer Suchbaum nach Cormen";
+        return "Splay-Baum";
     }
 
     @Override
 	public String getAlgorithmName() {
-        return "Binärer Suchbaum";
+        return "Splay-Baum";
     }
 
     @Override
@@ -124,11 +124,10 @@ public class SplayTreeGenerator implements Generator {
 		SplayTreeGenerator generator = new SplayTreeGenerator();
 		generator.init();
 		PropertiesTreeModel ptm = new PropertiesTreeModel();
-		String cleanString = PropertiesTreeModel.cleanString("generators/tree/"+SplayTreeGenerator.class.getSimpleName()+".xml", "xml");
+		String cleanString = PropertiesTreeModel.cleanString("generators/splay/"+SplayTreeGenerator.class.getSimpleName()+".xml", "xml");
 		ptm.loadFromXMLFile(cleanString, true);
 		AnimationPropertiesContainer propertiesContainer = ptm.getPropertiesContainer();
 	    Hashtable<String, Object> primitives = ptm.getPrimitivesContainer();
-//	    primitives.put(arrayName, array);?	
 		String generate = generator.generate(propertiesContainer, primitives);
 		System.out.println(generate);
         try {

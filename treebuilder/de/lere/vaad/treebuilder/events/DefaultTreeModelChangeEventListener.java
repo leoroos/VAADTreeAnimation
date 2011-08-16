@@ -214,4 +214,12 @@ public class DefaultTreeModelChangeEventListener<T extends Comparable<T>>
 	public void update(TreeEvent<T> event) {
 		animate(event);
 	}
+	
+	protected final GraphWriter<T> getWriter() {
+		return writer;
+	}
+	
+	protected final Language getLang() {
+		return lang;
+	}
 }
