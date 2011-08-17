@@ -24,5 +24,38 @@ however, the produced style information can not be handled by
 animal's HTML renderer so that it ends up being printed 
 as text before the description-->
 
+<h2 id="code-example">Code Example</h2>
+<h3 id="insert">Einfügen in einen Splay-Baum</h3>
+<p>Das Einfügen eines Knotens in einen Splay-Baum verläuft analog zum Einfügen eines Knotens in einen binären Suchbaum. Sobald der neue Knoten eingefügt wurde wird er mittels der Splay-Operation zur neuen Wurzel des Baumes.</p>
+<h3 id="search">Suchen in einem Splay-Baum</h3>
+<p>Die Suche in einem Splay-Baum verläuft analog zur Suche in einem binären Suchbaum. Sobald der gesuchte Knoten gefunden ist wird er mittels der Splay-Operation zur neuen Wurzel des Baumes.</p>
+<h3 id="delete">Löschen in einem Splay-Baum</h3>
+<p>Das Löschen eines Knotens in einen Splay-Baum verläuft analog zum Löschen eines Knotens in einen binären Suchbaum. Nachdem der Knoten aus dem Baum entfernt wurde wird der Vater des Knotens mittels Splay-Operation zur neuen Wurzel des Baumes.</p>
+<h3 id="splaying">Splay-Operation</h3>
+<pre><code>Splay(T,x)
+if x == T.root
+	return;
+elseif x.p == T.root
+	if x == x.p.left
+		rotateRight(root)
+	else
+		rotateLeft(root)
+else
+	p = x.p
+	g = p.p
+	if x == p.left AND p == g.left
+		rotateRight(g)
+		rotateRight(p)
+	elseif x == p.right AND p == g.right
+		rotateLeft(g)
+		rotateLeft(p)
+	elseif x == p.right AND p == g.left
+		rotateLeft(p)
+		rotateRight(g)
+	elseif x == p.left AND p == g.right
+		rotateRight(p)
+		rotateLeft(g)
+splay(T, x)	</code></pre>
+
 </body>
 </html>

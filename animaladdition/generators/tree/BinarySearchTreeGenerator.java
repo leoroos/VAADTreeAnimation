@@ -80,11 +80,11 @@ public class BinarySearchTreeGenerator implements Generator {
     }
 
     public String getDescription(){
-        return textLoader.getText("generatorDescription.html");
+        return textLoader.getText("bstgeneratorDescription.html");
     }
 
     public String getCodeExample(){
-        return textLoader.getText("codeBeispiele.html");
+        return textLoader.getText("bstcodeBeispiele.html");
     }
 
     public String getFileExtension(){

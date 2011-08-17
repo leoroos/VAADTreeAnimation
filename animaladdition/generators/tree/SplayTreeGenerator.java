@@ -1,4 +1,4 @@
-package generators.splay;
+package generators.tree;
 
 import generators.framework.Generator;
 import generators.framework.GeneratorType;
@@ -86,12 +86,12 @@ public class SplayTreeGenerator implements Generator {
 
     @Override
 	public String getDescription(){
-        return textLoader.getText("generatorDescription.html");
+        return textLoader.getText("splaygeneratorDescription.html");
     }
 
     @Override
 	public String getCodeExample(){
-        return textLoader.getText("codeBeispiele.html");
+        return textLoader.getText("splaycodeBeispiele.html");
     }
 
     @Override

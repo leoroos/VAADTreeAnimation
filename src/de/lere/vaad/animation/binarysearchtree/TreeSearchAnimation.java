@@ -101,7 +101,7 @@ public class TreeSearchAnimation<T extends Comparable<T>>
 			break;
 		case FinalReturnSearchResult:
 			if (curNode == null)
-				fine("Der Schlüssel wurde nicht im Baum gefunen, deswegen wird NIL zurückgegeben");
+				fine("Der Schlüssel wurde nicht im Baum gefunden, deswegen wird NIL zurückgegeben");
 			else
 				fine("Die Suche war erfolgreich, der entsprechende Wert "
 						+ nodeVal + " wird zurück gegeben.");

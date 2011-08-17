@@ -16,6 +16,7 @@ public class DummyGenerator implements GeneratorBundle {
     generators.add(new TournamentSort());
     generators.add(new IgnallSchrage());
     generators.add(new BinarySearchTreeGenerator());
+    generators.add(new SplayTreeGenerator());
     return generators;
   }
 }
