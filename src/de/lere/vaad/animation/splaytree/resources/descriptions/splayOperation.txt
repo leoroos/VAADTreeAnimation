@@ -1,24 +1,24 @@
 Splay(T,x)
 if x == T.root
-	return;
+    return;
 elseif x.p == T.root
-	if x == x.p.left
-		rotateRight(root)
-	else
-		rotateLeft(root)
+    if x == x.p.left
+        rotateRight(root)
+    else
+        rotateLeft(root)
 else
-	p = x.p
-	g = p.p
-	if x == p.left AND p == g.left
-		rotateRight(g)
-		rotateRight(p)
-	elseif x == p.right AND p == g.right
-		rotateLeft(g)
-		rotateLeft(p)
-	elseif x == p.right AND p == g.left
-		rotateLeft(p)
-		rotateRight(g)
-	elseif x == p.left AND p == g.right
-		rotateRight(p)
-		rotateLeft(g)
+    p = x.p
+    g = p.p
+    if x == p.left AND p == g.left
+        rotateRight(g)
+        rotateRight(p)
+    elseif x == p.right AND p == g.right
+        rotateLeft(g)
+        rotateLeft(p)
+    elseif x == p.right AND p == g.left
+        rotateLeft(p)
+        rotateRight(g)
+    elseif x == p.left AND p == g.right
+        rotateRight(p)
+        rotateLeft(g)
 splay(T, x)	
