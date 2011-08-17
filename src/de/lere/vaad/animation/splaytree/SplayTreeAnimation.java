@@ -50,8 +50,6 @@ public class SplayTreeAnimation<T extends Comparable<T>> extends
 	public SplayTreeAnimation(Language l, BinaryTreeProperties tp, T[] initial) {
 		super(l, tp, initial);
 	}
-	
-	
 
 	@Override
 	protected NextStateOnLocationDirector<Coordinates> createSourceCodeLocDir() {
@@ -59,7 +57,8 @@ public class SplayTreeAnimation<T extends Comparable<T>> extends
 		Point avoidingGraphSourceOverlappingPoint = new Point(
 				orientationAnchor.x + MIN_NODES_DISTANCE, orientationAnchor.y);
 		avoidingGraphSourceOverlappingPoint.translate(0, -200);
-		NextStateOnLocationDirector<Coordinates> sourceCodeLoc = new NextStateOnLocationDirector<Coordinates>(Node.convertToNode(avoidingGraphSourceOverlappingPoint));
+		NextStateOnLocationDirector<Coordinates> sourceCodeLoc = new NextStateOnLocationDirector<Coordinates>(
+				Node.convertToNode(avoidingGraphSourceOverlappingPoint));
 		return sourceCodeLoc;
 	}
 
@@ -120,8 +119,11 @@ public class SplayTreeAnimation<T extends Comparable<T>> extends
 	@Override
 	protected void doBuildAnimation() {
 
-		BinaryTreeSetup<String> setup = animateStaticPart();
-		setup.getStepWriter().step("GenerischerTeil");
+		initSourcecode();
+		if (this.isShowIntro()) {
+			BinaryTreeSetup<String> setup = animateStaticPart();
+			setup.getStepWriter().step("GenerischerTeil");
+		}
 		animateGenericPart();
 	}
 
@@ -242,7 +244,6 @@ public class SplayTreeAnimation<T extends Comparable<T>> extends
 
 		step();
 
-		initSourcecode();
 		//
 		// Showcase the operations
 		//
@@ -410,7 +411,7 @@ public class SplayTreeAnimation<T extends Comparable<T>> extends
 				DIRECTOR_MICROSTEP);
 		step();
 		nextStateOnLocation("", DIRECTOR_MICROSTEP);
-		nextStateOnLocation("", DIRECTOR_MACROSTEP);		
+		nextStateOnLocation("", DIRECTOR_MACROSTEP);
 		globalSCW.hide();
 	}
 
@@ -440,8 +441,8 @@ public class SplayTreeAnimation<T extends Comparable<T>> extends
 				globalSCW.highlight(12);
 				rotationsToHightlight.add(13);
 				rotationsToHightlight.add(14);
-			} else {			
-				globalSCW.highlight(15);				
+			} else {
+				globalSCW.highlight(15);
 				rotationsToHightlight.add(16);
 				rotationsToHightlight.add(17);
 			}
@@ -487,7 +488,7 @@ public class SplayTreeAnimation<T extends Comparable<T>> extends
 
 	@Override
 	public void rotationHappend(TreeEvent rotationEvent) {
-		globalSCW.highlight(rotationsToHightlight.removeFirst());		
+		globalSCW.highlight(rotationsToHightlight.removeFirst());
 	}
-	
+
 }

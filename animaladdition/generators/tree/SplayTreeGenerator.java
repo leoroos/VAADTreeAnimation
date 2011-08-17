@@ -118,7 +118,7 @@ public class SplayTreeGenerator implements Generator {
 		SplayTreeGenerator generator = new SplayTreeGenerator();
 		generator.init();
 		PropertiesTreeModel ptm = new PropertiesTreeModel();
-		String cleanString = PropertiesTreeModel.cleanString("generators/splay/"+SplayTreeGenerator.class.getSimpleName()+".xml", "xml");
+		String cleanString = PropertiesTreeModel.cleanString("generators/tree/"+SplayTreeGenerator.class.getSimpleName()+".xml", "xml");
 		ptm.loadFromXMLFile(cleanString, true);
 		AnimationPropertiesContainer propertiesContainer = ptm.getPropertiesContainer();
 	    Hashtable<String, Object> primitives = ptm.getPrimitivesContainer();
