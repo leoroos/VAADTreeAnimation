@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#Erzeugt die Algrithmus Beschreibung und die Code Beispiele
+#Erzeugt die Algorithmus-Beschreibung und die Code-Beispiele
 
 mdDescription="AlgorithmDescription.md"
 mdCode="CodeBeispiele.md"
