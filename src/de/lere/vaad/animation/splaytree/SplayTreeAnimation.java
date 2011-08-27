@@ -84,6 +84,7 @@ public class SplayTreeAnimation<T extends Comparable<T>> extends
 		SplayTreeAnimation<Integer> animation = new SplayTreeAnimation<Integer>(
 				l, tp,
 				new Integer[] { 20, 2, 14, 6, 1, 4, 23, 345, 34, 90, 12 });
+		animation.setDeleteAnimation(new Integer[] { -34, 2, 14, 6, 1, 4, 23, 7, -1, -9, -20 });
 		animation.buildAnimation();
 
 		String animationCode = l.getAnimationCode();
